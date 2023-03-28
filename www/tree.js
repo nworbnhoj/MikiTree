@@ -24,6 +24,8 @@ function showBranch(event) {
     var gen = radio_button.getAttribute('gen');
     var checked = radio_button.classList.toggle('checked');
     var parent_div = radio_button.closest(".person");
+    var spouses_div = parent_div.querySelector('div.spouses');
+    spouses_div.classList.toggle('hide');
     var generation_div = radio_button.closest(".generation");
     var branch_index = parent_div.getAttribute('branch');
     var next_gen_div = generation_div.querySelector('.next_gen');

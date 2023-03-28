@@ -117,7 +117,7 @@ function fetchPhoto($path, $name) {
 }
 
 function fractal($id, $people, $gen, $depth = 3) {
-	if (!isset($people[$id])) {
+	if (empty($id) || !isset($people[$id])) {
 		return "<div class='missing person'><br><br></div>";
 	}
 
@@ -144,10 +144,10 @@ function fractal($id, $people, $gen, $depth = 3) {
 		return $div_person;
 	}
 
-	$id_father = $person['Father'];
+	$id_father = isset($person['Father']) ? $person['Father'] : null;
 	$div_father = fractal($id_father, $people, $gen + 1, $depth);
 
-	$id_mother = $person['Mother'];
+	$id_mother = isset($person['Mother']) ? $person['Mother'] : null;
 	$div_mother = fractal($id_mother, $people, $gen + 1, $depth);
 
 	$orientation = $gen % 2 == 0 ? "fractal_h" : "fractal_v";
@@ -164,47 +164,20 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 	$head_id = $head['Id'];
 	$head_div = person_div($head);
 
-	$partners = array();
-	$spouses = isset($head['Spouses']) ? $head['Spouses'] : array();
-	foreach ($spouses as $spouse_id) {
-		$partners[$spouse_id] = array();
-	}
-	$children = isset($head['Children']) ? $head['Children'] : array();
-	$child_index = 1;
-	foreach ($children as $child_id) {
-		$child = $people[$child_id];
-
-		$father_id = isset($child['Father']) ? $child['Father'] : "unknown";
-		if (!array_key_exists($father_id, $partners)) {
-			$partners[$father_id] = array();
-		}
-		$partners[$father_id][$child_index] = $child;
-
-		$mother_id = isset($child['Mother']) ? $child['Mother'] : "unknown";
-		if (!array_key_exists($mother_id, $partners)) {
-			$partners[$mother_id] = array();
-		}
-		$partners[$mother_id][$child_index] = $child;
-
-		$child_index += 1;
-	}
-
 	$union_divs = "";
 	$svgs = "";
 	$next_gen = $gen + 1;
 	$next_gen_divs = "";
-	foreach ($partners as $partner_id => $offspring) {
-		if ($partner_id == $head_id) {
+	$spouses = isset($head["Spouses"]) ? $head["Spouses"] : array();
+	foreach ($spouses as $spouse_id => $child_ids) {
+		if ($spouse_id == $head_id) {
 			continue;
-		} elseif ($partner_id == "unknown") {
-			$partner = array("RealName" => "unavailable");
-		} else {
-			$partner = $people[$partner_id];
 		}
 
-		$union_divs = $union_divs . union_div($partner, $offspring, $gen);
+		$union_divs = $union_divs . union_div($head_id, $spouse_id, $people, $gen);
 
-		foreach ($offspring as $index => $child) {
+		foreach ($child_ids as $index => $child_id) {
+			$child = $people[$child_id];
 			$branch = branch($child, $people, $next_gen, $index);
 			$next_gen_divs = $next_gen_divs . $branch;
 
@@ -228,20 +201,21 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 	return $branch;
 }
 
-function union_div($parent, $children, $gen) {
-	$name_family = $parent['LastNameAtBirth'];
-	$name_first = isset($parent['RealName']) ? $parent['RealName'] : "";
-	$gender = isset($parent['Gender']) ? strtolower($parent['Gender']) : "";
-	$parent_div = person_div($parent);
+function union_div($head_id, $spouse_id, $people, $gen) {
+	$spouse = $spouse_id != "unknown" ? $people[$spouse_id] : array("LastNameAtBirth" => "unknown");
+	$name_family = $spouse['LastNameAtBirth'];
+	$name_first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
+	$gender = isset($spouse['Gender']) ? strtolower($spouse['Gender']) : "";
+	$spouse_div = person_div($spouse);
 
 	$siblings_div = "";
-	foreach ($children as $index => $child) {
-		$child_div = child_div($child, $gen, $index);
-		$siblings_div = $siblings_div . $child_div;
+	$children = $spouse["Spouses"][$head_id];
+	foreach ($children as $index => $child_id) {
+		$siblings_div = $siblings_div . child_div($child_id, $people, $gen, $index);
 	}
 	return
 		"<div class='grid union'>
-		    $parent_div
+		    $spouse_div
 		    <div class='grid siblings'>$siblings_div</div>
 		</div>";
 }
@@ -256,7 +230,8 @@ function person_div($person, $flags = "fily", $class = "") {
 	    </div>";
 }
 
-function child_div($child, $gen, $index, $flags = "filyv") {
+function child_div($child_id, $people, $gen, $index, $flags = "filyv") {
+	$child = $people[$child_id];
 	$key = isset($child['Name']) ? $child['Name'] : "";
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
@@ -264,11 +239,19 @@ function child_div($child, $gen, $index, $flags = "filyv") {
 
 	$radio_button = radio_button($child, $people);
 
-
+	$spouses_div = "";
+	$spouses = isset($child['Spouses']) ? $child['Spouses'] : array();
+	foreach ($spouses as $spouse_id => $grand_children) {
+		$spouse = $people[$spouse_id];
+		$spouses_div = $spouses_div . spouse_div($spouse, $people, $gen, $index);
+	}
+	$spouses_div = "<div class='grid spouses'>$spouses_div</div>";
 	return
 		"<div class='person child $gender' branch='$index' id='$key' onclick='load(event)'>
 	        $name_div
 	        $radio_button
+	        $spouses_div
+	    </div>";
 }
 
 function radio_button($child, $people) {
@@ -459,12 +442,10 @@ function inferSiblings($people) {
 
 function inferSpouses($people) {
 	foreach ($people as $child_id => $child) {
-		$father_id = isset($child['Father']) ? $child['Father'] : null;
-		$mother_id = isset($child['Mother']) ? $child['Mother'] : null;
-		if (isset($people[$father_id]) && isset($people[$mother_id])) {
-			$people[$father_id]['Spouses'][$mother_id] = $mother_id;
-			$people[$mother_id]['Spouses'][$father_id] = $father_id;
-		}
+		$father_id = isset($child['Father']) ? $child['Father'] : "unknown";
+		$mother_id = isset($child['Mother']) ? $child['Mother'] : "unknown";
+		$people[$father_id]['Spouses'][$mother_id][] = $child_id;
+		$people[$mother_id]['Spouses'][$father_id][] = $child_id;
 	}
 	return $people;
 }

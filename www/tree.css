@@ -57,19 +57,22 @@ polygon.male { fill: rgb(238, 238, 255); }
 
 /*** PERSON ***/
 div.hide { display: none; }
-div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 2px solid transparent; cursor: zoom-in; transition: position 2s, height 2s, transform 2s; background-color: GhostWhite; position: relative; }
-div.person:hover { border: 2px solid green; }
+div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 0px solid transparent; cursor: zoom-in; background-color: GhostWhite; position: relative; }
+div.person:hover { border: 2px solid DarkSeaGreen; }
 div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
 div.female { background-color: rgb(255, 238, 238); }
 div.male { background-color: rgb(238, 238, 255); }
 div.child { padding-bottom: 2em; }
+div.spouses { grid-auto-flow: row; position: absolute; top: 8.2em; width: 100% }
+div.spouse { margin: 0;}
 div.name { text-align: center; margin-top: 0; margin-bottom: 0; line-height: 1.2em; }
 span.upper { text-transform: uppercase; }
 span.nowrap { white-space: nowrap; }
-button.radio { font-size: 0.8em; padding: 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; }
+button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; min-width: 3em;}
 button.help { font-size: 0.6em; padding: 0.2em; margin-top: 0.2em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; }
-button.checked { background-color: green; }
+button.checked { background-color: DarkSeaGreen; }
+
 
 /*** SPINNER ***/
 @keyframes spinner {
