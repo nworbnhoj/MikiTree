@@ -1,129 +1,104 @@
-<?php
-	if (isset($_GET['key'])){
-		$root_key = $_GET['key'];
-		$relatives = fetchRelatives($root_key);
-		$siblings = $relatives['siblings'];
-		$children = $relatives['children'];
-		$ancestors = fetchAncestors($root_key);
-	    $people = array_merge($children, $siblings, $ancestors);
-	    $people = rekey($people, "Id");
-		$people = inferGender($people);
-	    $root_id = findId($people, $root_key);	    
+	<?php
+if (isset($_GET['key'])) {
+	$root_key = $_GET['key'];
+	$people = fetchFamily($root_key);
+	$root_id = findId($people, $root_key);
+	if ($root_id) {
 		$root = $people[$root_id];
-		$photo = fetchPhoto($root['PhotoData']['path'], $root['Photo']);
+		$photo = isset($root['PhotoData'], $root['PhotoData']['path']) ? fetchPhoto($root['PhotoData']['path'], $root['Photo']) : "";
 		$bio = tidyHtml($root['bioHTML']);
-	} else {
-		init();
-        $people = HELP_ANCESTORS;
-        $siblings = HELP_SIBLINGS;
-        $children = HELP_CHILDREN;
-        $root_id = 0;
-		$root_key = $people[$root_id];
-        $bio = HELP_BIO;
-        $photo = "";
 	}
-	$fractal = fractal($people, $root_id, 0, 5, $siblings, $children);
+}
+
+if (!isset($root)) {
+	init();
+	$people = HELP_FAMILY;
+	$root_id = 0;
+	$root = $people[$root_id];
+	$bio = HELP_BIO;
+	$photo = fetchPhoto("", $root['Photo']);
+}
+$ancestors = fractal($root_id, $people, 0, 6);
+$descendants = branch($root, $people);
 ?>
 
-<!DOCTYPE html>
+	<!DOCTYPE html>
 
-<html lang='[lang]'>
-<head>
-    <meta charset="UTF-8">    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo($root_key) ?></title>
-    <link href='https://fonts.googleapis.com/css?family=Pontano+Sans' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="mikitree.css">
-    <script>
-		function toggleHelp(event) {
-		 	var help = document.querySelectorAll('.help');
-		 	var name = document.querySelectorAll('.name');
-		 	for (let i = 0; i < help.length; i++) {
-                help[i].classList.toggle('hide');
-            }
-		 	for (let i = 0; i < help.length; i++) {
-                name[i].classList.toggle('hide');
-            }
-		}
-		function load(event) {
-            var div = event.currentTarget;
-            div.textContent = '';
-            div.className += ' spin';
-            window.location.href="index.php?key="+div.id;
-		}
-    </script>
-</head>
+	<html lang='[lang]'>
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title><?php echo ($root_key) ?></title>
+	    <link href='https://fonts.googleapis.com/css?family=Pontano+Sans' rel='stylesheet' type='text/css'>
+	    <link rel="stylesheet" type="text/css" href="tree.css">
+	    <script src="tree.js"></script>
+	</head>
 
-<body>
-	<div>	<?php echo $fractal; ?>    </div>
-	<?php echo $photo; ?>
-	<div class='bio'>
-		<br>
-		<br>
-		<?php echo($bio); ?>
-	</div>
+	<body  onresize='resize_chutes(event)'>
+		<div id='ancestors'>	<?php echo $ancestors; ?>    </div>
+		<?php echo $photo; ?>
+		<div id='descendants'>	<?php echo $descendants; ?>    </div>
+		<div id='bio' class='bio'>
+			<?php echo ($bio); ?>
+		</div>
+	</body>
 
-	
-</body>
-
-</html>
+	</html>
 
 
 
 
-<?php
+	<?php
 
-function tidyHtml($html){
+//https://stackoverflow.com/questions/3523409/domdocument-encoding-problems-characters-transformed
+//https://www.php.net/manual/en/domdocument.savehtml.php
+function tidyHtml($html) {
+	if (empty($html)) {
+		return "";
+	}
 	$dom = new DOMDocument('1.0', 'UTF-8');
-	$internalErrors = libxml_use_internal_errors(true);
-	$dom->loadHTML($html);
+	$html = '<?xml version="1.0" encoding="UTF-8"?>' . $html;
+	$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 	$dom = removeNodes($dom, "table");
 	$dom = removeNodes($dom, "div");
-	$html = $dom->saveHTML();
-	$html = preg_replace("{href=\"\/wiki\/(\w*-\d*)\"}", "href='/index.php?key=$1'", $html);
-	return $html;
+	$body = $dom->saveHTML();
+	$body = preg_replace("{href=\"\/wiki\/(\w*-\d*)\"}", "href='/index.php?key=$1'", $body);
+	return $body;
 }
 
-
-function removeNodes($dom, $name){	
-    $nodes = $dom->getElementsByTagName($name);
-    while ($nodes->length > 0)
-    {
-        $node = $nodes->item(0);
-        $node->parentNode->removeChild($node);
-    }
-    return $dom;
+function removeNodes($dom, $name) {
+	$nodes = $dom->getElementsByTagName($name);
+	while ($nodes->length > 0) {
+		$node = $nodes->item(0);
+		$node->parentNode->removeChild($node);
+	}
+	return $dom;
 }
 
-
-function wiki($key){
-	return "<div class='wiki'>
-	    <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
+function wiki($key) {
+	return
+		"<div class='wiki'>
+			All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 			<form class='wiki' action='/index.php'>
 			   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='\w{2,20}-\d{1,6}'>
 			   <input type='submit' value='Go'>
 			</form>
-	</div>";
+		</div>";
 }
 
-
-function findId($people, $name){	
-	$id = 0;
-	foreach ($people as $key => $person) {
-		// find the root_id corresponding to the root_key
-		if (strcmp($person['Name'], $name) == 0){
-			$id = $key;
-			break;
+function findId($people, $key) {
+	foreach ($people as $id => $person) {
+		$k = isset($person['Name']) ? $person['Name'] : false;
+		if ($k == $key) {
+			return $id;
 		}
 	}
-	return $id;
 }
 
-
-function fetchPhoto($path, $name){
+function fetchPhoto($path, $name) {
 	$save_as = "photo/$name";
 
-	if (!file_exists($save_as)){
+	if (!file_exists($save_as)) {
 
 		$image_url = "https://www.wikitree.com$path";
 
@@ -134,195 +109,384 @@ function fetchPhoto($path, $name){
 		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)");
 		$raw_data = curl_exec($ch);
 		curl_close($ch);
-		$fp = fopen($save_as, 'w');
+		$fp = fopen($save_as, 'wb') or die(print_r(error_get_last(), true));
 		fwrite($fp, $raw_data);
 		fclose($fp);
 	}
 	return "<img class='photo' src='$save_as'>";
 }
 
-
-
-function fractal($people, $id, $gen, $depth=3, $siblings=array(), $children=array()){
+function fractal($id, $people, $gen, $depth = 3) {
 	if (!isset($people[$id])) {
-		return "<div class='person'><br><br></div>";
+		return "<div class='missing person'><br><br></div>";
 	}
 
-    $person = $people[$id];
-    $key = $person['Name'];
-    $name_family = $person['LastNameAtBirth'];
-    $name_first = isset($person['RealName']) ? $person['RealName'] : "" ;
-    $gender = isset($person['Gender']) ? strtolower($person['Gender']) : "" ;
-    $is_living = $person['IsLiving'];
-    $year_birth = isset($person['BirthDate']) ? substr($person['BirthDate'], 0, 4) : "" ;
-    $year_death = isset($person['DeathDate']) ? substr($person['DeathDate'], 0, 4) : "" ;
-    $years = $is_living ? $person['BirthDateDecade'] :  "$year_birth-$year_death" ;
-    $onclick = "onclick=load(event)";
-    $wiki = "";
-    $root = "";
-    $p = "<span class='upper'>$name_family</span>";
-    $p = $gen < 6 ? "$p $name_first" : $p ;
-    $p = $gen < 3 ? "$p<br>$years" : $p ;
-    if ($gen < 1) {
-    	$root='root';
-		$s = links($siblings);
-		$c = links($children);
-		$p = "$s$p$c";
-		$wiki = wiki($key);
-            $onclick = "";
-    }
+	$person = $people[$id];
+	switch ($gen) {
+	case '5':$div_person = person_div($person, "l", "g5");
+		break;
+	case '4':$div_person = person_div($person, "fl", "g4");
+		break;
+	case '3':$div_person = person_div($person, "fil", "g3");
+		break;
+	case '2':$div_person = person_div($person, "fmlyv", "g2");
+		break;
+	case '1':$div_person = person_div($person, "fmly", "g1");
+		break;
+	case '0':$div_person = root_div($person, $people);
+		break;
+	default:$div_person = person_div($person, "l", "g$gen");
+		break;
+	}
 
-    $role = $gender == "male" ? "father" : "mother" ; 
-
-	$tab = str_repeat("\t", $gen);
-    $div_person =
-"$tab<div class='person $root $gender g$gen' id='$key' $onclick>
-$tab\t<div class='name'>$p</div>
-$tab\t$wiki
-$tab</div>";
-
-
-	if ($gen >= $depth){
+	// unwind recursion
+	if ($gen >= $depth) {
 		return $div_person;
 	}
 
-    $id_father = $person['Father'];
-	$div_father = fractal($people, $id_father, $gen+1, $depth);
+	$id_father = $person['Father'];
+	$div_father = fractal($id_father, $people, $gen + 1, $depth);
 
-    $id_mother = $person['Mother'];
-	$div_mother = fractal($people, $id_mother, $gen+1, $depth);
+	$id_mother = $person['Mother'];
+	$div_mother = fractal($id_mother, $people, $gen + 1, $depth);
 
-	$orientation = $gen % 2 == 0 ?  "horizontal" : "vertical" ;
-    $div = 
-"$tab<div class='family $orientation'>
-$div_father
-$div_person
-$div_mother
-$tab</div>";
-    return $div;
+	$orientation = $gen % 2 == 0 ? "fractal_h" : "fractal_v";
+	$div =
+		"<div class='grid $orientation'>
+			$div_father
+			$div_person
+			$div_mother
+		</div>";
+	return $div;
 }
 
+function branch($head, $people, $gen = 0, $branch_index = 0) {
+	$head_id = $head['Id'];
+	$head_div = person_div($head);
 
-function onclick($key){
-	return "onclick='window.location.href=\"index.php?key=$key\"'";
+	$partners = array();
+	$spouses = isset($head['Spouses']) ? $head['Spouses'] : array();
+	foreach ($spouses as $spouse_id) {
+		$partners[$spouse_id] = array();
+	}
+	$children = isset($head['Children']) ? $head['Children'] : array();
+	$child_index = 1;
+	foreach ($children as $child_id) {
+		$child = $people[$child_id];
+
+		$father_id = isset($child['Father']) ? $child['Father'] : "unknown";
+		if (!array_key_exists($father_id, $partners)) {
+			$partners[$father_id] = array();
+		}
+		$partners[$father_id][$child_index] = $child;
+
+		$mother_id = isset($child['Mother']) ? $child['Mother'] : "unknown";
+		if (!array_key_exists($mother_id, $partners)) {
+			$partners[$mother_id] = array();
+		}
+		$partners[$mother_id][$child_index] = $child;
+
+		$child_index += 1;
+	}
+
+	$union_divs = "";
+	$svgs = "";
+	$next_gen = $gen + 1;
+	$next_gen_divs = "";
+	foreach ($partners as $partner_id => $offspring) {
+		if ($partner_id == $head_id) {
+			continue;
+		} elseif ($partner_id == "unknown") {
+			$partner = array("RealName" => "unavailable");
+		} else {
+			$partner = $people[$partner_id];
+		}
+
+		$union_divs = $union_divs . union_div($partner, $offspring, $gen);
+
+		foreach ($offspring as $index => $child) {
+			$branch = branch($child, $people, $next_gen, $index);
+			$next_gen_divs = $next_gen_divs . $branch;
+
+			$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
+			$svg = "<svg class='chute hide' branch='$index' xmlns='http://www.w3.org/2000/svg' width='100% ' height='6em'>
+				    <polygon class='$gender' points='0,0 10,0 10,20 0,20' />
+				</svg>";
+
+			$svgs = $svgs . $svg;
+		}
+	}
+
+	$hide = $gen > 0 ? "hide" : "";
+	$branch =
+		"<div class='grid generation $hide' gen='$gen' branch='$branch_index'>
+	        <div class='grid generation_h'unions> $union_divs </div>
+            <div class='grid generation_h chutes'> $svgs </div>
+	        <div class='grid generation_h next_gen' gen='$next_gen'> $next_gen_divs </div>
+	    </div>";
+
+	return $branch;
 }
 
+function union_div($parent, $children, $gen) {
+	$name_family = $parent['LastNameAtBirth'];
+	$name_first = isset($parent['RealName']) ? $parent['RealName'] : "";
+	$gender = isset($parent['Gender']) ? strtolower($parent['Gender']) : "";
+	$parent_div = person_div($parent);
 
+	$siblings_div = "";
+	foreach ($children as $index => $child) {
+		$child_div = child_div($child, $gen, $index);
+		$siblings_div = $siblings_div . $child_div;
+	}
+	return
+		"<div class='grid union'>
+		    $parent_div
+		    <div class='grid siblings'>$siblings_div</div>
+		</div>";
+}
 
-function links($people){
+function person_div($person, $flags = "fily", $class = "") {
+	$key = isset($person['Name']) ? $person['Name'] : "";
+	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
+	$name_div = name_div($person, $flags);
+	return
+		"<div class='person $gender $class' id='$key' onclick='load(event)'>
+	        $name_div
+	    </div>";
+}
+
+function child_div($child, $gen, $index, $flags = "filyv") {
+	$key = isset($child['Name']) ? $child['Name'] : "";
+	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
+
+	$name_div = name_div($child, $flags);
+
+	$button_name = isset($child['Spouses']) && sizeof($child['Spouses']) > 0 ? "SPOUSES" : FALSE;
+	$button_name = isset($child['Children']) && sizeof($child['Children']) > 0 ? "CHILDREN" : $button_name;
+	$radio_button = $button_name ? "<button class='radio' gen='$gen' onclick='showBranch(event)'>$button_name</button>" : "";
+	return
+		"<div class='person child $gender' branch='$index' id='$key' onclick='load(event)'>
+	        $name_div
+	        $radio_button
+	    </div>";
+}
+
+function root_div($root, $people, $flags = "fmlyv") {
+	$key = isset($root['Name']) ? $root['Name'] : "";
+	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
+	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
+	$name_div = name_div($root, $flags);
+	$checked = $root['Id'] == "0" ? "checked" : "";
+
+	return
+		"<div class='person root $gender g0' id='$key'>
+			<div class='wiki'>
+				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
+				<form class='wiki' action='/index.php'>
+				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='.{2,20}-\d{1,6}'>
+				   <input type='submit' value='Go'>
+				</form>
+			</div>
+			$name_div
+			$siblings
+			<button class='help $checked' onclick='help(event)'>HELP</button>
+		</div>";
+}
+
+function name_div($person, $flags = "fily") {
+	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
+	$name_first = isset($person['RealName']) ? $person['RealName'] : "";
+	$initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : "";
+	$initial = ($initial == ".") ? "" : $initial;
+	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
+	$privacy = isset($person['Privacy']) ? intval($person['Privacy']) : 60;
+	$name_family = $privacy < 30 ? "🔒" : $name_family;
+
+	$first = strpos($flags, 'f') === false ? "" : (isset($person['RealName']) ? $person['RealName'] : "");
+	$middle = strpos($flags, 'i') === false ? "" : $initial;
+	$middle = strpos($flags, 'm') === false ? $middle : (isset($person['MiddleName']) ? $person['MiddleName'] : $middle);
+	$last = strpos($flags, 'l') === false ? "" : $name_family;
+	$vertical = strpos($flags, 'v') !== false;
+
+	$years = "";
+	if (strpos($flags, 'y') !== false) {
+		$year_birth = $person['BirthYear'] > 0 ? $person['BirthYear'] : "";
+		$year_death = $person['DeathYear'] > 0 ? $person['DeathYear'] : "";
+		$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
+		if ($is_living) {
+			$decade = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
+			$years = $decade ? "($decade)" : "";
+		} else if ($vertical) {
+			$years = "b.$year_birth<br>d.$year_death";
+		} else {
+			$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
+		}
+		$years = $privacy < 30 ? "" : $years;
+	}
+
+	return $vertical ?
+	"<div class='name'>$first $middle<br><b>$last</b><br><small>$years</small></div>" :
+	"<div class='name'>$first $middle <b>$last</b> <small>$years</small></div>";
+}
+
+function links($ids, $people) {
 	$links = "";
-	foreach($people as $key => $person){
-        $name = $person['RealName'];
-	    $key = $person['Name'];
+	foreach ($ids as $id) {
+		$person = $people[$id];
+		$name = $person['RealName'];
+		$key = isset($person['Name']) ? $person['Name'] : "";
 		$links = "$links <a href='index.php?key=$key'>$name</a>";
 	}
 	return "<div class='links'>$links</div>";
 }
 
-
-function rekey($person, $newKey){
+function rekey($person, $newKey) {
 	$rekeyed = array();
-    foreach ($person as $key => $val) {
-        $rekeyed[$val[$newKey]] = $val;
+	foreach ($person as $key => $val) {
+		$rekeyed[$val[$newKey]] = $val;
 	}
 	return $rekeyed;
 }
 
-
-function fetchAncestors($key){
-	$ancestors = array();
-    $fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,Photo,PhotoData,Bio,IsLiving";
-	$url = "https://api.wikitree.com/api.php?action=getAncestors&bioFormat=both&key=$key&fields=$fields";
+function fetchFamily($key) {
+	$people = array();
 	$curl = curl_init();
-	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+	// get ancestors and descendants from WikiTree
+	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy";
+	$url = "https://api.wikitree.com/api.php?action=getPeople&ancestors=6&descendants=5&keys=$key&nuclear=1&fields=$fields";
+
+	curl_setopt($curl, CURLOPT_URL, $url);
 	$response = curl_exec($curl);
-    if($e = curl_error($curl)) {
-	    echo $e;
-	} else {
-	    $json_data = json_decode($response, true);
-	    $ancestors = $json_data[0]['ancestors'];
+	if ($e = curl_error($curl)) {
+		echo $e;
+		curl_close($curl);
+		return $people;
+	}
+	$json_data = json_decode($response, true);
+	$people = $json_data[0]['people'];
+
+	// get root bio and photo from WikiTree
+	$fields = "Id,Name,Bio,Photo,PhotoData";
+	$url = "https://api.wikitree.com/api.php?action=getPeople&bioFormat=both&keys=$key&fields=$fields";
+	curl_setopt($curl, CURLOPT_URL, $url);
+	$response = curl_exec($curl);
+	if ($e = curl_error($curl)) {
+		echo $e;
+		curl_close($curl);
+		return $people;
 	}
 	curl_close($curl);
-	return $ancestors;
-} 
 
+	$json_data = json_decode($response, true);
+	$people_array = $json_data[0]['people'];
+	$root_id = array_key_first($people_array);
+	$root_person = $people_array[$root_id];
 
-function fetchRelatives($key){
-	$relatives = array();
-    $fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,Photo,PhotoData,IsLiving,Bio";
-	$url = "https://api.wikitree.com/api.php?action=getRelatives&keys=$key&getParents=1&getSiblings=1&getChildren=1&getSpouses=1&fields=$fields";
-	$curl = curl_init();
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	$response = curl_exec($curl);
-    if($e = curl_error($curl)) {
-	    echo $e;
-	} else {    
-	    $json_data = json_decode($response, true);
-	    $data = $json_data[0]['items'][0]['person'];
-        $relatives['siblings'] = $data['Siblings'];
-	    $relatives['children'] = $data['Children'];
+	$people = inferYears($people);
+	usort($people, "byBirth");
+	$people = rekey($people, 'Id');
+
+	$people[$root_id]['Photo'] = isset($root_person['Photo']) ? $root_person['Photo'] : "";
+	$people[$root_id]['PhotoData'] = isset($root_person['PhotoData']) ? $root_person['PhotoData'] : "";
+	$people[$root_id]['bioHTML'] = isset($root_person['bioHTML']) ? $root_person['bioHTML'] : "";
+
+	$people = inferChildren($people);
+	$people = inferSiblings($people);
+	$people = inferSpouses($people);
+
+	return $people;
+}
+
+function byBirth($a, $b) {
+	return $a["BirthYear"] > $b["BirthYear"];
+}
+
+function inferYears($people) {
+	foreach ($people as &$person) {
+		$person['BirthYear'] = isset($person['BirthDate']) ? intval(substr($person['BirthDate'], 0, 4)) : 0;
+		$person['DeathYear'] = isset($person['DeathDate']) ? intval(substr($person['DeathDate'], 0, 4)) : 0;
 	}
-	curl_close($curl);
-	return $relatives;
-} 
+	return $people;
+}
 
+function inferChildren($people) {
+	foreach ($people as $child_id => $child) {
+		$father_id = isset($child['Father']) ? $child['Father'] : null;
+		if (isset($people[$father_id])) {
+			$people[$father_id]['Gender'] = 'Male';
+			$people[$father_id]['Children'][$child_id] = $child_id;
+		}
+		$mother_id = isset($child['Mother']) ? $child['Mother'] : null;
+		if (isset($people[$mother_id])) {
+			$people[$mother_id]['Gender'] = 'Female';
+			$people[$mother_id]['Children'][$child_id] = $child_id;
+		}
+	}
+	return $people;
+}
 
-function inferGender($people){
-    // infer private fathers are male and mothers are female
-	foreach ($people as $key => $person) {		
-		$father_id = $person['Father'];
-		if (isset($father_id)) {
-			if (isset($people[$father_id])) {
-		        $people[$father_id]['Gender'] = 'Male';
-			}
-		}		
-		$mother_id = $person['Mother'];
-		if (isset($mother_id)) {
-			if (isset($people[$mother_id])) {
-		        $people[$mother_id]['Gender'] = 'Female';
+function inferSiblings($people) {
+	foreach ($people as $parent_id => $parent) {
+		if (isset($parent['Children'])) {
+			foreach ($parent['Children'] as $child_id) {
+				$people[$child_id]['Siblings'] = $parent['Children'];
+				unset($people[$child_id]['Siblings'][$child_id]);
 			}
 		}
 	}
 	return $people;
 }
 
+function inferSpouses($people) {
+	foreach ($people as $child_id => $child) {
+		$father_id = isset($child['Father']) ? $child['Father'] : null;
+		$mother_id = isset($child['Mother']) ? $child['Mother'] : null;
+		if (isset($people[$father_id]) && isset($people[$mother_id])) {
+			$people[$father_id]['Spouses'][$mother_id] = $mother_id;
+			$people[$mother_id]['Spouses'][$father_id] = $father_id;
+		}
+	}
+	return $people;
+}
 
 function init() {
-	define ("HELP_ANCESTORS", [
-	    "0" => array ("RealName" => "WikiTree Profile", "Father"=>"1", "Mother"=>"2", "Gender"=>"Male"),
-	    "1" => array ("RealName" => "Father", "Father"=>"3", "Mother"=>"4", "Gender"=>"Male"),
-	    "2" => array ("RealName" => "Mother", "Father"=>"3", "Mother"=>"4", "Gender"=>"Female"),
-	    "3" => array ("RealName" => "Grand Father", "Father"=>"5", "Mother"=>"6", "Gender"=>"Male"),
-	    "4" => array ("RealName" => "Grand Mother", "Father"=>"5", "Mother"=>"6", "Gender"=>"Female"),
-	    "5" => array ("RealName" => "Great Grand Father", "Father"=>"7", "Mother"=>"8", "Gender"=>"Male"),
-	    "6" => array ("RealName" => "Great Grand Mother", "Father"=>"7", "Mother"=>"8", "Gender"=>"Female"),
-	    "7" => array ("RealName" => "GGGF", "Father"=>"9", "Mother"=>"10", "Gender"=>"Male"),
-	    "8" => array ("RealName" => "GGGM", "Father"=>"9", "Mother"=>"10", "Gender"=>"Female"),
-	    "9" => array ("RealName" => "GGGGF", "Father"=>"11", "Mother"=>"12", "Gender"=>"Male"),
-	    "10" => array ("RealName" => "GGGGM", "Father"=>"11", "Mother"=>"12", "Gender"=>"Female"),
-	    "11" => array ("RealName" => "GGGGGF", "Father"=>"13", "Mother"=>"14", "Gender"=>"Male"),
-	    "12" => array ("RealName" => "GGGGGM", "Father"=>"13", "Mother"=>"14", "Gender"=>"Female"),
+	define("HELP_FAMILY", [
+		"10" => array("Id" => "10", "LastNameAtBirth" => "Grand-Son", "Father" => "6", "Mother" => "4", "Gender" => "Male", "Siblings" => [8, 9]),
+		"9" => array("Id" => "9", "LastNameAtBirth" => "Grand-Daughter", "Father" => "6", "Mother" => "4", "Gender" => "Female", "Siblings" => [8, 10]),
+		"8" => array("Id" => "8", "LastNameAtBirth" => "Grand-Daughter", "Father" => "7", "Mother" => "4", "Gender" => "Female", "Siblings" => [9, 10]),
+		"7" => array("Id" => "7", "LastNameAtBirth" => "Son-in-law-2", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => [4], "Children" => [8]),
+		"6" => array("Id" => "6", "LastNameAtBirth" => "Son-in-law-1", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => [4], "Children" => [9]),
+		"5" => array("Id" => "5", "LastNameAtBirth" => "Daughter-in-law", "Father" => "", "Mother" => "", "Gender" => "Female", "Spouses" => [2]),
+		"4" => array("Id" => "4", "LastNameAtBirth" => "Daughter", "Father" => "0", "Mother" => "1", "Gender" => "Female", "Siblings" => [2, 3], "Spouses" => [6, 7], "Children" => [8, 9, 10]),
+
+		"3" => array("Id" => "10", "LastNameAtBirth" => "Son", "Father" => "0", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
+		"2" => array("Id" => "2", "LastNameAtBirth" => "Son", "Father" => "0", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => [5]),
+		"1" => array("Id" => "1", "LastNameAtBirth" => "Wife", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => [0]),
+		"0" => array("Id" => "0", "LastNameAtBirth" => "WikiTree Profile", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => [1], "Siblings" => [-20, -21, -22], "Photo" => "help.webp"),
+		"-1" => array("Id" => "-1", "LastNameAtBirth" => "Father", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
+		"-2" => array("Id" => "-2", "LastNameAtBirth" => "Mother", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
+		"-3" => array("Id" => "-3", "LastNameAtBirth" => "Grand Father", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
+		"-4" => array("Id" => "-4", "LastNameAtBirth" => "Grand Mother", "Father" => "-5", "Mother" => "-6", "Gender" => "Female"),
+		"-5" => array("Id" => "-5", "LastNameAtBirth" => "Great Grand Father", "Father" => "-7", "Mother" => "-8", "Gender" => "Male"),
+		"-6" => array("Id" => "-6", "LastNameAtBirth" => "Great Grand Mother", "Father" => "-7", "Mother" => "-8", "Gender" => "Female"),
+		"-7" => array("Id" => "-7", "LastNameAtBirth" => "GGGF", "Father" => "-9", "Mother" => "-10", "Gender" => "Male"),
+		"-8" => array("Id" => "-8", "LastNameAtBirth" => "GGGM", "Father" => "-9", "Mother" => "-10", "Gender" => "Female"),
+		"-9" => array("Id" => "-9", "LastNameAtBirth" => "GGGGF", "Father" => "-11", "Mother" => "-12", "Gender" => "Male"),
+		"-10" => array("Id" => "-10", "LastNameAtBirth" => "GGGGM", "Father" => "-11", "Mother" => "-12", "Gender" => "Female"),
+		"-11" => array("Id" => "-11", "LastNameAtBirth" => "GGGGGF", "Father" => "-13", "Mother" => "-14", "Gender" => "Male"),
+		"-12" => array("Id" => "-12", "LastNameAtBirth" => "GGGGGM", "Father" => "-13", "Mother" => "-14", "Gender" => "Female"),
+		"-20" => array("Id" => "-20", "LastNameAtBirth" => "siblings", "Father" => "", "Mother" => "", "Gender" => ""),
+		"-21" => array("Id" => "-21", "LastNameAtBirth" => "brother", "Father" => "", "Mother" => "", "Gender" => "Male"),
+		"-22" => array("Id" => "-22", "LastNameAtBirth" => "sister", "Father" => "", "Mother" => "", "Gender" => "Female"),
 	]);
 
-
-	define ("HELP_SIBLINGS", [
-	    array ("RealName" => "siblings"),
-	    array ("RealName" => "brother"),
-	    array ("RealName" => "sister"),
-	]);
-
-
-	define ("HELP_CHILDREN", [
-	   ["RealName" => "children"],
-	   ["RealName" => "son"],
-	   ["RealName" => "daughter"],
-	]);
-
-
-	define ("HELP_BIO", "</p>Enter a valid WikiTree ID to begin exploring.</p>
-		<p>On the fractal family tree: <br>fathers are shown to the left or above<br>mothers are shown to the right or below</p>");
+	define("HELP_BIO", "<p>Enter a valid <b>WikiTree ID</b> to begin exploring.</p>
+			<p><b>Ancestors</b> are displayed in a fractal tree: <br>fathers are shown to the left or above<br>mothers are shown to the right or below</p>
+			<p><b>Descendents</b> are grouped into generations, with parents above a row of children.<br>Click CHILDREN or SPOUSES to show/hide subsequent descendants.</p>");
 }
 
 ?>
+
