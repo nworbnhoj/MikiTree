@@ -8,6 +8,8 @@ if (isset($_GET['key'])) {
 		$photo = isset($root['PhotoData'], $root['PhotoData']['path']) ? fetchPhoto($root['PhotoData']['path'], $root['Photo']) : "";
 		$bio = tidyHtml($root['bioHTML']);
 	}
+} else {
+	$root_key = "MikiTree";
 }
 
 if (!isset($root)) {
@@ -336,9 +338,15 @@ function links($ids, $people) {
 	$links = "";
 	foreach ($ids as $id) {
 		$person = $people[$id];
-		$name = $person['RealName'];
-		$key = isset($person['Name']) ? $person['Name'] : "";
-		$links = "$links <a href='index.php?key=$key'>$name</a>";
+		if (isset($person['RealName'])) {
+			$name = $person['RealName'];
+			if (isset($person['Name'])) {
+				$key = isset($person['Name']) ? $person['Name'] : "";
+				$links = $links . "<a href='index.php?key=$key'>$name</a>";
+			} else {
+				$links = $links . " $name";
+			}
+		}
 	}
 	return "<div class='links'>$links</div>";
 }
@@ -457,15 +465,15 @@ function init() {
 		"10" => array("Id" => "10", "LastNameAtBirth" => "Grand-Son", "Father" => "6", "Mother" => "4", "Gender" => "Male", "Siblings" => [8, 9]),
 		"9" => array("Id" => "9", "LastNameAtBirth" => "Grand-Daughter", "Father" => "6", "Mother" => "4", "Gender" => "Female", "Siblings" => [8, 10]),
 		"8" => array("Id" => "8", "LastNameAtBirth" => "Grand-Daughter", "Father" => "7", "Mother" => "4", "Gender" => "Female", "Siblings" => [9, 10]),
-		"7" => array("Id" => "7", "LastNameAtBirth" => "Son-in-law-2", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => [4], "Children" => [8]),
-		"6" => array("Id" => "6", "LastNameAtBirth" => "Son-in-law-1", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => [4], "Children" => [9]),
-		"5" => array("Id" => "5", "LastNameAtBirth" => "Daughter-in-law", "Father" => "", "Mother" => "", "Gender" => "Female", "Spouses" => [2]),
-		"4" => array("Id" => "4", "LastNameAtBirth" => "Daughter", "Father" => "0", "Mother" => "1", "Gender" => "Female", "Siblings" => [2, 3], "Spouses" => [6, 7], "Children" => [8, 9, 10]),
+		"7" => array("Id" => "7", "LastNameAtBirth" => "Son-in-law-2", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [8]], "Children" => [8]),
+		"6" => array("Id" => "6", "LastNameAtBirth" => "Son-in-law-1", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [9, 10]], "Children" => [9, 10]),
+		"5" => array("Id" => "5", "LastNameAtBirth" => "Daughter-in-law", "Father" => "", "Mother" => "", "Gender" => "Female", "Spouses" => ["2" => []]),
+		"4" => array("Id" => "4", "LastNameAtBirth" => "Daughter", "Father" => "0", "Mother" => "1", "Gender" => "Female", "Siblings" => [2, 3], "Spouses" => ["6" => [9, 10], "7" => [8]], "Children" => [8, 9, 10]),
 
-		"3" => array("Id" => "10", "LastNameAtBirth" => "Son", "Father" => "0", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
-		"2" => array("Id" => "2", "LastNameAtBirth" => "Son", "Father" => "0", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => [5]),
-		"1" => array("Id" => "1", "LastNameAtBirth" => "Wife", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => [0]),
-		"0" => array("Id" => "0", "LastNameAtBirth" => "WikiTree Profile", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => [1], "Siblings" => [-20, -21, -22], "Photo" => "help.webp"),
+		"3" => array("Id" => "3", "LastNameAtBirth" => "Son", "Father" => "0", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
+		"2" => array("Id" => "2", "LastNameAtBirth" => "Son", "Father" => "0", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => ["5" => []]),
+		"1" => array("Id" => "1", "LastNameAtBirth" => "Wife", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => ["0" => [2, 3, 4]]),
+		"0" => array("Id" => "0", "LastNameAtBirth" => "WikiTree Profile", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21, -22], "Photo" => "help.webp"),
 		"-1" => array("Id" => "-1", "LastNameAtBirth" => "Father", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
 		"-2" => array("Id" => "-2", "LastNameAtBirth" => "Mother", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
 		"-3" => array("Id" => "-3", "LastNameAtBirth" => "Grand Father", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
@@ -485,7 +493,7 @@ function init() {
 
 	define("HELP_BIO", "<p>Enter a valid <b>WikiTree ID</b> to begin exploring.</p>
 			<p><b>Ancestors</b> are displayed in a fractal tree: <br>fathers are shown to the left or above<br>mothers are shown to the right or below</p>
-			<p><b>Descendents</b> are grouped into generations, with parents above a row of children.<br>Click CHILDREN or SPOUSES to show/hide subsequent descendants.</p>");
+			<p><b>Descendents</b> are grouped into generations, with parents above a row of children and thrie spouses.<br>Click ▯▯▯▯▯▯▯ to show/hide subsequent descendants.</p>");
 }
 
 ?>
