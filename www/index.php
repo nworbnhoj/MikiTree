@@ -262,13 +262,30 @@ function child_div($child, $gen, $index, $flags = "filyv") {
 
 	$name_div = name_div($child, $flags);
 
-	$button_name = isset($child['Spouses']) && sizeof($child['Spouses']) > 0 ? "SPOUSES" : FALSE;
-	$button_name = isset($child['Children']) && sizeof($child['Children']) > 0 ? "CHILDREN" : $button_name;
-	$radio_button = $button_name ? "<button class='radio' gen='$gen' onclick='showBranch(event)'>$button_name</button>" : "";
+	$radio_button = radio_button($child, $people);
+
+
 	return
 		"<div class='person child $gender' branch='$index' id='$key' onclick='load(event)'>
 	        $name_div
 	        $radio_button
+}
+
+function radio_button($child, $people) {
+	if (!isset($child['Children']) || sizeof($child['Children']) == 0) {
+		return "";
+	}
+	$kids = str_repeat("▯", sizeof($child['Children']));
+	return "<button class='radio' gen='$gen' onclick='showBranch(event)'>$kids</button>";
+}
+
+function spouse_div($person, $gen, $index) {
+	$key = isset($person['Name']) ? $person['Name'] : "";
+	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
+	$name_div = name_div($person, "l");
+	return
+		"<div class='person spouse $gender' id='$key' onclick='load(event)'>
+	        $name_div
 	    </div>";
 }
 
