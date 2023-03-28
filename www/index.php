@@ -311,16 +311,18 @@ function name_div($person, $flags = "fily") {
 
 	$years = "";
 	if (strpos($flags, 'y') !== false) {
-		$year_birth = $person['BirthYear'] > 0 ? $person['BirthYear'] : "";
-		$year_death = $person['DeathYear'] > 0 ? $person['DeathYear'] : "";
 		$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
 		if ($is_living) {
 			$decade = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
 			$years = $decade ? "($decade)" : "";
-		} else if ($vertical) {
-			$years = "b.$year_birth<br>d.$year_death";
 		} else {
-			$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
+			$year_birth = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : "";
+			$year_death = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : "";
+			if ($vertical) {
+				$years = "b.$year_birth<br>d.$year_death";
+			} else {
+				$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
+			}
 		}
 		$years = $privacy < 30 ? "" : $years;
 	}
