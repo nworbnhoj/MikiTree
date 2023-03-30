@@ -17,7 +17,7 @@ blockquote, q { quotes: "" ""; }
 /*** ANCESTORS ***/
 
 #ancestors { margin: 0.5vw; }
-div.grid { display: grid; gap: 0.2em }
+div.grid { display: grid; gap: 0 }
 div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 2fr 1fr 2fr; }
 div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; }
 
@@ -64,7 +64,7 @@ polygon.male { fill: rgb(238, 238, 255); }
 
 /*** PERSON ***/
 div.hide { display: none; }
-div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 0px solid transparent; cursor: zoom-in; background-color: GhostWhite; position: relative; }
+div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 2px solid LightGray; cursor: zoom-in; background-color: GhostWhite; position: relative; }
 div.person:hover { border: 2px solid DarkSeaGreen; }
 div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
