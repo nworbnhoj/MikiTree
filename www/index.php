@@ -127,7 +127,7 @@ function fetchPhoto($path, $name) {
 function bdm_div($person, $people) {
 
 	$key = $person['Name'];
-	$wiki = "Go to <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a> to update details.";
+	$wiki = "Go to <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a> to edit details.";
 
 	$name_prefix = isset($person['Prefix']) ? $person['Prefix'] : "";
 	$name_first = isset($person['RealName']) ? $person['RealName'] : "";
@@ -226,26 +226,28 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 	$svgs = "";
 	$next_gen = $gen + 1;
 	$next_gen_divs = "";
+	$next_branch = 0;
 	$spouses = isset($head["Spouses"]) ? $head["Spouses"] : array();
 	foreach ($spouses as $spouse_id => $child_ids) {
 		if ($spouse_id == $head_id) {
 			continue;
 		}
 
-		$union_divs = $union_divs . union_div($head_id, $spouse_id, $people, $gen);
+		$union_divs = $union_divs . union_div($head_id, $spouse_id, $people, $gen, $next_branch);
 
 		foreach ($child_ids as $index => $child_id) {
 			if (!is_int($index)) {continue;}
 			$child = $people[$child_id];
-			$branch = branch($child, $people, $next_gen, $index);
+			$branch = branch($child, $people, $next_gen, $next_branch);
 			$next_gen_divs = $next_gen_divs . $branch;
 
 			$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
-			$svg = "<svg class='chute hide' branch='$index' xmlns='http://www.w3.org/2000/svg' width='100% ' height='6em'>
+			$svg = "<svg class='chute hide' branch='$next_branch' xmlns='http://www.w3.org/2000/svg' width='100% ' height='6em'>
 				    <polygon class='$gender' points='0,0 10,0 10,20 0,20' />
 				</svg>";
 
 			$svgs = $svgs . $svg;
+			$next_branch++;
 		}
 	}
 
@@ -260,7 +262,7 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 	return $branch;
 }
 
-function union_div($head_id, $spouse_id, $people, $gen) {
+function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 	$spouse = $spouse_id != "unknown" ? $people[$spouse_id] : array("LastNameAtBirth" => "unknown");
 	$name_family = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
 	$name_first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
@@ -270,7 +272,8 @@ function union_div($head_id, $spouse_id, $people, $gen) {
 	$siblings_div = "";
 	$children = $spouse["Spouses"][$head_id];
 	foreach ($children as $index => $child_id) {
-		$siblings_div = $siblings_div . child_div($child_id, $people, $gen, $index);
+		$siblings_div = $siblings_div . child_div($child_id, $people, $gen, $branch);
+		$branch++;
 	}
 	return
 		"<div class='grid union'>
