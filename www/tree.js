@@ -1,4 +1,5 @@
 function load(event) {
+    event.cancelBubble = true;
     var div = event.currentTarget;
     var key = div.id;
     if (key) {
