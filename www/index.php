@@ -346,7 +346,7 @@ function root_div($root, $people, $flags = "fmlyv") {
 			<div class='wiki'>
 				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 				<form class='wiki' action='/index.php'>
-				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='.{2,20}-\d{1,6}'>
+				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='^[A-Z][a-z-_]{1,20}-\d{1,6}$' title='A WikiTree ID is case sensitive and something like Brown-126635'>
 				   <input type='submit' value='Go'>
 				</form>
 			</div>
