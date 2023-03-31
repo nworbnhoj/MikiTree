@@ -1,8 +1,15 @@
 	<?php
-if (isset($_GET['key'])) {
-	$root_key = $_GET['key'];
-	$depth = isset($_GET['depth']) ? intval($_GET['depth']) : 6;
-	$depth = max(min($depth, 10), 0);
+
+define("WT_ID_REGEX", "^[A-Z][\w-]{1,20}-\d{1,6}$");
+
+// Get parameters and constrain
+$root_key = isset($_GET['key']) ? $_GET['key'] : null;
+$regex = "{" . WT_ID_REGEX . "}";
+$root_key = preg_match($regex, $root_key) ? $root_key : null;
+$depth = isset($_GET['depth']) ? intval($_GET['depth']) : 6;
+$depth = max(min($depth, 10), 0);
+
+if (isset($root_key)) {
 	$people = fetchFamily($root_key, $depth);
 	$root_id = findId($people, $root_key);
 	if ($root_id) {
@@ -84,17 +91,6 @@ function removeNodes($dom, $name) {
 		$node->parentNode->removeChild($node);
 	}
 	return $dom;
-}
-
-function wiki($key) {
-	return
-		"<div class='wiki'>
-			All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
-			<form class='wiki' action='/index.php'>
-			   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='\w{2,20}-\d{1,6}'>
-			   <input type='submit' value='Go'>
-			</form>
-		</div>";
 }
 
 function findId($people, $key) {
@@ -343,13 +339,15 @@ function root_div($root, $people, $flags = "fmlyv") {
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, $flags);
 	$checked = $root['Id'] == "root" ? "checked" : "";
+	$regex = WT_ID_REGEX;
+	$help = "A WikiTree ID is case sensitive and something like Brown-126635";
 
 	return
 		"<div class='person root $gender' id='$key'>
 			<div class='wiki'>
 				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 				<form class='wiki' action='/index.php'>
-				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='^[A-Z][a-z-_]{1,20}-\d{1,6}$' title='A WikiTree ID is case sensitive and something like Brown-126635'>
+				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='$help'>
 				   <input type='submit' value='Go'>
 				</form>
 			</div>
