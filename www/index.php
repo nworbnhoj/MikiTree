@@ -1,7 +1,9 @@
 	<?php
 if (isset($_GET['key'])) {
 	$root_key = $_GET['key'];
-	$people = fetchFamily($root_key);
+	$depth = isset($_GET['depth']) ? intval($_GET['depth']) : 6;
+	$depth = max(min($depth, 10), 0);
+	$people = fetchFamily($root_key, $depth);
 	$root_id = findId($people, $root_key);
 	if ($root_id) {
 		$root = $people[$root_id];
@@ -15,13 +17,14 @@ if (isset($_GET['key'])) {
 
 if (!isset($root)) {
 	init();
+	$depth = 4;
 	$people = HELP_FAMILY;
 	$root_id = "root";
 	$root = $people[$root_id];
 	$photo = fetchPhoto("", $root['Photo']);
 	$bdm = HELP_BIO;
 }
-$ancestors = fractal($root_id, $people, 0, 6);
+$ancestors = fractal($root_id, $people, 0, $depth);
 $descendants = branch($root, $people);
 ?>
 
@@ -419,14 +422,14 @@ function rekey($person, $newKey) {
 	return $rekeyed;
 }
 
-function fetchFamily($key) {
+function fetchFamily($key, $depth) {
 	$people = array();
 	$curl = curl_init();
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
 	// get ancestors and descendants from WikiTree
 	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy";
-	$url = "https://api.wikitree.com/api.php?action=getPeople&ancestors=6&descendants=5&keys=$key&nuclear=1&fields=$fields";
+	$url = "https://api.wikitree.com/api.php?action=getPeople&ancestors=$depth&descendants=$depth&keys=$key&nuclear=1&fields=$fields";
 
 	curl_setopt($curl, CURLOPT_URL, $url);
 	$response = curl_exec($curl);
