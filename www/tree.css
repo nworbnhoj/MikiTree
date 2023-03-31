@@ -12,50 +12,44 @@ caption, th, td { text-align: left; font-weight: normal; }
 blockquote:before, blockquote:after, q:before, q:after { content: ""; }
 blockquote, q { quotes: "" ""; }
 
+/************** # *********************/
+
+#ancestors { font-size: 1.6em; margin: 0.3em; }
+#profile { grid-template-columns: 3fr 2fr}
+#bdm { font-size: 1em;  margin: 3vw 3vw 5vw 5vw; }
+#descendants { font-size: 1.2em; }
+#bio {font-size: 1.0em;  margin: auto; width: 90%; text-align: left; }
+
 /************** . *********************/
 
 /*** ANCESTORS ***/
 
-#ancestors { margin: 0.5vw; }
-div.grid { display: grid; gap: 0 }
-div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 2fr 1fr 2fr; }
-div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; }
-
-div.g0 { font-size: 3.00vw; }
-div.g1 { font-size: 2.55vw; }
-div.g2 { font-size: 2.17vw; }
-div.g3 { font-size: 1.84vw; }
-div.g4 { font-size: 1.57vw; }
-div.g5 { font-size: 1.33vw; }
-div.g6 { font-size: 1.13vw; }
-div.g7 { font-size: 1.00vw; }
+div.grid { display: grid; gap: 0;}
+div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr; font-size: 0.92em;}
+div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; font-size: 0.92em;}
 
 /*** ROOT ***/
-div.root { padding-top: 4em; padding-bottom: 2em; cursor: inherit; }
-div.root:hover { border: 2px solid transparent; }
-div.wiki { display: block; text-align: center; justify-content: center; font-size: 1.5vw; margin-top: 0.5vw; margin-bottom: 3vw; margin-left: auto; margin-right: auto; position: absolute; top: 0px; }
-form.wiki { display: block; justify-content: center; margin-left: auto; margin-right: auto; }
+div.root { padding-top: 8em; padding-bottom: 1em; cursor: inherit; }
+div.root:hover { border: 0.2em solid transparent; }
+div.wiki { display: block; text-align: center; justify-content: center; font-size: 0.7em; margin-top: 0.5em; margin-bottom: 3em; margin-left: auto; margin-right: auto; position: absolute; top: 0; }
+form.wiki { display: block; justify-content: center; margin-left: auto; margin-right: auto;  }
 input.wiki { margin-left: auto; margin-right: auto; width: 60%; }
-p.wiki { font-size: 2vw; }
-div.links { font-size: 1.5vw; margin-top: 3vw; margin-bottom: 3vw; }
+p.wiki { font-size: 1em; }
+div.links { font-size: 0.8em; margin-top: 3em; margin-bottom: 3em; }
 
 /*** PHOTO ***/
-img.photo { display: block; margin: 3vw 0 4vw auto; width: 90%; height: auto; }
+img.photo { display: block; margin: 3vw auto 3vw auto; width: auto; height: auto; max-width: 100%;}
 
 /*** PROFILE ***/
 
-#profile { grid-template-columns: 3fr 2fr; font-size: 2vw;}
-#bdm { margin: 3vw 3vw 5vw 5vw; }
 ul.marriage { padding-left: 0; list-style: none; }
-li.marriage { margin: 2vw 0; padding-left: 0;}
+li.marriage { margin: 2em 0; padding-left: 0;}
 
 /*** DECENDANTS ***/
-#descendants { font-size: 2vw; }
 div.generation { grid-template-rows: 11em 6em auto; gap: 0; font-size: 0.95em; }
 div.siblings { grid-auto-flow: column; height: 100%; }
 div.generation_h { grid-auto-flow: column; height: 100%; }
 div.union { grid-template-rows: 3em 8em; }
-div.safe.union { grid-template-rows: 5vw auto; }
 div.chutes { position: relative; z-index: -1; }
 svg.chute { position: absolute; bottom: 0px; z-index: -1; }
 svg.hide { display: none; }
@@ -64,8 +58,8 @@ polygon.male { fill: rgb(238, 238, 255); }
 
 /*** PERSON ***/
 div.hide { display: none; }
-div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 2px solid LightGray; cursor: zoom-in; background-color: GhostWhite; position: relative; }
-div.person:hover { border: 2px solid DarkSeaGreen; }
+div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 0.2em solid LightGray; cursor: zoom-in; background-color: GhostWhite; position: relative; }
+div.person:hover { border: 0.2em solid DarkSeaGreen; }
 div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
 div.female { background-color: rgb(255, 238, 238); }
@@ -77,7 +71,7 @@ div.name { text-align: center; margin-top: 0; margin-bottom: 0; line-height: 1.2
 span.upper { text-transform: uppercase; }
 span.nowrap { white-space: nowrap; }
 button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; min-width: 3em;}
-button.help { font-size: 0.6em; padding: 0.2em; margin-top: 0.2em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; }
+button.help { font-size: 0.8em; padding: 0.2em; margin-top: 0.2em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px;  z-index: +1;}
 button.checked { background-color: DarkSeaGreen; }
 
 
@@ -89,7 +83,6 @@ button.checked { background-color: DarkSeaGreen; }
 .spin::before { animation: 1.5s linear infinite spinner; animation-play-state: inherit; border: solid 1vw #cfd0d1; border-bottom-color: #1c87c9; border-radius: 50%; content: ""; height: 2vw; width: 2vw; position: relative; top: 2vw; left: 2vw; transform: translate3d(-50%, -50%, 0); will-change: transform; }
 
 /*** BIO ***/
-div.bio { margin: auto; font-size: 2vw; width: 70%; text-align: left; }
 
 /************** <html> *********************/
 html { }
@@ -102,8 +95,8 @@ body { font-family: 'Pontano Sans', Arial, Helvetica, sans-serif; font-size: 16p
 /************** <span> *********************/
 
 /************* <h> *********************/
-h1 { text-align: left; font-size: 3vw; font-weight: bold; margin: 4vw 1vw 2vw 1vw; }
-h2 { text-align: left; font-size: 2vw; font-weight: bold; margin: 2vw 1vw 1vw 0; }
+h1 { text-align: left; font-size: 1.5em; font-weight: bold; margin: 2em 1em 2em 1em; }
+h2 { text-align: left; font-size: 1.3em; font-weight: bold; margin: 2em 1em 1em 0; }
 h3 { text-align: center; font-size: 1.2em; font-weight: bold; margin: 1em 0em 0.3em 0em; }
 h4 { font-size: 1em; font-weight: bold; margin: 0.2em 0.2em 0.2em 0.2em; text-align: left; }
 h5 { text-align: center; }

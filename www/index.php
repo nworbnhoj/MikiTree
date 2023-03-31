@@ -49,7 +49,7 @@ echo $bdm;
 ?>
         </div>
 		<div id='descendants'>	<?php echo $descendants; ?>    </div>
-		<div id='bio' class='bio'>
+		<div id='bio'>
 			<?php echo ($bio); ?>
 		</div>
 	</body>
@@ -345,7 +345,7 @@ function root_div($root, $people, $flags = "fmlyv") {
 	$checked = $root['Id'] == "root" ? "checked" : "";
 
 	return
-		"<div class='person root $gender g0' id='$key'>
+		"<div class='person root $gender' id='$key'>
 			<div class='wiki'>
 				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 				<form class='wiki' action='/index.php'>
