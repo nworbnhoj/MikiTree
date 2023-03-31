@@ -372,6 +372,7 @@ function name_div($person, $flags = "fily") {
 	$middle = strpos($flags, 'i') === false ? "" : $initial;
 	$middle = strpos($flags, 'm') === false ? $middle : (isset($person['MiddleName']) ? $person['MiddleName'] : $middle);
 	$last = strpos($flags, 'l') === false ? "" : $name_family;
+	$last = $flags == 'l' ? $last : "<b>$last</b>";
 	$vertical = strpos($flags, 'v') !== false;
 
 	$years = "";
@@ -393,8 +394,8 @@ function name_div($person, $flags = "fily") {
 	}
 
 	return $vertical ?
-	"<div class='name'>$first $middle<br><b>$last</b><br><small>$years</small></div>" :
-	"<div class='name'>$first $middle <b>$last</b> <small>$years</small></div>";
+	"<div class='name'>$first $middle<br>$last<br><small>$years</small></div>" :
+	"<div class='name'>$first $middle $last <small>$years</small></div>";
 }
 
 function links($ids, $people) {
