@@ -60,6 +60,10 @@ function help(event) {
     }
 }
 
+function resize(event){
+    pack();
+    resize_chutes(event);
+}
 
 function resize_chutes(event) {
     var target = event.currentTarget;
@@ -100,4 +104,38 @@ function resize_chutes(event) {
             polygon.setAttribute("points", points);
         }
     }
+}
+
+function pack(priority = "lfym"){
+    var body = document.body;
+    var ancestors = document.getElementById("ancestors");
+    // hide all data elements
+    var all = document.querySelectorAll("span[p]");
+    for(let a=0; a < all.length; a++){
+        all[a].classList.add('X');
+    }
+    // try to show the data in priority order
+    for (let p=0; p < priority.length; p++){
+        var show = "[p='" + priority[p] + "']";
+        var g = 0;
+        do {  // work out from the center
+            var strikes = 0;
+            var gen_g = "[gen='" + g + "']";  
+            var people = document.querySelectorAll(gen_g);
+            for (let p=0; p < people.length; p++){
+                var data = people[p].querySelector(show);
+                if (data) { // see if this data will fit
+                    data.classList.remove('X');
+                    if ((body.scrollWidth > body.clientWidth)
+                        || ancestors.offsetHeight > window.innerHeight){
+                        data.classList.add('X');
+                        strikes++;
+                        //if (strikes > 6) break;
+                    }
+                }
+            }
+            g++;
+        } while (people.length > 0);
+    }
+
 }

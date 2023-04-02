@@ -57,6 +57,7 @@ polygon.female { fill: rgb(255, 238, 238); }
 polygon.male { fill: rgb(238, 238, 255); }
 
 /*** PERSON ***/
+span.X {display: none;}
 div.hide { display: none; }
 div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 0.2em solid LightGray; cursor: zoom-in; background-color: GhostWhite; position: relative; }
 div.person:hover { border: 0.2em solid DarkSeaGreen; }
@@ -64,7 +65,7 @@ div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
 div.female { background-color: rgb(255, 238, 238); }
 div.male { background-color: rgb(238, 238, 255); }
-div.child { padding-bottom: 2em; }
+div.child { padding-bottom: 2em;}
 div.spouses { grid-auto-flow: row; position: absolute; top: 8.2em; width: 100% }
 div.spouse { margin: 0;}
 div.name { text-align: center; margin-top: 0; margin-bottom: 0; line-height: 1.2em; }

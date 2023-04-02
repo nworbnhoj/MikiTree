@@ -47,7 +47,7 @@ $descendants = branch($root, $people);
 	    <script src="tree.js"></script>
 	</head>
 
-	<body  onresize='resize_chutes(event)'>
+	<body  onload='pack()' onresize='resize(event)'>
 		<div id='ancestors'>	<?php echo $ancestors; ?>    </div>
 		<div id='profile' class='grid'>
 		    <?php
@@ -174,27 +174,12 @@ function bdm_div($person, $people) {
     </div>";
 }
 
-function fractal($id, $people, $gen, $depth = 3) {
+function fractal($id, $people, $gen = 0, $depth = 3) {
 	if (empty($id) || !isset($people[$id])) {
 		return "<div class='missing person'><br><br></div>";
 	}
 	$person = $people[$id];
-	switch ($gen) {
-	case '5':$div_person = person_div($person, "l", "g5");
-		break;
-	case '4':$div_person = person_div($person, "fl", "g4");
-		break;
-	case '3':$div_person = person_div($person, "fil", "g3");
-		break;
-	case '2':$div_person = person_div($person, "fmlyv", "g2");
-		break;
-	case '1':$div_person = person_div($person, "fmly", "g1");
-		break;
-	case '0':$div_person = root_div($person, $people);
-		break;
-	default:$div_person = person_div($person, "l", "g$gen");
-		break;
-	}
+	$div_person = $gen == 0 ? root_div($person, $people) : person_div($person, $gen);
 
 	// unwind recursion
 	if ($gen >= $depth) {
@@ -266,7 +251,7 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 	$name_family = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
 	$name_first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
 	$gender = isset($spouse['Gender']) ? strtolower($spouse['Gender']) : "";
-	$spouse_div = person_div($spouse);
+	$spouse_div = person_div($spouse, 1);
 
 	$siblings_div = "";
 	$children = $spouse["Spouses"][$head_id];
@@ -281,22 +266,23 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 		</div>";
 }
 
-function person_div($person, $flags = "fily", $class = "") {
+function person_div($person, $gen = 0) {
 	$key = isset($person['Name']) ? $person['Name'] : "";
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
+	$flags = $gen % 2 == 0 ? "lfymv" : "lfym";
 	$name_div = name_div($person, $flags);
 	return
-		"<div class='person $gender $class' id='$key' onclick='load(event)'>
+		"<div class='person $gender' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
 	    </div>";
 }
 
-function child_div($child_id, $people, $gen, $index, $flags = "filyv") {
+function child_div($child_id, $people, $gen, $index) {
 	$child = $people[$child_id];
 	$key = isset($child['Name']) ? $child['Name'] : "";
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
-	$name_div = name_div($child, $flags);
+	$name_div = name_div($child, 'fmlyv');
 
 	$radio_button = radio_button($child, $people, $gen);
 
@@ -304,11 +290,11 @@ function child_div($child_id, $people, $gen, $index, $flags = "filyv") {
 	$spouses = isset($child['Spouses']) ? $child['Spouses'] : array();
 	foreach ($spouses as $spouse_id => $grand_children) {
 		$spouse = $people[$spouse_id];
-		$spouses_div = $spouses_div . spouse_div($spouse, $people, $gen, $index);
+		$spouses_div = $spouses_div . spouse_div($spouse, $gen);
 	}
 	$spouses_div = "<div class='grid spouses'>$spouses_div</div>";
 	return
-		"<div class='person child $gender' branch='$index' id='$key' onclick='load(event)'>
+		"<div class='person child $gender' branch='$index' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
 	        $radio_button
 	        $spouses_div
@@ -323,27 +309,27 @@ function radio_button($child, $people, $gen) {
 	return "<button class='radio' gen='$gen' onclick='showBranch(event)'>$kids</button>";
 }
 
-function spouse_div($person, $gen, $index) {
+function spouse_div($person, $gen) {
 	$key = isset($person['Name']) ? $person['Name'] : "";
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$name_div = name_div($person, "l");
 	return
-		"<div class='person spouse $gender' id='$key' onclick='load(event)'>
+		"<div class='person spouse $gender' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
 	    </div>";
 }
 
-function root_div($root, $people, $flags = "fmlyv") {
+function root_div($root, $people) {
 	$key = isset($root['Name']) ? $root['Name'] : "";
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
-	$name_div = name_div($root, $flags);
+	$name_div = name_div($root, "fmlyv");
 	$checked = $root['Id'] == "root" ? "checked" : "";
 	$regex = WT_ID_REGEX;
 	$help = "A WikiTree ID is case sensitive and something like Brown-126635";
 
 	return
-		"<div class='person root $gender' id='$key'>
+		"<div class='person root $gender' id='$key' gen='0'>
 			<div class='wiki'>
 				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 				<form class='wiki' action='/index.php'>
@@ -357,7 +343,18 @@ function root_div($root, $people, $flags = "fmlyv") {
 		</div>";
 }
 
-function name_div($person, $flags = "fily") {
+function name_div($person, $flags = "lfymv") {
+
+	$ff = strpos($flags, 'f') !== false; // first name
+	$fi = strpos($flags, 'i') !== false; // initial
+	$fm = strpos($flags, 'm') !== false; // middle name
+	$fl = strpos($flags, 'l') !== false; // last name
+	$fy = strpos($flags, 'y') !== false; // year
+	$fb = strpos($flags, 'b') !== false; // birth date
+	$fd = strpos($flags, 'd') !== false; // death date
+	$fh = strpos($flags, 'h') !== false; // hilite last name
+	$fv = strpos($flags, 'v') !== false; // vertical orientation
+
 	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
 	$name_first = isset($person['RealName']) ? $person['RealName'] : "";
 	$initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : "";
@@ -366,32 +363,31 @@ function name_div($person, $flags = "fily") {
 	$privacy = isset($person['Privacy']) ? intval($person['Privacy']) : 60;
 	$name_family = $privacy < 30 ? "🔒" : $name_family;
 
-	$first = strpos($flags, 'f') === false ? "" : (isset($person['RealName']) ? $person['RealName'] : "");
-	$middle = strpos($flags, 'i') === false ? "" : $initial;
-	$middle = strpos($flags, 'm') === false ? $middle : (isset($person['MiddleName']) ? $person['MiddleName'] : $middle);
-	$last = strpos($flags, 'l') === false ? "" : $name_family;
-	$last = $flags == 'l' ? $last : "<b>$last</b>";
-	$vertical = strpos($flags, 'v') !== false;
+	$first = isset($person['RealName']) ? $person['RealName'] : "";
+	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $initial;
+	$last = $fh ? $name_family : "<b>$name_family</b>";
 
 	$years = "";
-	if (strpos($flags, 'y') !== false) {
-		$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
-		if ($is_living) {
-			$decade = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
-			$years = $decade ? "($decade)" : "";
+	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
+	if ($is_living) {
+		$decade = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
+		$years = $decade ? "($decade)" : "";
+	} else {
+		$year_birth = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : "";
+		$year_death = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : "";
+		if ($fv) {
+			$years = "b.$year_birth<br>d.$year_death";
 		} else {
-			$year_birth = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : "";
-			$year_death = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : "";
-			if ($vertical) {
-				$years = "b.$year_birth<br>d.$year_death";
-			} else {
-				$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
-			}
+			$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
 		}
-		$years = $privacy < 30 ? "" : $years;
 	}
+	$years = $privacy < 30 ? "" : $years;
+	$first = $ff ? "<span class='X' p='f'>$first</span>" : "";
+	$middle = $fm ? "<span class='X' p='m'>$middle</span>" : "";
+	$last = $fl ? "<span class='X' p='l'>$last</span>" : "";
+	$years = $fy ? "<span class='X' p='y'>$years</span>" : "";
 
-	return $vertical ?
+	return $fv ?
 	"<div class='name'>$first $middle<br>$last<br><small>$years</small></div>" :
 	"<div class='name'>$first $middle $last <small>$years</small></div>";
 }
