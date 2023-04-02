@@ -1,6 +1,6 @@
 	<?php
 
-define("WT_ID_REGEX", "^[A-Z][\w-]{1,20}-\d{1,6}$");
+define("WT_ID_REGEX", "^[A-Z][\w-]{1,30}-\d{1,6}$");
 
 // Get parameters and constrain
 $root_key = isset($_GET['key']) ? $_GET['key'] : null;
@@ -268,6 +268,7 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 
 function person_div($person, $gen = 0) {
 	$key = isset($person['Name']) ? $person['Name'] : "";
+	$key = str_replace(" ", "_", $key); // wikitree bug??
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$flags = $gen % 2 == 0 ? "lfymv" : "lfym";
 	$name_div = name_div($person, $flags);
