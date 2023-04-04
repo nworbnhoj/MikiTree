@@ -60,7 +60,8 @@ function help(event) {
     }
 }
 
-function resize(event){
+function resize(event) {
+    unpack();
     pack();
     resize_chutes(event);
 }
@@ -106,36 +107,53 @@ function resize_chutes(event) {
     }
 }
 
-function pack(priority = "lfym"){
-    var body = document.body;
-    var ancestors = document.getElementById("ancestors");
-    // hide all data elements
+
+function unpack() {
     var all = document.querySelectorAll("span[p]");
-    for(let a=0; a < all.length; a++){
+    for (let a = 0; a < all.length; a++) {
         all[a].classList.add('X');
     }
+}
+
+
+function pack(priority = "lfym") {
+    if (priority.length = 0) {
+        return; // unwind recursion
+    }
+
     // try to show the data in priority order
-    for (let p=0; p < priority.length; p++){
-        var show = "[p='" + priority[p] + "']";
-        var g = 0;
-        do {  // work out from the center
-            var strikes = 0;
-            var gen_g = "[gen='" + g + "']";  
-            var people = document.querySelectorAll(gen_g);
-            for (let p=0; p < people.length; p++){
-                var data = people[p].querySelector(show);
-                if (data) { // see if this data will fit
-                    data.classList.remove('X');
-                    if ((body.scrollWidth > body.clientWidth)
-                        || ancestors.offsetHeight > window.innerHeight){
-                        data.classList.add('X');
-                        strikes++;
-                        //if (strikes > 6) break;
-                    }
-                }
+    var show = "[p='" + priority[0] + "']";
+    var g = 0;
+    do { // work out from the center
+        var gen_g = "[gen='" + g + "']";
+        var generation = document.querySelectorAll(gen_g);
+        packPeople(generation, show);
+        g++;
+    } while (generation.length > 0);
+    // pack the next priority after a short delay
+    setTimeout(pack, 50, priority.substring(1));
+}
+
+
+function packPeople(people, show) {
+    if (people.length == 0) {
+        return;
+    }
+    var body = document.body;
+    var ancestors = document.getElementById("ancestors");
+
+    // show the data for all of the people
+    var shown = [];
+    for (let p = 0; p < people.length; p++) {
+        var data = people[p].querySelector(show);
+        if (data) {
+            data.classList.remove('X');
+            shown.push(data);
+            if ((body.scrollWidth > body.clientWidth) ||
+                ancestors.offsetHeight > window.innerHeight) {
+                data.classList.add('X');
             }
-            g++;
-        } while (people.length > 0);
+        }
     }
 
 }
