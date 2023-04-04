@@ -247,14 +247,14 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 }
 
 function union_div($head_id, $spouse_id, $people, $gen, $branch) {
-	$spouse = $spouse_id != "unknown" ? $people[$spouse_id] : array("LastNameAtBirth" => "unknown");
+	$spouse = $spouse_id != "unknown" ? $people[$spouse_id] : array("LastNameAtBirth" => "unknown", "Spouses" => array());
 	$name_family = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
 	$name_first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
 	$gender = isset($spouse['Gender']) ? strtolower($spouse['Gender']) : "";
 	$spouse_div = person_div($spouse, 1);
 
 	$siblings_div = "";
-	$children = $spouse["Spouses"][$head_id];
+	$children = isset($spouse["Spouses"][$head_id]) ? $spouse["Spouses"][$head_id] : array();
 	foreach ($children as $index => $child_id) {
 		$siblings_div = $siblings_div . child_div($child_id, $people, $gen, $branch);
 		$branch++;
