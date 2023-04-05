@@ -147,6 +147,16 @@ function packNodes(nodes) {
     if (people.length == 0) {
         return;
     }
+    var all = nodes.length;
+
+    var body = document.body;
+    var ancestors = document.getElementById("ancestors");
+    // hide root siblings if already too tall
+    if (ancestors.offsetHeight > window.innerHeight ||
+        ancestors.offsetHeight > body.clientWidth) {
+        var siblings = document.getElementById('root_siblings');
+        siblings.classList.add('hide');
+    }
 
     // show the data for all of the people
     var shown = [];
@@ -156,8 +166,7 @@ function packNodes(nodes) {
     }
 
     // check if div #ancestors has exceeded the bounds of screen
-    var body = document.body;
-    var ancestors = document.getElementById("ancestors");
+
     if (body.scrollWidth > body.clientWidth ||
         ancestors.offsetHeight > window.innerHeight ||
         ancestors.offsetHeight > body.clientWidth) {

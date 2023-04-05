@@ -407,7 +407,7 @@ function links($ids, $people) {
 			}
 		}
 	}
-	return "<div class='links'>$links</div>";
+	return "<div id='root_siblings' class='links'>$links</div>";
 }
 
 function rekey($person, $newKey) {
