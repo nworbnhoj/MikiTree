@@ -150,11 +150,12 @@ function packPeople(people, show) {
         }
     }
 
+    // check if div #ancestors has exceeded the bounds of screen
     var body = document.body;
     var ancestors = document.getElementById("ancestors");
-    // check if div #ancestors has exceeded the bounds of screen
     if (body.scrollWidth > body.clientWidth ||
-        ancestors.offsetHeight > window.innerHeight) {
+        ancestors.offsetHeight > window.innerHeight ||
+        ancestors.offsetHeight > body.clientWidth) {
         shown.sort((a, b) => {
             b.innerText.length - a.innerText.length
         });
@@ -164,7 +165,8 @@ function packPeople(people, show) {
                 v.classList.add('X')
             });
             if (body.scrollWidth <= body.clientWidth &&
-                ancestors.offsetHeight <= window.innerHeight) {
+                ancestors.offsetHeight <= window.innerHeight &&
+                ancestors.offsetHeight <= body.clientWidth) {
                 break;
             }
         }
