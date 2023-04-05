@@ -131,7 +131,7 @@ function pack(priority = "lfym") {
         g++;
     } while (generation.length > 0);
     // pack the next priority after a short delay
-    setTimeout(pack, 50, priority.substring(1));
+    setTimeout(pack, 10, priority.substring(1));
 }
 
 
@@ -139,8 +139,6 @@ function packPeople(people, show) {
     if (people.length == 0) {
         return;
     }
-    var body = document.body;
-    var ancestors = document.getElementById("ancestors");
 
     // show the data for all of the people
     var shown = [];
@@ -149,11 +147,26 @@ function packPeople(people, show) {
         if (data) {
             data.classList.remove('X');
             shown.push(data);
-            if ((body.scrollWidth > body.clientWidth) ||
-                ancestors.offsetHeight > window.innerHeight) {
-                data.classList.add('X');
-            }
         }
     }
 
+    var body = document.body;
+    var ancestors = document.getElementById("ancestors");
+    // check if div #ancestors has exceeded the bounds of screen
+    if (body.scrollWidth > body.clientWidth ||
+        ancestors.offsetHeight > window.innerHeight) {
+        shown.sort((a, b) => {
+            b.innerText.length - a.innerText.length
+        });
+        while (shown.length > 0) {
+            var hide = shown.splice(Math.trunc(0.9 * shown.length));
+            hide.forEach((v, i, a) => {
+                v.classList.add('X')
+            });
+            if (body.scrollWidth <= body.clientWidth &&
+                ancestors.offsetHeight <= window.innerHeight) {
+                break;
+            }
+        }
+    }
 }
