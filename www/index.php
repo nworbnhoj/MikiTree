@@ -50,10 +50,17 @@ $descendants = branch($root, $people);
 	<body  onload='pack()' onresize='resize(event)'>
 		<div id='ancestors'>	<?php echo $ancestors; ?>    </div>
 		<div id='profile' class='grid'>
-		    <?php
-echo $photo;
-echo $bdm;
-?>
+		<div id='photo'>
+            <div class='wiki'>
+				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/<?php echo $root_key; ?>' target='_blank'>WikiTree</a>
+				<form class='wiki' action='/index.php'>
+				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='$help'>
+				   <input type='submit' value='Go'>
+				</form>
+			</div>
+		    <?php echo $photo; ?>
+	    </div>
+		<?php echo $bdm; ?>
         </div>
 		<div id='descendants'>	<?php echo $descendants; ?>    </div>
 		<div id='bio'>
@@ -331,13 +338,6 @@ function root_div($root, $people) {
 
 	return
 		"<div class='person root $gender' id='$key' gen='0'>
-			<div class='wiki'>
-				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
-				<form class='wiki' action='/index.php'>
-				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='$help'>
-				   <input type='submit' value='Go'>
-				</form>
-			</div>
 			$name_div
 			$siblings
 			<button class='help $checked' onclick='help(event)'>HELP</button>
