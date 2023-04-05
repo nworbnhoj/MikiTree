@@ -61,7 +61,6 @@ function help(event) {
 }
 
 function resize(event) {
-    unpack();
     pack();
     resize_chutes(event);
 }
@@ -108,6 +107,13 @@ function resize_chutes(event) {
 }
 
 
+function pack() {
+    unpack();
+    packAncestors();
+    packDescendants();
+}
+
+
 function unpack() {
     var all = document.querySelectorAll("span[p]");
     for (let a = 0; a < all.length; a++) {
@@ -116,18 +122,20 @@ function unpack() {
 }
 
 
-function pack(priority = "lfym") {
+function packAncestors(priority = "lfym") {
     if (priority.length = 0) {
         return; // unwind recursion
     }
 
     // try to show the data in priority order
-    var show = "[p='" + priority[0] + "']";
+    var ancestors = document.getElementById("ancestors");
+    var data = "[p='" + priority[0] + "']";
     var g = 0;
     do { // work out from the center
         var gen_g = "[gen='" + g + "']";
-        var generation = document.querySelectorAll(gen_g);
-        packPeople(generation, show);
+        var gen_g_data = gen_g + " " + data;
+        var nodes = ancestors.querySelectorAll(gen_g_data);
+        packNodes(nodes);
         g++;
     } while (generation.length > 0);
     // pack the next priority after a short delay
@@ -135,19 +143,16 @@ function pack(priority = "lfym") {
 }
 
 
-function packPeople(people, show) {
+function packNodes(nodes) {
     if (people.length == 0) {
         return;
     }
 
     // show the data for all of the people
     var shown = [];
-    for (let p = 0; p < people.length; p++) {
-        var data = people[p].querySelector(show);
-        if (data) {
-            data.classList.remove('X');
-            shown.push(data);
-        }
+    for (let n = 0; n < nodes.length; n++) {
+        nodes[n].classList.remove('X');
+        shown.push(nodes[n]);
     }
 
     // check if div #ancestors has exceeded the bounds of screen
@@ -169,6 +174,18 @@ function packPeople(people, show) {
                 ancestors.offsetHeight <= body.clientWidth) {
                 break;
             }
+        }
+    }
+}
+
+
+function packDescendants(priority = "lfym") {
+    var descendants = document.getElementById("descendants");
+    for (let p = 0; p < priority.length; p++) {
+        var data = "[p='" + priority[p] + "']";
+        var nodes = descendants.querySelectorAll(data);
+        for (let n = 0; n < nodes.length; n++) {
+            nodes[n].classList.remove('X');
         }
     }
 }
