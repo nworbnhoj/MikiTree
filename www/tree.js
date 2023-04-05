@@ -109,7 +109,10 @@ function resize_chutes(event) {
 
 function pack() {
     unpack();
-    packAncestors();
+    if (packAncestors() < 1) {
+        var ancestors = document.getElementById("ancestors");
+        ancestors.style.fontSize = "1.0em";
+    }
     packDescendants();
 }
 
@@ -124,8 +127,9 @@ function unpack() {
 
 function packAncestors(priority = "lfym") {
     if (priority.length = 0) {
-        return; // unwind recursion
+        return 1; // unwind recursion
     }
+    var g4_packed = 0;
 
     // try to show the data in priority order
     var ancestors = document.getElementById("ancestors");
@@ -135,17 +139,21 @@ function packAncestors(priority = "lfym") {
         var gen_g = "[gen='" + g + "']";
         var gen_g_data = gen_g + " " + data;
         var nodes = ancestors.querySelectorAll(gen_g_data);
-        packNodes(nodes);
+        var packed = packNodes(nodes);
+        g4_packed = (g <= 4) ? packed : g4_packed;
         g++;
-    } while (generation.length > 0);
+    } while (nodes.length > 0 && packed > 0.2);
+
     // pack the next priority after a short delay
-    setTimeout(pack, 10, priority.substring(1));
+    setTimeout(packAncestors, 10, priority.substring(1));
+
+    return g4_packed;
 }
 
 
 function packNodes(nodes) {
-    if (people.length == 0) {
-        return;
+    if (nodes.length == 0) {
+        return 1;
     }
     var all = nodes.length;
 
@@ -185,6 +193,7 @@ function packNodes(nodes) {
             }
         }
     }
+    return shown.length / nodes.length;
 }
 
 
