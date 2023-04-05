@@ -33,47 +33,46 @@ if (!isset($root)) {
 }
 $ancestors = fractal($root_id, $people, 0, $depth);
 $descendants = branch($root, $people);
-?>
+$head = head($root_key);
+$body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio);
 
-	<!DOCTYPE html>
+echo "<!DOCTYPE html>
+	<html lang='en'>
+	$head
+	$body
+	</html>";
 
-	<html lang='[lang]'>
-	<head>
-	    <meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <title><?php echo ($root_key) ?></title>
+function head($key) {
+	return "<head>
+	    <meta charset='UTF-8'>
+	    <meta name='viewport'
+	    content='width=device-width, initial-scale=1.0'>
+	    <title>$key</title>
 	    <link href='https://fonts.googleapis.com/css?family=Pontano+Sans' rel='stylesheet' type='text/css'>
-	    <link rel="stylesheet" type="text/css" href="tree.css">
-	    <script src="tree.js"></script>
-	</head>
+	    <link rel='stylesheet' type='text/css' href='tree.css'>
+	    <script src='tree.js'></script>
+	</head>";
+}
 
-	<body  onload='pack()' onresize='resize(event)'>
-		<div id='ancestors'>	<?php echo $ancestors; ?>    </div>
+function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
+	$regex = WT_ID_REGEX;
+	return "<body  onload='pack()' onresize='resize(event)'>
+		<div id='ancestors'>$ancestors</div>
 		<div id='profile' class='grid'>
 		<div id='photo'>
             <div class='wiki'>
-				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/<?php echo $root_key; ?>' target='_blank'>WikiTree</a>
+				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 				<form class='wiki' action='/index.php'>
-				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='$help'>
+				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
 				   <input type='submit' value='Go'>
 				</form>
 			</div>
-		    <?php echo $photo; ?>
-	    </div>
-		<?php echo $bdm; ?>
-        </div>
-		<div id='descendants'>	<?php echo $descendants; ?>    </div>
-		<div id='bio'>
-			<?php echo ($bio); ?>
-		</div>
-	</body>
-
-	</html>
-
-
-
-
-	<?php
+		    $photo
+	    </div>$bdm</div>
+		<div id='descendants'>$descendants</div>
+		<div id='bio'>$bio</div>
+	</body>";
+}
 
 //https://stackoverflow.com/questions/3523409/domdocument-encoding-problems-characters-transformed
 //https://www.php.net/manual/en/domdocument.savehtml.php
@@ -333,8 +332,6 @@ function root_div($root, $people) {
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, "fmlyv");
 	$checked = $root['Id'] == "root" ? "checked" : "";
-	$regex = WT_ID_REGEX;
-	$help = "A WikiTree ID is case sensitive and something like Brown-126635";
 
 	return
 		"<div class='person root $gender' id='$key' gen='0'>
@@ -579,7 +576,7 @@ function init() {
 			</ul></p>
 			<p><b>Descendents</b> are in rows of siblings, 1st cousins, 2nd cousins etc.
 			<ul>
-			<li>Click ▯▯▯ to show the next generation (click ▯▯▯ again to hide).</li>
+			<li>Click ▯▯▯ to show the next generation (click again to hide).</li>
 			<li>Parents are above siblings, and spouses are below.</li>
 			</ul></p></div>");
 }

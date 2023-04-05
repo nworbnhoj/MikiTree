@@ -13,37 +13,37 @@ blockquote:before, blockquote:after, q:before, q:after { content: ""; }
 blockquote, q { quotes: "" ""; }
 
 /************** # *********************/
-
-#ancestors { font-size: 1.6em; margin: 0.3em; }
-#profile { grid-template-columns: 3fr 2fr}
-#bdm { font-size: 1em;  margin: 3vw 3vw 5vw 5vw; }
-#descendants { font-size: 1.2em; }
-#bio {font-size: 1.0em;  margin: auto; width: 90%; text-align: left; }
+#ancestors { font-size: 1.3em; margin: 0.3em; }
+#profile { grid-template-columns: 3fr 2fr }
+#bdm { font-size: 1em; margin: 3vw 3vw 5vw 5vw; }
+#descendants { font-size: 1.0em; }
+#bio { font-size: 1.0em; margin: auto; width: 90%; text-align: left; }
 
 /************** . *********************/
 
 /*** ANCESTORS ***/
 
-div.grid { display: grid; gap: 0;}
-div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr; font-size: 0.92em;}
-div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; font-size: 0.92em;}
+div.grid { display: grid; gap: 0; }
+div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr; font-size: 0.92em; }
+div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; font-size: 0.92em; }
 
 /*** ROOT ***/
 div.root { padding-top: 1em; padding-bottom: 1em; cursor: inherit; }
 div.root:hover { border: 0.2em solid transparent; }
+div.links { font-size: 0.8em; margin-top: 2em; margin-bottom: 1em; }
+
+/*** WIKI ***/
 div.wiki { display: block; text-align: center; justify-content: center; margin-top: 1em; margin-bottom: 1em; margin-left: auto; margin-right: auto; }
-form.wiki { display: inline-block; justify-content: center; margin-left: auto; margin-right: auto;  }
+form.wiki { display: inline-block; justify-content: center; margin-left: auto; margin-right: auto; }
 input.wiki { margin-left: auto; margin-right: auto; width: 60%; }
 p.wiki { font-size: 1em; }
-div.links { font-size: 0.8em; margin-top: 3em; margin-bottom: 3em; }
 
 /*** PHOTO ***/
-img.photo { display: block; margin: 3vw auto 3vw auto; width: auto; height: auto; max-width: 100%;}
+img.photo { display: block; margin: 3vw auto 3vw auto; width: auto; height: auto; max-width: 100%; }
 
 /*** PROFILE ***/
-
 ul.marriage { padding-left: 0; list-style: none; }
-li.marriage { margin: 2em 0; padding-left: 0;}
+li.marriage { margin: 2em 0; padding-left: 0; }
 
 /*** DECENDANTS ***/
 div.generation { grid-template-rows: 11em 6em auto; gap: 0; font-size: 0.95em; }
@@ -57,7 +57,7 @@ polygon.female { fill: rgb(255, 238, 238); }
 polygon.male { fill: rgb(238, 238, 255); }
 
 /*** PERSON ***/
-span.X {display: none;}
+span.X { display: none; }
 div.hide { display: none; }
 div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 0.2em solid LightGray; cursor: zoom-in; background-color: GhostWhite; position: relative; }
 div.person:hover { border: 0.2em solid DarkSeaGreen; }
@@ -65,16 +65,15 @@ div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
 div.female { background-color: rgb(255, 238, 238); }
 div.male { background-color: rgb(238, 238, 255); }
-div.child { padding-bottom: 2em;}
+div.child { padding-bottom: 2em; }
 div.spouses { grid-auto-flow: row; position: absolute; top: 8.2em; width: 100% }
-div.spouse { margin: 0;}
+div.spouse { margin: 0; }
 div.name { text-align: center; margin-top: 0; margin-bottom: 0; line-height: 1.2em; }
 span.upper { text-transform: uppercase; }
 span.nowrap { white-space: nowrap; }
-button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; min-width: 3em;}
-button.help { font-size: 0.8em; padding: 0.2em; margin-top: 0.2em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px;  z-index: +1;}
+button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; min-width: 3em; max-width: 100%; overflow: hidden; }
+button.help { font-size: 0.8em; padding: 0.2em; margin-top: 0.2em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; z-index: +1; }
 button.checked { background-color: DarkSeaGreen; }
-
 
 /*** SPINNER ***/
 @keyframes spinner {
