@@ -8,6 +8,9 @@ $regex = "{" . WT_ID_REGEX . "}";
 $root_key = preg_match($regex, $root_key) ? $root_key : null;
 $depth = isset($_GET['depth']) ? intval($_GET['depth']) : 6;
 $depth = max(min($depth, 10), 0);
+$show = isset($_GET['show']) ? $_GET['show'] : "lfym";
+define("DEPTH", $depth);
+define("SHOW", $show);
 
 if (isset($root_key)) {
 	$people = fetchFamily($root_key, $depth);
@@ -34,7 +37,7 @@ if (!isset($root)) {
 $ancestors = fractal($root_id, $people, 0, $depth);
 $descendants = branch($root, $people);
 $head = head($root_key);
-$body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio, $depth);
+$body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio);
 
 echo "<!DOCTYPE html>
 	<html lang='en'>
@@ -54,10 +57,12 @@ function head($key) {
 	</head>";
 }
 
-function body($key, $ancestors, $descendants, $photo, $bdm, $bio, $depth) {
+function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	$regex = WT_ID_REGEX;
+	$depth = DEPTH;
+	$show = SHOW;
 	return "<body  onload='pack()' onresize='resize(event)'>
-	    <div id='get' class='hide' depth='$depth'></div>
+	    <div id='get' class='hide' depth='$depth' show='$show'></div>
 		<div id='ancestors'>$ancestors</div>
 		<div id='profile' class='grid'>
 		<div id='photo'>
@@ -283,7 +288,8 @@ function person_div($person, $gen = 0) {
 	$key = isset($person['Name']) ? $person['Name'] : "";
 	$key = str_replace(" ", "_", $key); // wikitree bug??
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
-	$flags = $gen % 2 == 0 ? "lfymv" : "lfym";
+
+	$flags = $gen % 2 == 0 ? SHOW . 'v' : SHOW;
 	$name_div = name_div($person, $flags);
 	return
 		"<div class='person $gender' id='$key' gen='$gen' onclick='load(event)'>
@@ -296,7 +302,7 @@ function child_div($child_id, $people, $gen, $index) {
 	$key = isset($child['Name']) ? $child['Name'] : "";
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
-	$name_div = name_div($child, 'fmlyv');
+	$name_div = name_div($child, SHOW . 'v');
 
 	$radio_button = radio_button($child, $people, $gen);
 
@@ -337,7 +343,7 @@ function root_div($root, $people) {
 	$key = isset($root['Name']) ? $root['Name'] : "";
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
-	$name_div = name_div($root, "fmlyv");
+	$name_div = name_div($root, SHOW . 'v');
 	$checked = $root['Id'] == "root" ? "checked" : "";
 
 	return
@@ -348,7 +354,7 @@ function root_div($root, $people) {
 		</div>";
 }
 
-function name_div($person, $flags = "lfymv") {
+function name_div($person, $flags = SHOW) {
 
 	$ff = strpos($flags, 'f') !== false; // first name
 	$fi = strpos($flags, 'i') !== false; // initial

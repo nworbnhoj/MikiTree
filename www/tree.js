@@ -12,6 +12,7 @@ function load(event) {
     var params = {
         'key': key,
         'depth': get.getAttribute('depth'),
+        'show': get.getAttribute('show'),
     };
     var esc = encodeURIComponent;
     var query = Object.keys(params)
