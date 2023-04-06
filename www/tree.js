@@ -2,14 +2,23 @@ function load(event) {
     event.cancelBubble = true;
     var div = event.currentTarget;
     var key = div.id;
-    if (key) {
-        div.classList.add('spin');
-        div.firstElementChild.classList.add('hide');
-        window.location.href = "index.php?key=" + key;
-        setTimeout(unspin, 5000, div);
-    } else {
+    if (!key) {
         alert("Sorry the Wiki-ID is missing for this Profile for some reason.");
+        return;
     }
+    div.classList.add('spin');
+    div.firstElementChild.classList.add('hide');
+    var get = document.getElementById('get');
+    var params = {
+        'key': key,
+        'depth': get.getAttribute('depth'),
+    };
+    var esc = encodeURIComponent;
+    var query = Object.keys(params)
+        .map(k => esc(k) + '=' + esc(params[k]))
+        .join('&');
+    window.location.href = "index.php?" + query;
+    setTimeout(unspin, 5000, div);
 }
 
 
@@ -121,7 +130,8 @@ function pack() {
 
 function hideSurplus() {
     // hide generations with no visible data
-    var depth = parseInt(ancestors.getAttribute('depth'));
+    var get = document.getElementById('get');
+    var depth = parseInt(get.getAttribute('depth'));
     while (depth > 4) {
         var visible = "[gen='" + depth + "'] span[p]:not(.X)";
         var hide = ancestors.querySelectorAll(visible).length < 4;

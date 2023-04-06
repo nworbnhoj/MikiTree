@@ -57,7 +57,8 @@ function head($key) {
 function body($key, $ancestors, $descendants, $photo, $bdm, $bio, $depth) {
 	$regex = WT_ID_REGEX;
 	return "<body  onload='pack()' onresize='resize(event)'>
-		<div id='ancestors' depth='$depth'>$ancestors</div>
+	    <div id='get' class='hide' depth='$depth'></div>
+		<div id='ancestors'>$ancestors</div>
 		<div id='profile' class='grid'>
 		<div id='photo'>
             <div class='wiki'>
@@ -186,7 +187,7 @@ function bdm_div($person, $people) {
     </div>";
 }
 
-function fractal($id, $people, $gen = 0, $depth = 3) {
+function fractal($id, $people, $gen = 0, $depth = 4) {
 	if (empty($id) || !isset($people[$id])) {
 		return "<div class='grid'></div>";
 	}
