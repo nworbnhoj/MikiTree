@@ -561,16 +561,13 @@ function init() {
 		"-6" => array("Id" => "-6", "LastNameAtBirth" => "Great Grand Mother", "Father" => "-7", "Mother" => "-8", "Gender" => "Female"),
 		"-7" => array("Id" => "-7", "LastNameAtBirth" => "GGGF", "Father" => "-9", "Mother" => "-10", "Gender" => "Male"),
 		"-8" => array("Id" => "-8", "LastNameAtBirth" => "GGGM", "Father" => "-9", "Mother" => "-10", "Gender" => "Female"),
-		"-9" => array("Id" => "-9", "LastNameAtBirth" => "GGGGF", "Father" => "-11", "Mother" => "-12", "Gender" => "Male"),
-		"-10" => array("Id" => "-10", "LastNameAtBirth" => "GGGGM", "Father" => "-11", "Mother" => "-12", "Gender" => "Female"),
-		"-11" => array("Id" => "-11", "LastNameAtBirth" => "GGGGGF", "Father" => "-13", "Mother" => "-14", "Gender" => "Male"),
-		"-12" => array("Id" => "-12", "LastNameAtBirth" => "GGGGGM", "Father" => "-13", "Mother" => "-14", "Gender" => "Female"),
 		"-20" => array("Id" => "-20", "LastNameAtBirth" => "siblings", "Father" => "", "Mother" => "", "Gender" => ""),
 		"-21" => array("Id" => "-21", "LastNameAtBirth" => "brother", "Father" => "", "Mother" => "", "Gender" => "Male"),
 		"-22" => array("Id" => "-22", "LastNameAtBirth" => "sister", "Father" => "", "Mother" => "", "Gender" => "Female"),
 	]);
 
 	define("HELP_BIO", "<div id='bdm'><p>Enter a valid <b>WikiTree ID</b> to begin exploring.</p>
+		    <P>Click on any profile to bring it to the centre.</p>
 			<p><b>Ancestors</b> are displayed in a fractal tree:
 			<ul>
 			<li>fathers are shown to the left or above</li>
@@ -579,7 +576,7 @@ function init() {
 			<p><b>Descendents</b> are in rows of siblings, 1st cousins, 2nd cousins etc.
 			<ul>
 			<li>Click ▯▯▯ to show the next generation (click again to hide).</li>
-			<li>Parents are above siblings, and spouses are below.</li>
+			<li>Each row of Siblings has Parents above, and spouses below.</li>
 			</ul></p></div>");
 }
 
