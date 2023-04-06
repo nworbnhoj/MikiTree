@@ -109,11 +109,33 @@ function resize_chutes(event) {
 
 function pack() {
     unpack();
-    if (packAncestors() < 1) {
-        var ancestors = document.getElementById("ancestors");
-        ancestors.style.fontSize = "1.0em";
+    var g4_packed = packAncestors();
+    var depth = hideSurplus();
+    if (depth <= 4 && g4_packed < 1) {
+        // reduce font-size if gen4 not fully packed
+        document.getElementById("ancestors").style.fontSize = "1.0em";
     }
     packDescendants();
+}
+
+
+function hideSurplus() {
+    // hide generations with no visible data
+    var depth = parseInt(ancestors.getAttribute('depth'));
+    while (depth > 4) {
+        var visible = "[gen='" + depth + "'] span[p]:not(.X)";
+        var hide = ancestors.querySelectorAll(visible).length < 4;
+        var generation = ancestors.querySelectorAll("[gen='" + depth + "']");
+        for (var g = 0; g < generation.length; g++) {
+            if (hide) {
+                generation[g].classList.add("hide");
+            } else {
+                generation[g].classList.remove("hide");
+            }
+        }
+        depth--;
+    }
+    return depth;
 }
 
 

@@ -34,7 +34,7 @@ if (!isset($root)) {
 $ancestors = fractal($root_id, $people, 0, $depth);
 $descendants = branch($root, $people);
 $head = head($root_key);
-$body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio);
+$body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio, $depth);
 
 echo "<!DOCTYPE html>
 	<html lang='en'>
@@ -54,10 +54,10 @@ function head($key) {
 	</head>";
 }
 
-function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
+function body($key, $ancestors, $descendants, $photo, $bdm, $bio, $depth) {
 	$regex = WT_ID_REGEX;
 	return "<body  onload='pack()' onresize='resize(event)'>
-		<div id='ancestors'>$ancestors</div>
+		<div id='ancestors' depth='$depth'>$ancestors</div>
 		<div id='profile' class='grid'>
 		<div id='photo'>
             <div class='wiki'>
@@ -182,7 +182,7 @@ function bdm_div($person, $people) {
 
 function fractal($id, $people, $gen = 0, $depth = 3) {
 	if (empty($id) || !isset($people[$id])) {
-		return "<div class='missing person'><br><br></div>";
+		return "<div class='grid'></div>";
 	}
 	$person = $people[$id];
 	$div_person = $gen == 0 ? root_div($person, $people) : person_div($person, $gen);
@@ -354,36 +354,38 @@ function name_div($person, $flags = "lfymv") {
 	$fv = strpos($flags, 'v') !== false; // vertical orientation
 
 	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
-	$name_first = isset($person['RealName']) ? $person['RealName'] : "";
-	$initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : "";
-	$initial = ($initial == ".") ? "" : $initial;
-	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
+	$name_first = isset($person['RealName']) ? $person['RealName'] : false;
+	$initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : false;
+	$initial = ($initial == ".") ? false : $initial;
+	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : false;
 	$privacy = isset($person['Privacy']) ? intval($person['Privacy']) : 60;
 	$name_family = $privacy < 30 ? "🔒" : $name_family;
 
-	$first = isset($person['RealName']) ? $person['RealName'] : "";
+	$first = isset($person['RealName']) ? $person['RealName'] : false;
 	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $initial;
 	$last = $fh ? $name_family : "<b>$name_family</b>";
 
-	$years = "";
+	$years = false;
 	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
 	if ($is_living) {
 		$decade = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
-		$years = $decade ? "($decade)" : "";
+		$years = $decade ? "($decade)" : false;
 	} else {
-		$year_birth = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : "";
-		$year_death = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : "";
+		$year_birth = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : false;
+		$year_death = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
 		if ($fv) {
 			$years = "b.$year_birth<br>d.$year_death";
 		} else {
 			$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
 		}
 	}
-	$years = $privacy < 30 ? "" : $years;
-	$first = $ff ? "<span class='X' p='f'>$first</span>" : "";
-	$middle = $fm ? "<span class='X' p='m'>$middle</span>" : "";
-	$last = $fl ? "<span class='X' p='l'>$last</span>" : "";
-	$years = $fy ? "<span class='X' p='y'>$years</span>" : "";
+	$years = $privacy < 30 ? false : $years;
+	$first = $ff && $first ? "<span class='X' p='f'>$first</span>" : "";
+	$middle = $fm && $middle ? "<span class='X' p='m'>$middle</span>" : "";
+	$last = $fl && $last ? "<span class='X' p='l'>$last</span>" : "";
+	$years = $fy && $years ? "<span class='X' p='y'>$years</span>" : "";
+
+	if (!($years || $first || $middle || $last || $years)) {return "<br>";}
 
 	return $fv ?
 	"<div class='name'>$first $middle<br>$last<br><small>$years</small></div>" :
