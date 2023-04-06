@@ -33,6 +33,7 @@ if (!isset($root)) {
 	$root = $people[$root_id];
 	$photo = fetchPhoto("", $root['Photo']);
 	$bdm = HELP_BIO;
+	$bio = "";
 }
 $ancestors = fractal($root_id, $people, 0, $depth);
 $descendants = branch($root, $people);
@@ -484,7 +485,8 @@ function fetchFamily($key, $depth) {
 		return $people;
 	}
 	$json_data = json_decode($response, true);
-	$spouses = $json_data[0]['items'][0]['person']['Spouses'];
+	$spouses = isset($json_data[0]['items'][0]['person']['Spouses']) ? $json_data[0]['items'][0]['person']['Spouses'] : array();
+	$people[$root_id]['Spouses'] = array();
 	foreach ($spouses as $spouse_id => $spouse) {
 		$marriage = array();
 		$marriage['date'] = $spouse['marriage_date'];

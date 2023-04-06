@@ -133,6 +133,7 @@ function hideSurplus() {
     // hide generations with no visible data
     var get = document.getElementById('get');
     var depth = parseInt(get.getAttribute('depth'));
+    var ancestors = document.getElementById("ancestors");
     while (depth > 4) {
         var visible = "[gen='" + depth + "'] span[p]:not(.X)";
         var hide = ancestors.querySelectorAll(visible).length < 4;
@@ -232,6 +233,9 @@ function packNodes(nodes) {
 
 function packDescendants(priority = "lfym") {
     var descendants = document.getElementById("descendants");
+    if (!descendants) {
+        return;
+    }
     for (let p = 0; p < priority.length; p++) {
         var data = "[p='" + priority[p] + "']";
         var nodes = descendants.querySelectorAll(data);
