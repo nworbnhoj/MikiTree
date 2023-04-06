@@ -53,6 +53,7 @@ div.union { grid-template-rows: 3em 8em; }
 div.chutes { position: relative; z-index: -1; }
 svg.chute { position: absolute; bottom: 0px; z-index: -1; }
 svg.hide { display: none; }
+polygon {stroke:LightGrey;stroke-width:0.3em;}
 polygon.female { fill: rgb(255, 238, 238); }
 polygon.male { fill: rgb(238, 238, 255); }
 
