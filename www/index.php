@@ -149,9 +149,13 @@ function bdm_div($person, $people) {
 		$death = "";
 	} else {
 		$birth_date = isset($person['BirthDate']) ? $person['BirthDate'] : "";
+		$birth_date = str_replace("-00", "", $birth_date);
+		$birth_date = str_replace("0000", "", $birth_date);
 		$birth_location = isset($person['BirthLocation']) ? $person['BirthLocation'] : "";
 		$birth = "<h2>birth</h2>$birth_date<br>$birth_location";
 		$death_date = isset($person['DeathDate']) ? $person['DeathDate'] : "";
+		$death_date = str_replace("-00", "", $death_date);
+		$death_date = str_replace("0000", "", $death_date);
 		$death_location = isset($person['DeathLocation']) ? $person['DeathLocation'] : "";
 		$death = "<h2>death</h2>$death_date<br>$death_location";
 	}
@@ -164,6 +168,8 @@ function bdm_div($person, $people) {
 			$last = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
 			$union = $union['Marriage'];
 			$date = isset($union['date']) ? $union['date'] : "";
+			$date = str_replace("-00", "", $date);
+			$date = str_replace("0000", "", $date);
 			$location = isset($union['location']) ? $union['location'] : "";
 			$list .= "<li class='marriage'>$date $first $last<br>$location</li>";
 		}
