@@ -73,6 +73,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
 				   <input type='submit' value='Go'>
 				</form>
+				<button class='help' onclick='help(event)'>HELP</button>
 			</div>
 		    $photo
 	    </div>$bdm</div>
@@ -345,13 +346,11 @@ function root_div($root, $people) {
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, SHOW . 'v');
-	$checked = $root['Id'] == "root" ? "checked" : "";
 
 	return
 		"<div class='person root $gender' id='$key' gen='0'>
 			$name_div
 			$siblings
-			<button class='help $checked' onclick='help(event)'>HELP</button>
 		</div>";
 }
 
