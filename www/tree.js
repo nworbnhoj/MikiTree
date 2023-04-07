@@ -3,16 +3,14 @@ function load(event) {
     var div = event.currentTarget;
     var key = div.id;
     if (!key) {
-        alert("Sorry the Wiki-ID is missing for this Profile for some reason.");
+        alert("Sorry the WikiTree-ID is missing for this Profile for some reason.");
         return;
     }
     div.classList.add('spin');
-    div.firstElementChild.classList.add('hide');
-    var get = document.getElementById('get');
     var params = {
         'key': key,
-        'depth': get.getAttribute('depth'),
-        'show': get.getAttribute('show'),
+        'depth': document.querySelector('input[name="depth"]:checked').value,
+        'show': document.getElementById('get').getAttribute('show'),
     };
     var esc = encodeURIComponent;
     var query = Object.keys(params)
@@ -32,6 +30,20 @@ function settings(event){
     event.cancelBubble = true;
     event.currentTarget.classList.toggle('checked');
     document.getElementById('settings').classList.toggle('hide');
+}
+
+function depth_changed(event){
+    event.cancelBubble = true;
+    var get = document.getElementById('get');
+    var current_depth = get.getAttribute('depth');
+    var input = document.querySelector('input[name="depth"]:checked');
+    var input_depth = input.value;
+    if (input_depth > current_depth){       
+        get.setAttribute('depth', input_depth);
+        load(event);
+    } else {
+        resize(event);
+    }
 }
 
 function showBranch(event) {
@@ -124,7 +136,10 @@ function resize_chutes(event) {
 
 function pack() {
     unpack();
-    var g4_packed = packAncestors();
+    var input_depth = document.querySelector('input[name="depth"]:checked');    
+    var depth = parseInt(input_depth.value);
+    var show = document.getElementById('get').getAttribute('show');
+    var g4_packed = packAncestors(show, depth);
     var depth = hideSurplus();
     if (depth <= 4 && g4_packed < 1) {
         // reduce font-size if gen4 not fully packed
@@ -164,15 +179,15 @@ function unpack() {
 }
 
 
-function packAncestors(priority = "lfym") {
-    if (priority.length = 0) {
+function packAncestors(show, depth_max) {
+    if (show.length = 0) {
         return 1; // unwind recursion
     }
     var g4_packed = 0;
 
     // try to show the data in priority order
     var ancestors = document.getElementById("ancestors");
-    var data = "[p='" + priority[0] + "']";
+    var data = "[p='" + show[0] + "']";
     var g = 0;
     do { // work out from the center
         var gen_g = "[gen='" + g + "']";
@@ -181,10 +196,10 @@ function packAncestors(priority = "lfym") {
         var packed = packNodes(nodes);
         g4_packed = (g <= 4) ? packed : g4_packed;
         g++;
-    } while (nodes.length > 0 && packed > 0.2);
+    } while (g <= depth_max && nodes.length > 0 && packed > 0.2);
 
     // pack the next priority after a short delay
-    setTimeout(packAncestors, 10, priority.substring(1));
+    setTimeout(packAncestors, 10, show.substring(1), depth_max);
 
     return g4_packed;
 }

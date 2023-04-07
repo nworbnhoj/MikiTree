@@ -82,7 +82,7 @@ button.checked { background-color: DarkSeaGreen; }
     0% { transform: translate3d(-50%, -50%, 0) rotate(0deg); }
     100% { transform: translate3d(-50%, -50%, 0) rotate(360deg); }
 }
-.spin::before { animation: 1.5s linear infinite spinner; animation-play-state: inherit; border: solid 1vw #cfd0d1; border-bottom-color: #1c87c9; border-radius: 50%; content: ""; height: 2vw; width: 2vw; position: relative; top: 2vw; left: 2vw; transform: translate3d(-50%, -50%, 0); will-change: transform; }
+.spin::before { animation: 1.5s linear infinite spinner; animation-play-state: inherit; border: solid 1vw #cfd0d1; border-bottom-color: #1c87c9; border-radius: 50%; content: ""; height: 2vw; width: 2vw; position: absolute; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0); will-change: transform; z-index: 1;}
 
 /*** BIO ***/
 
@@ -106,6 +106,9 @@ h6 { }
 
 /************** <small> *********************/
 small { font-size: 0.7em; }
+
+/************** <strong> *********************/
+strong { font-size: 1.2em; font-weight:bold; padding: 0.4em;}
 
 /************** <p> *********************/
 p { margin: 0.5em 0em 0.5em 0em; padding: 1em; text-align: left; line-height: 1.5em; }
@@ -133,8 +136,10 @@ td {    /*  padding:0.2em; */ }
 
 /************** <fieldset> *********************/
 
+fieldset {color: #000000; border: black solid 0.1em ; padding: 1em ; margin: 1em; font-size: 1em; }
+
 /************** <legend> *********************/
-legend { color: #000000; font-weight: bold; font-size: 15px; }
+legend { color: #000000; font-weight: bold; font-size: 1.2em; }
 
 /************** <a> *********************/
 a:link { color: black; }

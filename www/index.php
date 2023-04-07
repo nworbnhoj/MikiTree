@@ -60,8 +60,12 @@ function head($key) {
 
 function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	$regex = WT_ID_REGEX;
-	$depth = DEPTH;
 	$show = SHOW;
+	$depth = DEPTH;
+	$c4 = $depth == 4 ? 'checked' : '';
+	$c6 = $depth == 6 ? 'checked' : '';
+	$c8 = $depth == 8 ? 'checked' : '';
+	$c10 = $depth == 10 ? 'checked' : '';
 	return "<body  onload='pack()' onresize='resize(event)'>
 	    <div id='get' class='hide' depth='$depth' show='$show'></div>
 		<div id='ancestors'>$ancestors</div>
@@ -78,6 +82,17 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			</div>
 			<div id='settings' class='hide'>
 				<form class='settings'>
+				<fieldset id='$key' onchange='depth_changed(event)'>
+				    <legend>fractal depth</legend>
+				    <input type='radio' id='4' name='depth' value='4' $c4>
+                    <label for='4'><strong>4</strong> (compact)</label><br>
+				    <input type='radio' id='6' name='depth' value='6' $c6>
+                    <label for='6'><strong>6</strong> (default)</label><br>
+				    <input type='radio' id='8' name='depth' value='8' $c8>
+                    <label for='8'><strong>8</strong> (slow)</label><br>
+				    <input type='radio' id='10' name='depth' value='10' $c10>
+                    <label for='10'><strong>10</strong> (nuts)</label><br>
+                    </fieldset>
 				</form>
 			</div>
 		    $photo
