@@ -74,6 +74,11 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				   <input type='submit' value='Go'>
 				</form>
 				<button class='help' onclick='help(event)'>HELP</button>
+				<button class='settings' onclick='settings(event)'>⚙</button>
+			</div>
+			<div id='settings' class='hide'>
+				<form class='settings'>
+				</form>
 			</div>
 		    $photo
 	    </div>$bdm</div>
@@ -134,7 +139,7 @@ function fetchPhoto($path, $name) {
 		fwrite($fp, $raw_data);
 		fclose($fp);
 	}
-	return "<img class='photo' src='$save_as'>";
+	return "<img id='portrait' class='photo' src='$save_as'>";
 }
 
 function bdm_div($person, $people) {

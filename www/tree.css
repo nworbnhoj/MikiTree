@@ -74,6 +74,7 @@ span.upper { text-transform: uppercase; }
 span.nowrap { white-space: nowrap; }
 button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; min-width: 3em; max-width: 100%; overflow: hidden; }
 button.help { font-size: 1em; padding: 0.2em; text-align: center; }
+button.settings { font-size: 1em; padding: 0.2em; text-align: center; min-width: 1.8em; }
 button.checked { background-color: DarkSeaGreen; }
 
 /*** SPINNER ***/

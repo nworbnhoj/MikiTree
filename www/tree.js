@@ -28,6 +28,11 @@ function unspin(element) {
     element.firstElementChild.classList.remove('hide');
 }
 
+function settings(event){
+    event.cancelBubble = true;
+    event.currentTarget.classList.toggle('checked');
+    document.getElementById('settings').classList.toggle('hide');
+}
 
 function showBranch(event) {
     event.cancelBubble = true;
