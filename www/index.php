@@ -3,9 +3,12 @@
 define("WT_ID_REGEX", "^[A-Z][\w-]{1,30}-\d{1,6}$");
 define("SHOW_DEFAULT", "Lfbdm");
 define("SHOW_ALL", array(
-	'b' => "birth date",
-	'd' => "death date",
+	'b' => "birth year",
+	'c' => "birth location",
+	'd' => "death year",
+	'e' => "death location",
 	'f' => "first name",
+	'F' => "first initial",
 	'l' => "last name",
 	'L' => "<b>last name</b>",
 	'm' => "middle name",
@@ -348,7 +351,7 @@ function person_div($person, $gen = 0) {
 	$key = str_replace(" ", "_", $key); // wikitree bug??
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
-	$name_div = name_div($person, "bdfmMlL");
+	$name_div = name_div($person, "bcdefmMlL");
 	return
 		"<div class='person $gender' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
@@ -401,8 +404,7 @@ function root_div($root, $people) {
 	$key = isset($root['Name']) ? $root['Name'] : "";
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
-	$name_div = name_div($root, "bdfmMlL");
-
+	$name_div = name_div($root, "bcdefmMlL");
 	return
 		"<div class='person root $gender' id='$key' gen='0'>
 			$name_div
@@ -411,9 +413,10 @@ function root_div($root, $people) {
 }
 
 function name_div($person, $flags) {
-
 	$fb = strpos($flags, 'b') !== false; // birth date
+	$fc = strpos($flags, 'c') !== false; // birth location
 	$fd = strpos($flags, 'd') !== false; // death date
+	$fe = strpos($flags, 'e') !== false; // death location
 	$ff = strpos($flags, 'f') !== false; // first name
 	$fl = strpos($flags, 'l') !== false; // last name
 	$fL = strpos($flags, 'L') !== false; // last name bold
@@ -432,28 +435,33 @@ function name_div($person, $flags) {
 	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $middle_initial;
 	$last = $privacy < 30 ? "🔒" : $name_family;
 
-	$birth_year = false;
-	$death_year = false;
 	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
 	if ($is_living) {
 		$birth_year = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
 		$birth_year = $privacy < 30 ? false : $birth_year;
+		$birth_location = false;
+		$death_year = false;
+		$death_location = false;
 	} else {
 		$birth_year = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : false;
 		$death_year = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
+		$birth_location = isset($person['BirthLocation']) ? end(explode(',', $person['BirthLocation'])) : false;
+		$death_location = isset($person['DeathLocation']) ? end(explode(',', $person['DeathLocation'])) : false;
 	}
 
 	$b = $fb && $birth_year ? "<span class='X' p='b'>b.$birth_year</span>" : "";
+	$c = $fc && $birth_location ? "<span class='X' p='c'>b.$birth_location</span>" : "";
 	$d = $fd && $death_year ? "<span class='X' p='d'>d.$death_year</span>" : "";
+	$e = $fe && $death_location ? "<span class='X' p='e'>d.$death_location</span>" : "";
 	$f = $ff && $first ? "<span class='X' p='f'>$first</span>" : "";
 	$l = $fl && $last ? "<span class='X' p='l'>$last</span>" : "";
 	$L = $fL && $last ? "<span class='X' p='L'><b>$last</b></span>" : "";
 	$m = $fm && $middle ? "<span class='X' p='m'>$middle</span>" : "";
 	$M = $fn && $middle_initial ? "<span class='X' p='M'>$middle_initial</span>" : "";
 
-	if (!($b || $d || $f || $l || $L || $m || $M)) {return "<br>";}
+	if (!($b || $c || $d || $e || $f || $l || $L || $m || $M)) {return "<br>";}
 
-	return "<div class='name'>$f $m$M $l$L <small>$b $d</small></div>";
+	return "<div class='name'>$f $m$M $l$L <small>$b $d $c $e</small></div>";
 }
 
 function links($ids, $people) {
