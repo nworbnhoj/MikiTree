@@ -1,6 +1,16 @@
 	<?php
 
 define("WT_ID_REGEX", "^[A-Z][\w-]{1,30}-\d{1,6}$");
+define("SHOW_DEFAULT", "Lfbdm");
+define("SHOW_ALL", array(
+	'b' => "birth date",
+	'd' => "death date",
+	'f' => "first name",
+	'l' => "last name",
+	'L' => "<b>last name</b>",
+	'm' => "middle name",
+	'M' => "middle initial",
+));
 
 // Get parameters and constrain
 $root_key = isset($_GET['key']) ? $_GET['key'] : null;
@@ -8,7 +18,7 @@ $regex = "{" . WT_ID_REGEX . "}";
 $root_key = preg_match($regex, $root_key) ? $root_key : null;
 $depth = isset($_GET['depth']) ? intval($_GET['depth']) : 6;
 $depth = max(min($depth, 10), 0);
-$show = isset($_GET['show']) ? $_GET['show'] : "lfym";
+$show = isset($_GET['show']) ? $_GET['show'] : SHOW_DEFAULT;
 define("DEPTH", $depth);
 define("SHOW", $show);
 
@@ -60,6 +70,7 @@ function head($key) {
 
 function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	$regex = WT_ID_REGEX;
+	$show_fieldset = show_fieldset();
 	$show = SHOW;
 	$depth = DEPTH;
 	$c4 = $depth == 4 ? 'checked' : '';
@@ -93,6 +104,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				    <input type='radio' id='10' name='depth' value='10' $c10>
                     <label for='10'><strong>10</strong> (nuts)</label><br>
                     </fieldset>
+				$show_fieldset
 				</form>
 			</div>
 		    $photo
@@ -100,6 +112,31 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 		<div id='descendants'>$descendants</div>
 		<div id='bio'>$bio</div>
 	</body>";
+}
+
+function show_fieldset() {
+	$checkboxes = "";
+	$show = SHOW;
+	foreach (str_split($show) as $s) {
+		$label = SHOW_ALL[$s];
+		$checkboxes .= "<div>
+		    <input type='checkbox' id='$s' name='show' value='$s' checked>
+		    <label for='$s'>$label</label>
+		</div>";
+	}
+	foreach (SHOW_ALL as $s => $label) {
+		if (strpos($show, $s) === false) {
+			$checkboxes .= "<div>
+			    <input type='checkbox' id='$s' name='show' value='$s'>
+			    <label for='$s'>$label</label>
+			</div>";
+		}
+	}
+	return "<fieldset onchange='show_changed(event)'>
+	    <legend>show priority</legend>
+	    $checkboxes
+	</fieldset>";
+
 }
 
 //https://stackoverflow.com/questions/3523409/domdocument-encoding-problems-characters-transformed
@@ -311,8 +348,7 @@ function person_div($person, $gen = 0) {
 	$key = str_replace(" ", "_", $key); // wikitree bug??
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
-	$flags = $gen % 2 == 0 ? SHOW . 'v' : SHOW;
-	$name_div = name_div($person, $flags);
+	$name_div = name_div($person, "bdfmMlL");
 	return
 		"<div class='person $gender' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
@@ -324,7 +360,7 @@ function child_div($child_id, $people, $gen, $index) {
 	$key = isset($child['Name']) ? $child['Name'] : "";
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
-	$name_div = name_div($child, SHOW . 'v');
+	$name_div = name_div($child, "bdfmMlL");
 
 	$radio_button = radio_button($child, $people, $gen);
 
@@ -354,7 +390,7 @@ function radio_button($child, $people, $gen) {
 function spouse_div($person, $gen) {
 	$key = isset($person['Name']) ? $person['Name'] : "";
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
-	$name_div = name_div($person, "l");
+	$name_div = name_div($person, "lL");
 	return
 		"<div class='person spouse $gender' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
@@ -365,7 +401,7 @@ function root_div($root, $people) {
 	$key = isset($root['Name']) ? $root['Name'] : "";
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
-	$name_div = name_div($root, SHOW . 'v');
+	$name_div = name_div($root, "bdfmMlL");
 
 	return
 		"<div class='person root $gender' id='$key' gen='0'>
@@ -374,55 +410,50 @@ function root_div($root, $people) {
 		</div>";
 }
 
-function name_div($person, $flags = SHOW) {
+function name_div($person, $flags) {
 
-	$ff = strpos($flags, 'f') !== false; // first name
-	$fi = strpos($flags, 'i') !== false; // initial
-	$fm = strpos($flags, 'm') !== false; // middle name
-	$fl = strpos($flags, 'l') !== false; // last name
-	$fy = strpos($flags, 'y') !== false; // year
 	$fb = strpos($flags, 'b') !== false; // birth date
 	$fd = strpos($flags, 'd') !== false; // death date
-	$fh = strpos($flags, 'h') !== false; // hilite last name
-	$fv = strpos($flags, 'v') !== false; // vertical orientation
+	$ff = strpos($flags, 'f') !== false; // first name
+	$fl = strpos($flags, 'l') !== false; // last name
+	$fL = strpos($flags, 'L') !== false; // last name bold
+	$fm = strpos($flags, 'm') !== false; // middle name
+	$fn = strpos($flags, 'n') !== false; // middle initial
+	$fy = strpos($flags, 'y') !== false; // year
 
 	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
 	$name_first = isset($person['RealName']) ? $person['RealName'] : false;
-	$initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : false;
-	$initial = ($initial == ".") ? false : $initial;
+	$middle_initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : false;
+	$middle_initial = ($middle_initial == ".") ? false : $middle_initial;
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : false;
 	$privacy = isset($person['Privacy']) ? intval($person['Privacy']) : 60;
-	$name_family = $privacy < 30 ? "🔒" : $name_family;
 
 	$first = isset($person['RealName']) ? $person['RealName'] : false;
-	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $initial;
-	$last = $fh ? $name_family : "<b>$name_family</b>";
+	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $middle_initial;
+	$last = $privacy < 30 ? "🔒" : $name_family;
 
-	$years = false;
+	$birth_year = false;
+	$death_year = false;
 	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
 	if ($is_living) {
-		$decade = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
-		$years = $decade ? "($decade)" : false;
+		$birth_year = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
+		$birth_year = $privacy < 30 ? false : $birth_year;
 	} else {
-		$year_birth = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : false;
-		$year_death = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
-		if ($fv) {
-			$years = "b.$year_birth<br>d.$year_death";
-		} else {
-			$years = "<span class='nowrap'>($year_birth-$year_death)</span>";
-		}
+		$birth_year = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : false;
+		$death_year = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
 	}
-	$years = $privacy < 30 ? false : $years;
-	$first = $ff && $first ? "<span class='X' p='f'>$first</span>" : "";
-	$middle = $fm && $middle ? "<span class='X' p='m'>$middle</span>" : "";
-	$last = $fl && $last ? "<span class='X' p='l'>$last</span>" : "";
-	$years = $fy && $years ? "<span class='X' p='y'>$years</span>" : "";
 
-	if (!($years || $first || $middle || $last || $years)) {return "<br>";}
+	$b = $fb && $birth_year ? "<span class='X' p='b'>b.$birth_year</span>" : "";
+	$d = $fd && $death_year ? "<span class='X' p='d'>d.$death_year</span>" : "";
+	$f = $ff && $first ? "<span class='X' p='f'>$first</span>" : "";
+	$l = $fl && $last ? "<span class='X' p='l'>$last</span>" : "";
+	$L = $fL && $last ? "<span class='X' p='L'><b>$last</b></span>" : "";
+	$m = $fm && $middle ? "<span class='X' p='m'>$middle</span>" : "";
+	$M = $fn && $middle_initial ? "<span class='X' p='M'>$middle_initial</span>" : "";
 
-	return $fv ?
-	"<div class='name'>$first $middle<br>$last<br><small>$years</small></div>" :
-	"<div class='name'>$first $middle $last <small>$years</small></div>";
+	if (!($b || $d || $f || $l || $L || $m || $M)) {return "<br>";}
+
+	return "<div class='name'>$f $m$M $l$L <small>$b $d</small></div>";
 }
 
 function links($ids, $people) {

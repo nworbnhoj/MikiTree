@@ -136,7 +136,7 @@ td {    /*  padding:0.2em; */ }
 
 /************** <fieldset> *********************/
 
-fieldset {color: #000000; border: black solid 0.1em ; padding: 1em ; margin: 1em; font-size: 1em; }
+fieldset {display:inline-block; vertical-align: top; color: #000000; border: black solid 0.1em ; padding: 1em ; margin: 1em; font-size: 1em; }
 
 /************** <legend> *********************/
 legend { color: #000000; font-weight: bold; font-size: 1.2em; }

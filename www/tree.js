@@ -10,7 +10,7 @@ function load(event) {
     var params = {
         'key': key,
         'depth': document.querySelector('input[name="depth"]:checked').value,
-        'show': document.getElementById('get').getAttribute('show'),
+        'show': show_get(),
     };
     var esc = encodeURIComponent;
     var query = Object.keys(params)
@@ -44,6 +44,42 @@ function depth_changed(event){
     } else {
         resize(event);
     }
+}
+
+function show_changed(event){
+    event.cancelBubble = true;
+    var middle = document.querySelector("input[name='show'][value='m']");
+    var m_initial = document.querySelector("input[name='show'][value='M']");
+    if (middle.checked && m_initial.checked){
+        m_initial.checked = false;
+    }
+    var last = document.querySelector("input[name='show'][value='l']");
+    var l_bold = document.querySelector("input[name='show'][value='L']");
+    if (last.checked && l_bold.checked){
+        l_bold.checked = false;
+    }
+    show_sort();
+    pack();
+}
+
+function show_sort(){
+    var first = document.querySelector('input[name="show"]').parentElement;
+    var checked = document.querySelectorAll('input[name="show"]:checked');
+    if(checked[0]){
+        first.before(checked[0].parentElement);
+        for(var c=1; c<checked.length; c++){
+            checked[c-1].parentElement.after(checked[c].parentElement);
+        }
+    }
+}
+
+function show_get(){
+    var show = '';
+    var checked = document.querySelectorAll('input[name="show"]:checked');
+    for(var c=0; c<checked.length; c++){
+        show += checked[c].value;
+    }
+    return show;
 }
 
 function showBranch(event) {
@@ -135,17 +171,19 @@ function resize_chutes(event) {
 
 
 function pack() {
-    unpack();
+    var ancestors = document.getElementById("ancestors");
     var input_depth = document.querySelector('input[name="depth"]:checked');    
-    var depth = parseInt(input_depth.value);
-    var show = document.getElementById('get').getAttribute('show');
-    var g4_packed = packAncestors(show, depth);
-    var depth = hideSurplus();
-    if (depth <= 4 && g4_packed < 1) {
-        // reduce font-size if gen4 not fully packed
-        document.getElementById("ancestors").style.fontSize = "1.0em";
+        unpack(ancestors);
+        var input_depth = document.querySelector('input[name="depth"]:checked');    
+        var depth = parseInt(input_depth.value);
+        var g4_packed = packAncestors(show_get(), depth);
+        var depth = hideSurplus();
+        if (depth <= 4 && g4_packed < 1) {
+            // reduce font-size if gen4 not fully packed
+            document.getElementById("ancestors").style.fontSize = "1.0em";
     }
-    packDescendants();
+    unpack(document.getElementById("descendants"));
+    packDescendants(show_get());
 }
 
 
@@ -171,8 +209,8 @@ function hideSurplus() {
 }
 
 
-function unpack() {
-    var all = document.querySelectorAll("span[p]");
+function unpack(element) {
+    var all = element.querySelectorAll("span[p]");
     for (let a = 0; a < all.length; a++) {
         all[a].classList.add('X');
     }
@@ -251,13 +289,13 @@ function packNodes(nodes) {
 }
 
 
-function packDescendants(priority = "lfym") {
+function packDescendants(show) {
     var descendants = document.getElementById("descendants");
     if (!descendants) {
         return;
     }
-    for (let p = 0; p < priority.length; p++) {
-        var data = "[p='" + priority[p] + "']";
+    for (let s = 0; s < show.length; s++) {
+        var data = "[p='" + show[s] + "']";
         var nodes = descendants.querySelectorAll(data);
         for (let n = 0; n < nodes.length; n++) {
             nodes[n].classList.remove('X');
