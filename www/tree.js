@@ -240,11 +240,11 @@ function packAncestors(show, depth_max) {
     do { // work out from the center
         var gen_g = "[gen='" + g + "']";
         var gen_g_data = gen_g + " " + data;
-        var nodes = ancestors.querySelectorAll(gen_g_data);
-        var packed = packNodes(nodes);
-        g4_packed = (g <= 4) ? packed : g4_packed;
+        var packed = packNodes(ancestors.querySelectorAll(gen_g_data));
+        g4_packed = g == 4 ? packed : g4_packed;
+        var gen_len = ancestors.querySelectorAll(gen_g).length;
         g++;
-    } while (g <= depth_max && nodes.length > 0 && packed > 0.2);
+    } while (g <= depth_max && gen_len > 0 && packed > 0.2);
 
     // pack the next priority after a short delay
     setTimeout(packAncestors, 10, show.substring(1), depth_max);
@@ -275,8 +275,7 @@ function packNodes(nodes) {
         shown.push(nodes[n]);
     }
 
-    // check if div #ancestors has exceeded the bounds of screen
-
+    //check if div #ancestors has exceeded the bounds of screen
     if (body.scrollWidth > body.clientWidth ||
         ancestors.offsetHeight > window.innerHeight ||
         ancestors.offsetHeight > body.clientWidth) {

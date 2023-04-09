@@ -440,21 +440,13 @@ function name_div($person, $flags) {
 	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $middle_initial;
 	$last = $privacy < 30 ? "🔒" : $name_family;
 
-	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
-	if ($is_living) {
-		$birth_year = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
-		$birth_year = $privacy < 30 ? false : $birth_year;
-		$birth_location = false;
-		$death_year = false;
-		$death_location = false;
-	} else {
-		$birth_year = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : false;
-		$death_year = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
-		$birth_location = isset($person['BirthLocation']) ? explode(',', $person['BirthLocation']) : false;
-		$death_location = isset($person['DeathLocation']) ? explode(',', $person['DeathLocation']) : false;
-		$birth_location = is_array($birth_location) ? end($birth_location) : false;
-		$death_location = is_array($death_location) ? end($death_location) : false;
-	}
+	$birth_year = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
+	$birth_year = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : $birth_year;
+	$death_year = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
+	$birth_location = isset($person['BirthLocation']) ? explode(',', $person['BirthLocation']) : false;
+	$death_location = isset($person['DeathLocation']) ? explode(',', $person['DeathLocation']) : false;
+	$birth_location = is_array($birth_location) ? end($birth_location) : false;
+	$death_location = is_array($death_location) ? end($death_location) : false;
 
 	$b = $fb && $birth_year ? "<span class='X' p='b'>b.$birth_year</span>" : "";
 	$c = $fc && $birth_location ? "<span class='X' p='c'>b.$birth_location</span>" : "";
