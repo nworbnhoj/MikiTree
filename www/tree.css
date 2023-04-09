@@ -65,10 +65,10 @@ div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
 div.female { background-color: #FFEEEE; }
 div.male { background-color: #EEEEFF; }
-div.female.vertical { border-top: 0.2em solid #FFEEEE; background-image: linear-gradient(to bottom, #FFEEEE, #FFEEEE, LightGray); }
-div.female.horizontal { border-left: 0.2em solid #FFEEEE; background-image: linear-gradient(to right, #FFEEEE, #FFEEEE, LightGray); }
-div.male.vertical { border-bottom: 0.2em solid #EEEEFF; background-image: linear-gradient(to top, #EEEEFF, #EEEEFF, LightGray); }
-div.male.horizontal { border-right: 0.2em solid #EEEEFF; background-image: linear-gradient(to left, #EEEEFF, #EEEEFF, LightGray); }
+div.female.vertical { border-top: 0.2em solid #FFDDDD; background-image: linear-gradient(to bottom, #FFDDDD, #FFEEEE, #FFEEEE, #FFEEEE, #FFEEEE); }
+div.female.horizontal { border-left: 0.2em solid #FFDDDD; background-image: linear-gradient(to right, #FFDDDD, #FFEEEE, #FFEEEE, #FFEEEE, #FFEEEE); }
+div.male.vertical { border-bottom: 0.2em solid #DDDDFF; background-image: linear-gradient(to top, #DDDDFF, #EEEEFF, #EEEEFF, #EEEEFF, #EEEEFF); }
+div.male.horizontal { border-right: 0.2em solid #DDDDFF; background-image: linear-gradient(to left, #DDDDFF, #EEEEFF, #EEEEFF, #EEEEFF, #EEEEFF); }
 div.child { padding-bottom: 2em; }
 div.spouses { grid-auto-flow: row; position: absolute; top: 8.2em; width: 100% }
 div.spouse { margin: 0; }
