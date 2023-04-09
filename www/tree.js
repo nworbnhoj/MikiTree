@@ -9,7 +9,7 @@ function load(event) {
     div.classList.add('spin');
     var params = {
         'key': key,
-        'depth': document.querySelector('input[name="depth"]:checked').value,
+        'depth': depth_get(),
         'show': show_get(),
     };
     var esc = encodeURIComponent;
@@ -32,14 +32,13 @@ function settings(event){
     document.getElementById('settings').classList.toggle('hide');
 }
 
-function depth_changed(event){
+function depth_changed(event) {
     event.cancelBubble = true;
     var get = document.getElementById('get');
-    var current_depth = get.getAttribute('depth');
-    var input = document.querySelector('input[name="depth"]:checked');
-    var input_depth = input.value;
-    if (input_depth > current_depth){       
-        get.setAttribute('depth', input_depth);
+    var data_depth = get.getAttribute('depth');
+    var depth = depth_get();
+    if (depth > data_depth) {
+        get.setAttribute('depth', depth);
         load(event);
     } else {
         resize(event);
@@ -73,7 +72,11 @@ function show_sort(){
     }
 }
 
-function show_get(){
+function depth_get() {    
+    return parseInt(document.querySelector("input[name='depth']:checked").value);
+}
+
+function show_get() {
     var show = '';
     var checked = document.querySelectorAll('input[name="show"]:checked');
     for(var c=0; c<checked.length; c++){
@@ -181,15 +184,13 @@ function resize_chutes(event) {
 
 function pack() {
     var ancestors = document.getElementById("ancestors");
-    var input_depth = document.querySelector('input[name="depth"]:checked');    
-        unpack(ancestors);
-        var input_depth = document.querySelector('input[name="depth"]:checked');    
-        var depth = parseInt(input_depth.value);
-        var g4_packed = packAncestors(show_get(), depth);
-        var depth = hideSurplus();
-        if (depth <= 4 && g4_packed < 1) {
-            // reduce font-size if gen4 not fully packed
-            document.getElementById("ancestors").style.fontSize = "1.0em";
+    unpack(ancestors);
+    var depth = depth_get();
+    var g4_packed = packAncestors(show_get(), depth);
+    var depth = hideSurplus();
+    if (depth <= 4 && g4_packed < 1) {
+        // reduce font-size if gen4 not fully packed
+        document.getElementById("ancestors").style.fontSize = "1.0em";
     }
     unpack(document.getElementById("descendants"));
     packDescendants(show_get());
@@ -199,7 +200,7 @@ function pack() {
 function hideSurplus() {
     // hide generations with no visible data
     var get = document.getElementById('get');
-    var depth = parseInt(get.getAttribute('depth'));
+    var depth = depth_get();
     var ancestors = document.getElementById("ancestors");
     while (depth > 4) {
         var visible = "[gen='" + depth + "'] span[p]:not(.X)";
