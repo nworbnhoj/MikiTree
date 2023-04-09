@@ -154,6 +154,7 @@ function tidyHtml($html) {
 	}
 	$dom = new DOMDocument('1.0', 'UTF-8');
 	$html = '<?xml version="1.0" encoding="UTF-8"?>' . $html;
+	libxml_use_internal_errors(true);
 	$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 	$dom = removeNodes($dom, "table");
 	$dom = removeNodes($dom, "div");
