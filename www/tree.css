@@ -53,7 +53,7 @@ div.union { grid-template-rows: 3em 8em; }
 div.chutes { position: relative; z-index: -1; }
 svg.chute { position: absolute; bottom: 0px; z-index: -1; }
 svg.hide { display: none; }
-polygon {stroke:LightGrey;stroke-width:0.3em;}
+polygon { stroke: LightGrey; stroke-width: 0.3em; }
 polygon.female { fill: #E3E3E3; }
 polygon.male { fill: #E3E3E3; }
 
@@ -86,7 +86,7 @@ button.checked { background-color: DarkSeaGreen; }
     0% { transform: translate3d(-50%, -50%, 0) rotate(0deg); }
     100% { transform: translate3d(-50%, -50%, 0) rotate(360deg); }
 }
-.spin::before { animation: 1.5s linear infinite spinner; animation-play-state: inherit; border: solid 1vw #cfd0d1; border-bottom-color: #1c87c9; border-radius: 50%; content: ""; height: 2vw; width: 2vw; position: absolute; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0); will-change: transform; z-index: 1;}
+.spin::before { animation: 1.5s linear infinite spinner; animation-play-state: inherit; border: solid 1vw #cfd0d1; border-bottom-color: #1c87c9; border-radius: 50%; content: ""; height: 2vw; width: 2vw; position: absolute; top: 50%; left: 50%; transform: translate3d(-50%, -50%, 0); will-change: transform; z-index: 1; }
 
 /*** BIO ***/
 
@@ -112,7 +112,7 @@ h6 { }
 small { font-size: 0.7em; }
 
 /************** <strong> *********************/
-strong { font-size: 1.2em; font-weight:bold; padding: 0.4em;}
+strong { font-size: 1.2em; font-weight: bold; padding: 0.4em; }
 
 /************** <p> *********************/
 p { margin: 0.5em 0em 0.5em 0em; padding: 1em; text-align: left; line-height: 1.5em; }
@@ -139,8 +139,7 @@ font-weight: bold; text-align: center; }
 td {    /*  padding:0.2em; */ }
 
 /************** <fieldset> *********************/
-
-fieldset {display:inline-block; vertical-align: top; color: #000000; border: black solid 0.1em ; padding: 1em ; margin: 1em; font-size: 1em; }
+fieldset { display: inline-block; vertical-align: top; color: #000000; border: black solid 0.1em; padding: 1em; margin: 1em; font-size: 1em; }
 
 /************** <legend> *********************/
 legend { color: #000000; font-weight: bold; font-size: 1.2em; }

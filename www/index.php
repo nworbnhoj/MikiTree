@@ -215,23 +215,16 @@ function bdm_div($person, $people) {
 	$name = "<h1>$name_prefix $name_first $name_middle $name_family $name_suffix</h1>";
 
 	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
-	if ($is_living) {
-		$birth_date = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : "";
-		$birth_location = isset($person['BirthLocation']) ? $person['BirthLocation'] : "";
-		$birth = "<h2>birth:</h2>$birth_date<br>$birth_location";
-		$death = "";
-	} else {
-		$birth_date = isset($person['BirthDate']) ? $person['BirthDate'] : "";
-		$birth_date = str_replace("-00", "", $birth_date);
-		$birth_date = str_replace("0000", "", $birth_date);
-		$birth_location = isset($person['BirthLocation']) ? $person['BirthLocation'] : "";
-		$birth = "<h2>birth</h2>$birth_date<br>$birth_location";
-		$death_date = isset($person['DeathDate']) ? $person['DeathDate'] : "";
-		$death_date = str_replace("-00", "", $death_date);
-		$death_date = str_replace("0000", "", $death_date);
-		$death_location = isset($person['DeathLocation']) ? $person['DeathLocation'] : "";
-		$death = "<h2>death</h2>$death_date<br>$death_location";
-	}
+	$birth_date = isset($person['BirthDate']) ? $person['BirthDate'] : "";
+	$birth_date = str_replace("-00", "", $birth_date);
+	$birth_date = str_replace("0000", "", $birth_date);
+	$birth_location = isset($person['BirthLocation']) ? $person['BirthLocation'] : "";
+	$birth = "<h2>birth</h2>$birth_date<br>$birth_location";
+	$death_date = isset($person['DeathDate']) ? $person['DeathDate'] : "";
+	$death_date = str_replace("-00", "", $death_date);
+	$death_date = str_replace("0000", "", $death_date);
+	$death_location = isset($person['DeathLocation']) ? $person['DeathLocation'] : "";
+	$death = $is_living ? "" : "<h2>death</h2>$death_date<br>$death_location";
 
 	$list = "";
 	foreach ($person['Spouses'] as $spouse_id => $union) {

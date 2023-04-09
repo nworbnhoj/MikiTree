@@ -26,7 +26,7 @@ function unspin(element) {
     element.firstElementChild.classList.remove('hide');
 }
 
-function settings(event){
+function settings(event) {
     event.cancelBubble = true;
     event.currentTarget.classList.toggle('checked');
     document.getElementById('settings').classList.toggle('hide');
@@ -45,41 +45,41 @@ function depth_changed(event) {
     }
 }
 
-function show_changed(event){
+function show_changed(event) {
     event.cancelBubble = true;
     var middle = document.querySelector("input[name='show'][value='m']");
     var m_initial = document.querySelector("input[name='show'][value='M']");
-    if (middle.checked && m_initial.checked){
+    if (middle.checked && m_initial.checked) {
         m_initial.checked = false;
     }
     var last = document.querySelector("input[name='show'][value='l']");
     var l_bold = document.querySelector("input[name='show'][value='L']");
-    if (last.checked && l_bold.checked){
+    if (last.checked && l_bold.checked) {
         l_bold.checked = false;
     }
     show_sort();
     pack();
 }
 
-function show_sort(){
+function show_sort() {
     var first = document.querySelector('input[name="show"]').parentElement;
     var checked = document.querySelectorAll('input[name="show"]:checked');
-    if(checked[0]){
+    if (checked[0]) {
         first.before(checked[0].parentElement);
-        for(var c=1; c<checked.length; c++){
-            checked[c-1].parentElement.after(checked[c].parentElement);
+        for (var c = 1; c < checked.length; c++) {
+            checked[c - 1].parentElement.after(checked[c].parentElement);
         }
     }
 }
 
-function depth_get() {    
+function depth_get() {
     return parseInt(document.querySelector("input[name='depth']:checked").value);
 }
 
 function show_get() {
     var show = '';
-    var checked = document.querySelectorAll('input[name="show"]:checked');
-    for(var c=0; c<checked.length; c++){
+    var checked = document.querySelectorAll("input[name='show']:checked");
+    for (var c = 0; c < checked.length; c++) {
         show += checked[c].value;
     }
     return show;
