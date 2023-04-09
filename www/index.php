@@ -450,8 +450,10 @@ function name_div($person, $flags) {
 	} else {
 		$birth_year = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : false;
 		$death_year = isset($person['DeathYear']) && $person['DeathYear'] > 0 ? $person['DeathYear'] : false;
-		$birth_location = isset($person['BirthLocation']) ? end(explode(',', $person['BirthLocation'])) : false;
-		$death_location = isset($person['DeathLocation']) ? end(explode(',', $person['DeathLocation'])) : false;
+		$birth_location = isset($person['BirthLocation']) ? explode(',', $person['BirthLocation']) : false;
+		$death_location = isset($person['DeathLocation']) ? explode(',', $person['DeathLocation']) : false;
+		$birth_location = is_array($birth_location) ? end($birth_location) : false;
+		$death_location = is_array($death_location) ? end($death_location) : false;
 	}
 
 	$b = $fb && $birth_year ? "<span class='X' p='b'>b.$birth_year</span>" : "";
