@@ -259,7 +259,8 @@ function fractal($id, $people, $gen = 0, $depth = 4) {
 		return "<div class='grid'></div>";
 	}
 	$person = $people[$id];
-	$div_person = $gen == 0 ? root_div($person, $people) : person_div($person, $gen);
+	$orient = $gen % 2 == 0 ? "vertical" : "horizontal";
+	$div_person = $gen == 0 ? root_div($person, $people) : person_div($person, $gen, $orient);
 
 	// unwind recursion
 	if ($gen >= $depth) {
@@ -346,14 +347,14 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 		</div>";
 }
 
-function person_div($person, $gen = 0) {
+function person_div($person, $gen = 0, $orient = '') {
 	$key = isset($person['Name']) ? $person['Name'] : "";
 	$key = str_replace(" ", "_", $key); // wikitree bug??
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
 	$name_div = name_div($person, "bcdefmMlL");
 	return
-		"<div class='person $gender' id='$key' gen='$gen' onclick='load(event)'>
+		"<div class='person $gender $orient' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
 	    </div>";
 }

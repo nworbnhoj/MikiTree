@@ -63,8 +63,12 @@ div.person { display: flex; flex-direction: column; justify-content: center; tex
 div.person:hover { border: 0.2em solid DarkSeaGreen; }
 div.missing { background-color: inherit; }
 div.missing:hover { border: inherit; }
-div.female { background-color: rgb(255, 238, 238); }
-div.male { background-color: rgb(238, 238, 255); }
+div.female { background-color: #FFEEEE; }
+div.male { background-color: #EEEEFF; }
+div.female.vertical { border-top: 0.2em solid #FFEEEE; background-image: linear-gradient(to bottom, #FFEEEE, #FFEEEE, LightGray); }
+div.female.horizontal { border-left: 0.2em solid #FFEEEE; background-image: linear-gradient(to right, #FFEEEE, #FFEEEE, LightGray); }
+div.male.vertical { border-bottom: 0.2em solid #EEEEFF; background-image: linear-gradient(to top, #EEEEFF, #EEEEFF, LightGray); }
+div.male.horizontal { border-right: 0.2em solid #EEEEFF; background-image: linear-gradient(to left, #EEEEFF, #EEEEFF, LightGray); }
 div.child { padding-bottom: 2em; }
 div.spouses { grid-auto-flow: row; position: absolute; top: 8.2em; width: 100% }
 div.spouse { margin: 0; }
