@@ -113,6 +113,15 @@ function showBranch(event) {
     resize_chutes(event);
 }
 
+function show_all_descendants(event) {
+    event.cancelBubble = true;
+    document.getElementById('settings_toggle').dispatchEvent(new MouseEvent('click'));
+    var buttons = document.querySelectorAll('button.radio');
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].dispatchEvent(new MouseEvent('click'));
+    }
+}
+
 
 function help(event) {
     var div = event.currentTarget;

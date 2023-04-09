@@ -92,7 +92,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				   <input type='submit' value='Go'>
 				</form>
 				<button class='help' onclick='help(event)'>HELP</button>
-				<button class='settings' onclick='settings(event)'>⚙</button>
+				<button id='settings_toggle' class='settings' onclick='settings(event)'>⚙</button>
 			</div>
 			<div id='settings' class='hide'>
 				<form class='settings'>
@@ -108,6 +108,10 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
                     <label for='10'><strong>10</strong> (nuts)</label><br>
                     </fieldset>
 				$show_fieldset
+				<fieldset>
+				    <legend>other</legend>
+				    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button>
+                </fieldset>
 				</form>
 			</div>
 		    $photo
