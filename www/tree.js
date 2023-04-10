@@ -199,23 +199,28 @@ function pack() {
 
 function hideSurplus() {
     // hide generations with no visible data
-    var get = document.getElementById('get');
+    var data_depth = document.getElementById('get').getAttribute('depth');
     var depth = depth_get();
     var ancestors = document.getElementById("ancestors");
-    while (depth > 4) {
-        var visible = "[gen='" + depth + "'] span[p]:not(.X)";
-        var hide = ancestors.querySelectorAll(visible).length < 4;
-        var generation = ancestors.querySelectorAll("[gen='" + depth + "']");
-        for (var g = 0; g < generation.length; g++) {
+    var deepest = data_depth;
+    for (var g = data_depth; g > 4; g--) {
+        var visible = "[gen='" + g + "'] span[p]:not(.X)";
+        var hide = g > depth ||
+            ancestors.querySelectorAll(visible).length < 4;
+        var profiles = ancestors.querySelectorAll("[gen='" + g + "']");
+        for (var p = 0; p < profiles.length; p++) {
+            var div = profiles[p].parentElement;
             if (hide) {
-                generation[g].classList.add("hide");
+                div.classList.add("frac_hide");
+                div.parentElement.classList.add("fractal_x");
             } else {
-                generation[g].classList.remove("hide");
+                div.classList.remove("frac_hide");
+                div.parentElement.classList.remove("fractal_x");
             }
         }
-        depth--;
+        deepest = hide ? g-1 : deepest;
     }
-    return depth;
+    return deepest;
 }
 
 
