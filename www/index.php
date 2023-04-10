@@ -1,7 +1,7 @@
 	<?php
 
 define("WT_ID_REGEX", "^[A-Z][\w-]{1,30}-\d{1,6}$");
-define("SHOW_DEFAULT", "Lfbdm");
+define("SHOW_DEFAULT", "Lfm");
 define("SHOW_ALL", array(
 	'b' => "birth year",
 	'c' => "birth location",
