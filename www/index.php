@@ -110,7 +110,8 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				$show_fieldset
 				<fieldset>
 				    <legend>other</legend>
-				    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button>
+				    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button><br>
+				    <button type='button' onclick='full_monty()'>full monty</button>
                 </fieldset>
 				</form>
 			</div>

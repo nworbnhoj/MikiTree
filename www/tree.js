@@ -311,3 +311,11 @@ function packDescendants(show) {
         }
     }
 }
+
+function full_monty() {
+    document.getElementById('settings_toggle').dispatchEvent(new MouseEvent('click'));
+    var all = document.querySelectorAll("span[p]");
+    for (let a = 0; a < all.length; a++) {
+        all[a].classList.remove('X');
+    }
+}
