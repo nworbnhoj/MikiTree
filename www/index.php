@@ -87,9 +87,9 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 		<div id='photo'>
             <div class='wiki'>
 				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
-				<form class='wiki' action='/index.php'>
+				<form class='wiki'>
 				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
-				   <input type='submit' value='Go'>
+				   <input type='button' value='Go' onclick='load_new(event)'>
 				</form>
 				<button class='help' onclick='help(event)'>HELP</button>
 				<button id='settings_toggle' class='settings' onclick='settings(event)'>⚙</button>
@@ -358,7 +358,7 @@ function person_div($person, $gen = 0, $orient = '') {
 
 	$name_div = name_div($person, "bcdefFmMlL");
 	return
-		"<div class='person $gender $orient' id='$key' gen='$gen' onclick='load(event)'>
+		"<div class='person $gender $orient' id='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
 	    </div>";
 }
@@ -380,7 +380,7 @@ function child_div($child_id, $people, $gen, $index) {
 	}
 	$spouses_div = "<div class='grid spouses'>$spouses_div</div>";
 	return
-		"<div class='person child $gender' branch='$index' id='$key' gen='$gen' onclick='load(event)'>
+		"<div class='person child $gender' branch='$index' id='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
 	        $radio_button
 	        $spouses_div
@@ -400,7 +400,7 @@ function spouse_div($person, $gen) {
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$name_div = name_div($person, "lL");
 	return
-		"<div class='person spouse $gender' id='$key' gen='$gen' onclick='load(event)'>
+		"<div class='person spouse $gender' id='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
 	    </div>";
 }

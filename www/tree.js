@@ -1,12 +1,24 @@
-function load(event) {
+function load_profile(event) {
     event.cancelBubble = true;
-    var div = event.currentTarget;
-    var key = div.id;
+    var target = event.currentTarget;
+    load(target.id, target);
+}
+
+function load_new(event) {
+    event.cancelBubble = true;
+    var form = event.target.closest('form');
+    var key_input = form.elements.namedItem('key');
+    if (key_input){
+        load(key_input.value, form.parentElement);
+    }
+}
+
+function load(key, target){
     if (!key) {
         alert("Sorry the WikiTree-ID is missing for this Profile for some reason.");
         return;
     }
-    div.classList.add('spin');
+    target.classList.add('spin');
     var params = {
         'key': key,
         'depth': depth_get(),
@@ -17,7 +29,7 @@ function load(event) {
         .map(k => esc(k) + '=' + esc(params[k]))
         .join('&');
     window.location.href = "index.php?" + query;
-    setTimeout(unspin, 5000, div);
+    setTimeout(unspin, 5000, target);
 }
 
 
