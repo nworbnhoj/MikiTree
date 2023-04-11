@@ -47,15 +47,25 @@ function depth_changed(event) {
 
 function show_changed(event) {
     event.cancelBubble = true;
-    var middle = document.querySelector("input[name='show'][value='m']");
-    var m_initial = document.querySelector("input[name='show'][value='M']");
-    if (middle.checked && m_initial.checked) {
-        m_initial.checked = false;
-    }
-    var last = document.querySelector("input[name='show'][value='l']");
-    var l_bold = document.querySelector("input[name='show'][value='L']");
-    if (last.checked && l_bold.checked) {
-        l_bold.checked = false;
+    switch (event.target.value) {
+        case 'f':
+            document.querySelector("input[name='show'][value='F']").checked = false;
+            break;
+        case 'F':
+            document.querySelector("input[name='show'][value='f']").checked = false;
+            break;
+        case 'm':
+            document.querySelector("input[name='show'][value='M']").checked = false;
+            break;
+        case 'M':
+            document.querySelector("input[name='show'][value='m']").checked = false;
+            break;
+        case 'l':
+            document.querySelector("input[name='show'][value='L']").checked = false;
+            break;
+        case 'L':
+            document.querySelector("input[name='show'][value='l']").checked = false;
+            break;
     }
     show_sort();
     pack();
@@ -218,7 +228,7 @@ function hideSurplus() {
                 div.parentElement.classList.remove("fractal_x");
             }
         }
-        deepest = hide ? g-1 : deepest;
+        deepest = hide ? g - 1 : deepest;
     }
     return deepest;
 }

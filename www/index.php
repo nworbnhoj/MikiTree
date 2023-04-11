@@ -210,7 +210,8 @@ function bdm_div($person, $people) {
 
 	$name_prefix = isset($person['Prefix']) ? $person['Prefix'] : "";
 	$name_first = isset($person['RealName']) ? $person['RealName'] : "";
-	$name_middle = isset($person['MiddleName']) ? $person['MiddleName'] : "";
+	$name_middle_initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : "";
+	$name_middle = isset($person['MiddleName']) ? $person['MiddleName'] : $name_middle_initial;
 	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
 	$name_suffix = isset($person['Suffix']) ? $person['Suffix'] : "";
 	$name = "<h1>$name_prefix $name_first $name_middle $name_family $name_suffix</h1>";
@@ -355,7 +356,7 @@ function person_div($person, $gen = 0, $orient = '') {
 	$key = key_fix($person);
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
-	$name_div = name_div($person, "bcdefmMlL");
+	$name_div = name_div($person, "bcdefFmMlL");
 	return
 		"<div class='person $gender $orient' id='$key' gen='$gen' onclick='load(event)'>
 	        $name_div
@@ -367,7 +368,7 @@ function child_div($child_id, $people, $gen, $index) {
 	$key = key_fix($child);
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
-	$name_div = name_div($child, "bdfmMlL");
+	$name_div = name_div($child, "bdfFmMlL");
 
 	$radio_button = radio_button($child, $people, $gen);
 
@@ -408,7 +409,7 @@ function root_div($root, $people) {
 	$key = key_fix($root);
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
-	$name_div = name_div($root, "bcdefmMlL");
+	$name_div = name_div($root, "bcdefFmMlL");
 	return
 		"<div class='person root $gender' id='$key' gen='0'>
 			$name_div
@@ -422,22 +423,24 @@ function name_div($person, $flags) {
 	$fd = strpos($flags, 'd') !== false; // death date
 	$fe = strpos($flags, 'e') !== false; // death location
 	$ff = strpos($flags, 'f') !== false; // first name
+	$fF = strpos($flags, 'F') !== false; // first initial
 	$fl = strpos($flags, 'l') !== false; // last name
 	$fL = strpos($flags, 'L') !== false; // last name bold
 	$fm = strpos($flags, 'm') !== false; // middle name
-	$fn = strpos($flags, 'n') !== false; // middle initial
+	$fM = strpos($flags, 'M') !== false; // middle initial
 	$fy = strpos($flags, 'y') !== false; // year
 
-	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
-	$name_first = isset($person['RealName']) ? $person['RealName'] : false;
-	$middle_initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : false;
-	$middle_initial = ($middle_initial == ".") ? false : $middle_initial;
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : false;
 	$privacy = isset($person['Privacy']) ? intval($person['Privacy']) : 60;
 
 	$first = isset($person['RealName']) ? $person['RealName'] : false;
+	$first_initial = $first ? mb_substr($first, 0, 1) . '.' : false;
+	$middle_initial = isset($person['MiddleInitial']) ? $person['MiddleInitial'] : false;
 	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $middle_initial;
-	$last = $privacy < 30 ? "🔒" : $name_family;
+	$middle_initial = $middle_initial ? $middle_initial : mb_substr($middle, 0, 1) . '.';
+	$middle_initial = $middle_initial == "." ? false : $middle_initial;
+	$last = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
+	$last = $privacy < 30 ? "🔒" : $last;
 
 	$birth_year = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
 	$birth_year = isset($person['BirthYear']) && $person['BirthYear'] > 0 ? $person['BirthYear'] : $birth_year;
@@ -452,14 +455,15 @@ function name_div($person, $flags) {
 	$d = $fd && $death_year ? "<span class='X' p='d'>d.$death_year</span>" : "";
 	$e = $fe && $death_location ? "<span class='X' p='e'>d.$death_location</span>" : "";
 	$f = $ff && $first ? "<span class='X' p='f'>$first</span>" : "";
+	$F = $fF && $first_initial ? "<span class='upper X' p='F'>$first_initial</span>" : "";
 	$l = $fl && $last ? "<span class='X' p='l'>$last</span>" : "";
 	$L = $fL && $last ? "<span class='X' p='L'><b>$last</b></span>" : "";
 	$m = $fm && $middle ? "<span class='X' p='m'>$middle</span>" : "";
-	$M = $fn && $middle_initial ? "<span class='X' p='M'>$middle_initial</span>" : "";
+	$M = $fM && $middle_initial ? "<span class='upper X' p='M'>$middle_initial</span>" : "";
 
-	if (!($b || $c || $d || $e || $f || $l || $L || $m || $M)) {return "<br>";}
+	if (!($b || $c || $d || $e || $f || $F || $l || $L || $m || $M)) {return "<br>";}
 
-	return "<div class='name'>$f $m$M $l$L <small>$b $d $c $e</small></div>";
+	return "<div class='name'>$f$F $m$M $l$L <small>$b $d $c $e</small></div>";
 }
 
 function links($ids, $people) {
