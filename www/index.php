@@ -175,7 +175,7 @@ function removeNodes($dom, $name) {
 
 function findId($people, $key) {
 	foreach ($people as $id => $person) {
-		$k = isset($person['Name']) ? $person['Name'] : false;
+		$k = key_fix($person);
 		if ($k == $key) {
 			return $id;
 		}
@@ -346,9 +346,13 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 		</div>";
 }
 
+// wikitree bug??
+function key_fix($person) {
+	return isset($person['Name']) ? str_replace(" ", "_", $person['Name']) : '';
+}
+
 function person_div($person, $gen = 0, $orient = '') {
-	$key = isset($person['Name']) ? $person['Name'] : "";
-	$key = str_replace(" ", "_", $key); // wikitree bug??
+	$key = key_fix($person);
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
 	$name_div = name_div($person, "bcdefmMlL");
@@ -360,7 +364,7 @@ function person_div($person, $gen = 0, $orient = '') {
 
 function child_div($child_id, $people, $gen, $index) {
 	$child = $people[$child_id];
-	$key = isset($child['Name']) ? $child['Name'] : "";
+	$key = key_fix($child);
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
 	$name_div = name_div($child, "bdfmMlL");
@@ -391,7 +395,7 @@ function radio_button($child, $people, $gen) {
 }
 
 function spouse_div($person, $gen) {
-	$key = isset($person['Name']) ? $person['Name'] : "";
+	$key = key_fix($person);
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$name_div = name_div($person, "lL");
 	return
@@ -401,7 +405,7 @@ function spouse_div($person, $gen) {
 }
 
 function root_div($root, $people) {
-	$key = isset($root['Name']) ? $root['Name'] : "";
+	$key = key_fix($root);
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, "bcdefmMlL");
@@ -465,7 +469,7 @@ function links($ids, $people) {
 		if (isset($person['RealName'])) {
 			$name = $person['RealName'];
 			if (isset($person['Name'])) {
-				$key = isset($person['Name']) ? $person['Name'] : "";
+				$key = key_fix($person);
 				$links = $links . " <a href='index.php?key=$key'>$name</a>";
 			} else {
 				$links = $links . " $name";
