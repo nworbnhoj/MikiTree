@@ -284,13 +284,10 @@ function packNodes(nodes) {
     if (nodes.length == 0) {
         return 1;
     }
-    var all = nodes.length;
 
-    var body = document.body;
     var ancestors = document.getElementById("ancestors");
     // hide root siblings if already too tall
-    if (ancestors.offsetHeight > window.innerHeight ||
-        ancestors.offsetHeight > body.clientWidth) {
+    if (overflow(ancestors)) {
         var siblings = document.getElementById('root_siblings');
         siblings.classList.add('hide');
     }
@@ -303,25 +300,26 @@ function packNodes(nodes) {
     }
 
     //check if div #ancestors has exceeded the bounds of screen
-    if (body.scrollWidth > body.clientWidth ||
-        ancestors.offsetHeight > window.innerHeight ||
-        ancestors.offsetHeight > body.clientWidth) {
+    if (overflow(ancestors)) {
         shown.sort((a, b) => {
             b.innerText.length - a.innerText.length
         });
-        while (shown.length > 0) {
+        while (overflow(ancestors) && shown.length > 0) {
             var hide = shown.splice(Math.trunc(0.9 * shown.length));
             hide.forEach((v, i, a) => {
                 v.classList.add('X')
             });
-            if (body.scrollWidth <= body.clientWidth &&
-                ancestors.offsetHeight <= window.innerHeight &&
-                ancestors.offsetHeight <= body.clientWidth) {
-                break;
-            }
         }
     }
     return shown.length / nodes.length;
+}
+
+
+function overflow(element) {
+    var body = document.body;
+    return body.scrollWidth > body.clientWidth ||
+        element.offsetHeight > window.innerHeight ||
+        element.offsetHeight > body.clientWidth;
 }
 
 
