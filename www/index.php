@@ -96,7 +96,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			</div>
 			<div id='settings' class='hide'>
 				<form class='settings'>
-				<fieldset id='$key' onchange='depth_changed(event)'>
+				<fieldset key='$key' onchange='depth_changed(event)'>
 				    <legend>fractal depth</legend>
 				    <input type='radio' id='4' name='depth' value='4' $c4>
                     <label for='4'><strong>4</strong> (compact)</label><br>
@@ -376,7 +376,7 @@ function person_div($person, $gen = 0, $orient = '') {
 
 	$name_div = name_div($person, "bcdefFmMlL");
 	return
-		"<div class='person $gender $orient' id='$key' gen='$gen' onclick='load_profile(event)'>
+		"<div class='person $gender $orient' key='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
 	    </div>";
 }
@@ -398,7 +398,7 @@ function child_div($child_id, $people, $gen, $index) {
 	}
 	$spouses_div = "<div class='grid spouses'>$spouses_div</div>";
 	return
-		"<div class='person child $gender' branch='$index' id='$key' gen='$gen' onclick='load_profile(event)'>
+		"<div class='person child $gender' branch='$index' key='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
 	        $radio_button
 	        $spouses_div
@@ -418,7 +418,7 @@ function spouse_div($person, $gen) {
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$name_div = name_div($person, "lL");
 	return
-		"<div class='person spouse $gender' id='$key' gen='$gen' onclick='load_profile(event)'>
+		"<div class='person spouse $gender' key='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
 	    </div>";
 }
@@ -429,7 +429,7 @@ function root_div($root, $people) {
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, "bcdefFmMlL");
 	return
-		"<div class='person root $gender' id='$key' gen='0'>
+		"<div class='person root $gender' key='$key' gen='0'>
 			$name_div
 			$siblings
 		</div>";

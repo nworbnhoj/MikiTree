@@ -1,19 +1,19 @@
 function load_profile(event) {
     event.cancelBubble = true;
     var target = event.currentTarget;
-    load(target.id, target);
+    load(target.getAttribute('key'), target);
 }
 
 function load_new(event) {
     event.cancelBubble = true;
     var form = event.target.closest('form');
     var key_input = form.elements.namedItem('key');
-    if (key_input){
+    if (key_input) {
         load(key_input.value, form.parentElement);
     }
 }
 
-function load(key, target){
+function load(key, target) {
     if (!key) {
         alert("Sorry the WikiTree-ID is missing for this Profile for some reason.");
         return;
