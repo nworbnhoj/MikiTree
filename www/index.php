@@ -254,28 +254,46 @@ function bdm_div($person, $people) {
     </div>";
 }
 
-function fractal($id, $people, $gen = 0, $depth = 4) {
-	if (empty($id) || !isset($people[$id])) {
-		return "<div class='grid'></div>";
-	}
-	$person = $people[$id];
-	$orient = $gen % 2 == 0 ? "vertical" : "horizontal";
-	$div_person = $gen == 0 ? root_div($person, $people) : person_div($person, $gen, $orient);
-
+function fractal_gap($gen, $depth, $g_gap) {
+	$div_person = "<div class='gap $g_gap'></div>";
 	// unwind recursion
 	if ($gen >= $depth) {
 		return $div_person;
 	}
+	$orient = $gen % 2 == 0 ? "frac_gap_h" : "frac_gap_v";
+	$div_father = fractal_gap($gen + 1, $depth, 'm_gap');
+	$div_mother = fractal_gap($gen + 1, $depth, 'f_gap');
+	return "<div class='grid $orient'>
+			$div_father
+			$div_person
+			$div_mother
+		</div>";
+}
 
-	$id_father = isset($person['Father']) ? $person['Father'] : null;
-	$div_father = fractal($id_father, $people, $gen + 1, $depth);
+function fractal($id, $people, $gen = 0, $depth = 4) {
+	if (empty($id) || !isset($people[$id])) {
+		$g_gap = $gen % 2 ? 'm_gap' : 'f_gap';
+		return fractal_gap($gen, $depth, $g_gap);
+	} else {
+		$person = $people[$id];
+		$orient = $gen % 2 == 0 ? "vertical" : "horizontal";
+		$div_person = $gen == 0 ? root_div($person, $people) : person_div($person, $gen, $orient);
 
-	$id_mother = isset($person['Mother']) ? $person['Mother'] : null;
-	$div_mother = fractal($id_mother, $people, $gen + 1, $depth);
+		// unwind recursion
+		if ($gen >= $depth) {
+			return $div_person;
+		}
 
-	$orientation = $gen % 2 == 0 ? "fractal_h" : "fractal_v";
+		$id_father = isset($person['Father']) ? $person['Father'] : null;
+		$div_father = fractal($id_father, $people, $gen + 1, $depth);
+
+		$id_mother = isset($person['Mother']) ? $person['Mother'] : null;
+		$div_mother = fractal($id_mother, $people, $gen + 1, $depth);
+	}
+
+	$orient = $gen % 2 == 0 ? "fractal_h" : "fractal_v";
 	$div =
-		"<div class='grid $orientation'>
+		"<div class='grid $orient'>
 			$div_father
 			$div_person
 			$div_mother
