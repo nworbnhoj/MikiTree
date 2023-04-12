@@ -51,7 +51,7 @@ function depth_changed(event) {
     var depth = depth_get();
     if (depth > data_depth) {
         get.setAttribute('depth', depth);
-        load(event);
+        load_profile(event);
     } else {
         resize(event);
     }
