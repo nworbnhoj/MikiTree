@@ -107,15 +107,17 @@ function show_get() {
     return show;
 }
 
-function showBranch(event) {
+
+function show_branch(event) {
     event.cancelBubble = true;
-    var radio_button = event.currentTarget;
-    var gen = radio_button.getAttribute('gen');
-    var checked = radio_button.classList.toggle('checked');
-    var parent_div = radio_button.closest(".person");
-    var spouses_div = parent_div.querySelector('div.spouses');
+    var spouse_div = event.currentTarget;
+    var spouses_div = spouse_div.parentElement;
     spouses_div.classList.toggle('hide');
-    var generation_div = radio_button.closest(".generation");
+    var parent_div = spouses_div.parentElement;
+    var brail_button = parent_div.querySelector(".brail");
+    brail_button.classList.remove("hide");
+    var generation_div = spouse_div.closest(".generation");
+    var gen = generation_div.getAttribute('gen');
     var branch_index = parent_div.getAttribute('branch');
     var next_gen_div = generation_div.querySelector('.next_gen');
     var chute_div = generation_div.querySelector('div.chutes');
@@ -126,17 +128,39 @@ function showBranch(event) {
         branch = branches[i];
         var index = branch.getAttribute('branch');
         if (index == branch_index) {
-            if (checked) {
-                chute.classList.remove('hide');
-                branch.classList.remove('hide');
-            } else {
-                chute.classList.add('hide');
-                branch.classList.add('hide');
-            }
+            chute.classList.remove('hide');
+            branch.classList.remove('hide');
         }
     }
     resize_chutes(event);
 }
+
+
+function hide_branch(event) {
+    event.cancelBubble = true;
+    var button = event.target;
+    button.classList.add('hide');
+    var parent_div = button.parentElement;    
+    var spouses_div = parent_div.querySelector(".spouses");
+    spouses_div.classList.remove('hide');
+    var generation_div = parent_div.closest(".generation");
+    var branch_index = parent_div.getAttribute('branch');
+    var next_gen_div = generation_div.querySelector('.next_gen');
+    var chute_div = generation_div.querySelector('div.chutes');
+    var branches = next_gen_div.children;
+    var chutes = chute_div.children;
+    for (let i = 0; i < branches.length; i++) {
+        chute = chutes[i];
+        branch = branches[i];
+        var index = branch.getAttribute('branch');
+        if (index == branch_index) {
+            chute.classList.add('hide');
+            branch.classList.add('hide');
+        }
+    }
+    resize_chutes(event);
+}
+
 
 function show_all_descendants(event) {
     event.cancelBubble = true;

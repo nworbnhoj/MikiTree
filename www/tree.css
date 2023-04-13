@@ -24,16 +24,11 @@ blockquote, q { quotes: "" ""; }
 /*** ANCESTORS ***/
 
 div.grid { display: grid; gap: 0; }
-div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr; font-size: 0.92em; }
-div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; font-size: 0.92em; }
+div.fractal_v { grid-template-columns: 1fr; grid-template-rows: 1fr auto 1fr; font-size: 0.92em;  flex-direction: column; }
+div.fractal_h { grid-template-columns: 5fr 2fr 5fr; grid-template-rows: 1fr; font-size: 0.92em;  flex-direction: row; }
 div.fractal_x { grid-template-columns: 0fr 2fr 0fr; grid-template-rows: 1fr; font-size: 0.92em; }
 div.frac_gap_v { grid-template-columns: 1fr; grid-template-rows: 2fr 1fr 2fr; }
 div.frac_gap_h { grid-template-columns: 2fr 1fr 2fr; grid-template-rows: 1fr; }
-
-/*** ROOT ***/
-div.root { padding-top: 1em; padding-bottom: 1em; cursor: inherit; }
-div.root:hover { border: 0.2em solid transparent; }
-div.links { font-size: 0.8em; margin-top: 2em; margin-bottom: 1em; }
 
 /*** WIKI ***/
 div.wiki { display: block; text-align: center; justify-content: center; margin-top: 1em; margin-bottom: 1em; margin-left: auto; margin-right: auto; }
@@ -62,7 +57,7 @@ polygon.male { fill: #E3E3E3; }
 
 /*** PERSON ***/
 span.X { display: none; }
-div.person { display: flex; flex-direction: column; justify-content: center; text-align: center; align-items: center; border: 0.2em solid LightGray; cursor: zoom-in; background-color: Gainsboro; position: relative; }
+div.person { display: flex; justify-content: center; text-align: center; align-items: center; border: 0.2em solid LightGray; cursor: zoom-in; background-color: Gainsboro; position: relative; }
 div.person:hover { border: 0.2em solid DarkSeaGreen; }
 div.female { background-color: #FFEEEE; }
 div.male { background-color: #EEEEFF; }
@@ -74,10 +69,11 @@ div.gap { background-color: Gainsboro; border: 0.1em solid LightGray; }
 div.gap:hover { border: inherit; }
 div.f_gap { background-color: #E5DEDE; }
 div.m_gap { background-color: #DEDEE5; }
-div.child { padding-bottom: 2em; }
-div.spouses { grid-auto-flow: row; position: absolute; top: 8.2em; width: 100% }
-div.spouse { margin: 0; }
-div.name { text-align: center; margin-top: 0; margin-bottom: 0; line-height: 1.2em; }
+div.child { flex-direction: column; justify-content: flex-end; padding-top: 0.5em; }
+div.spouses { grid-auto-flow: row; width: calc(100% + 0.4em); }
+div.spouse { display: flex; flex-direction: row; margin: 0; }
+div.name { justify-content: center; align-content: center; margin-top: 0; margin-bottom: 0; line-height: 1.2em; flex-grow: 1; }
+div.brail { display: inline-block; }
 div.hide { display: none; }
 div.frac_hide { max-width: 0px; }
 span.upper { text-transform: uppercase; }
@@ -86,6 +82,15 @@ button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; 
 button.help { font-size: 1em; padding: 0.2em; text-align: center; }
 button.settings { font-size: 1em; padding: 0.2em; text-align: center; min-width: 1.8em; }
 button.checked { background-color: DarkSeaGreen; }
+button.brail { background-color: inherit; margin: 0.2em; }
+button.hide { display: none; }
+
+
+/*** ROOT ***/
+div.root { flex-direction: column; padding-top: 8em; padding-bottom: 1em; cursor: inherit; }
+div.root:hover { border: 0.2em solid transparent; }
+div.links { font-size: 0.8em; margin-top: 2em; margin-bottom: 1em; }
+
 
 /*** SPINNER ***/
 @keyframes spinner {

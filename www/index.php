@@ -14,6 +14,7 @@ define("SHOW_ALL", array(
 	'm' => "middle name",
 	'M' => "middle initial",
 ));
+define("BRAIL", array(0 => '⠀', 1 => '⠂', 2 => '⠤', 3 => '⠦', 4 => '⠶', 5 => '⠷', 6 => '⠿', 7 => '⡿', 8 => '⣿'));
 
 // Get parameters and constrain
 $root_key = isset($_GET['key']) ? $_GET['key'] : null;
@@ -325,7 +326,7 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 			$next_gen_divs = $next_gen_divs . $branch;
 
 			$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
-			$svg = "<svg class='chute hide' branch='$next_branch' xmlns='http://www.w3.org/2000/svg' width='100% ' height='6em'>
+			$svg = "<svg class='chute hide' branch='$next_branch' xmlns='http://www.w3.org/2000/svg' width='100% ' height='6em' >
 				    <polygon class='$gender' points='0,0 10,0 10,20 0,20' />
 				</svg>";
 
@@ -388,38 +389,43 @@ function child_div($child_id, $people, $gen, $index) {
 
 	$name_div = name_div($child, "bdfFmMlL");
 
-	$radio_button = radio_button($child, $people, $gen);
-
 	$spouses_div = "";
 	$spouses = isset($child['Spouses']) ? $child['Spouses'] : array();
+	$child_count = 0;
 	foreach ($spouses as $spouse_id => $grand_children) {
 		$spouse = $people[$spouse_id];
-		$spouses_div = $spouses_div . spouse_div($spouse, $gen);
+		$gc_count = sizeof($grand_children);
+		$spouses_div = $spouses_div . spouse_div($spouse, $gen, $gc_count);
+		$child_count += $gc_count;
 	}
+	$brail = brail($child_count);
 	$spouses_div = "<div class='grid spouses'>$spouses_div</div>";
 	return
 		"<div class='person child $gender' branch='$index' key='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
-	        $radio_button
+	        <button type='button' class='brail hide' onclick='hide_branch(event)'>$brail</button>
 	        $spouses_div
 	    </div>";
 }
 
-function radio_button($child, $people, $gen) {
-	if (!isset($child['Children']) || sizeof($child['Children']) == 0) {
-		return "";
+function brail($n) {
+	$brail = '';
+	while ($n > 0) {
+		$brail .= $n > 8 ? BRAIL[8] : BRAIL[$n];
+		$n = $n - 8;
 	}
-	$kids = str_repeat("▯", sizeof($child['Children']));
-	return "<button class='radio' gen='$gen' onclick='showBranch(event)'>$kids</button>";
+	return $brail;
 }
 
-function spouse_div($person, $gen) {
+function spouse_div($person, $gen, $child_count) {
 	$key = key_fix($person);
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$name_div = name_div($person, "lL");
+	$brail = brail($child_count);
 	return
-		"<div class='person spouse $gender' key='$key' gen='$gen' onclick='load_profile(event)'>
+		"<div class='person spouse $gender' key='$key' gen='$gen' onclick='show_branch(event)'>
 	        $name_div
+	        <div class='brail'>$brail</div>
 	    </div>";
 }
 
