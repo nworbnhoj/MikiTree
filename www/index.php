@@ -303,6 +303,7 @@ function fractal($id, $people, $gen = 0, $depth = 4) {
 }
 
 function branch($head, $people, $gen = 0, $branch_index = 0) {
+	if ($gen > 10) {return "";}
 	$head_id = $head['Id'];
 	$head_div = person_div($head);
 
