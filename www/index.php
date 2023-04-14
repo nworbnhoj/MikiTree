@@ -13,6 +13,7 @@ define("SHOW_ALL", array(
 	'L' => "<b>last name</b>",
 	'm' => "middle name",
 	'M' => "middle initial",
+	'p' => "photo",
 ));
 define("BRAIL", array(0 => '⠀', 1 => '⠂', 2 => '⠤', 3 => '⠦', 4 => '⠶', 5 => '⠷', 6 => '⠿', 7 => '⡿', 8 => '⣿'));
 
@@ -26,12 +27,15 @@ $show = isset($_GET['show']) ? $_GET['show'] : SHOW_DEFAULT;
 define("DEPTH", $depth);
 define("SHOW", $show);
 
+// list of photos to be fetched after html returned to client
+$fetch = array();
+
 if (isset($root_key)) {
 	$people = fetchFamily($root_key, $depth);
 	$root_id = findId($people, $root_key);
 	if ($root_id) {
 		$root = $people[$root_id];
-		$photo = isset($root['PhotoData'], $root['PhotoData']['path']) ? fetchPhoto($root['PhotoData']['path'], $root['Photo']) : "";
+		$photo = img($root, 'photo');
 		$bdm = bdm_div($root, $people);
 		$bio = tidyHtml($root['bioHTML']);
 	}
@@ -45,7 +49,7 @@ if (!isset($root)) {
 	$people = HELP_FAMILY;
 	$root_id = "root";
 	$root = $people[$root_id];
-	$photo = fetchPhoto("", $root['Photo']);
+	$photo = img($root, "photo");
 	$bdm = HELP_BIO;
 	$bio = "";
 }
@@ -59,6 +63,12 @@ echo "<!DOCTYPE html>
 	$head
 	$body
 	</html>";
+
+respondOK();
+
+array_map('fetchPhoto', $fetch);
+
+///////////////////////////////////////////////////////////////////////////////
 
 function head($key) {
 	return "<head>
@@ -81,7 +91,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	$c6 = $depth == 6 ? 'checked' : '';
 	$c8 = $depth == 8 ? 'checked' : '';
 	$c10 = $depth == 10 ? 'checked' : '';
-	return "<body  onload='pack()' onresize='resize(event)'>
+	return "<body  onload='onload()' onresize='resize(event)'>
 	    <div id='get' class='hide' depth='$depth' show='$show'></div>
 		<div id='ancestors'>$ancestors</div>
 		<div id='profile' class='grid'>
@@ -183,25 +193,53 @@ function findId($people, $key) {
 	}
 }
 
-function fetchPhoto($path, $name) {
-	$save_as = "photo/$name";
-
-	if (!file_exists($save_as)) {
-
-		$image_url = "https://www.wikitree.com$path";
-
-		$ch = curl_init($image_url);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)");
-		$raw_data = curl_exec($ch);
-		curl_close($ch);
-		$fp = fopen($save_as, 'wb') or die(print_r(error_get_last(), true));
-		fwrite($fp, $raw_data);
-		fclose($fp);
+function img($person, $klass, $delay = false) {
+	if (isset($person['PhotoData']) && is_array($person['PhotoData'])) {
+		switch ($klass) {
+		case 'photo':
+			$path = isset($person['PhotoData']['path']) ? $person['PhotoData']['path'] : false;
+			$name = isset($person['Photo']) ? $person['Photo'] : false;
+			break;
+		case 'thumb':
+			$path = isset($person['PhotoData']['url']) ? $person['PhotoData']['url'] : false;
+			$name = isset($person['PhotoData']['file']) ? $person['PhotoData']['file'] : false;
+			break;
+		default:
+			$name = false;
+			break;
+		}
 	}
-	return "<img id='portrait' class='photo' src='$save_as'>";
+	if (!($path && $name)) {
+		return "";
+	}
+
+	$save_as = "$klass/$name";
+	if (!file_exists($save_as)) {
+		$param = array($path, $save_as);
+		if ($delay) {
+			$GLOBALS['fetch'][] = $param;
+		} else {
+			fetchPhoto($param);
+		}
+	}
+	$src = $delay ? 'src-delay' : 'src';
+	return "<img class='$klass' $src='$save_as'>";
+}
+
+function fetchPhoto($foto) {
+	$path = $foto[0];
+	$save_as = $foto[1];
+	$image_url = "https://www.wikitree.com$path";
+	$ch = curl_init($image_url);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)");
+	$raw_data = curl_exec($ch);
+	curl_close($ch);
+	$fp = fopen($save_as, 'wb') or die(print_r(error_get_last(), true));
+	fwrite($fp, $raw_data);
+	fclose($fp);
 }
 
 function bdm_div($person, $people) {
@@ -338,10 +376,10 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 
 	$hide = $gen > 0 ? "hide" : "";
 	$branch =
-		"<div class='grid generation $hide' gen='$gen' branch='$branch_index'>
-	        <div class='grid generation_h'unions> $union_divs </div>
-            <div class='grid generation_h chutes'> $svgs </div>
-	        <div class='grid generation_h next_gen' gen='$next_gen'> $next_gen_divs </div>
+		"<div class='generation $hide' gen='$gen' branch='$branch_index'>
+	        <div class='generation_h unions'> $union_divs </div>
+            <div class='generation_h chutes'> $svgs </div>
+	        <div class='generation_h next_gen' gen='$next_gen'> $next_gen_divs </div>
 	    </div>";
 
 	return $branch;
@@ -361,7 +399,7 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 		$branch++;
 	}
 	return
-		"<div class='grid union'>
+		"<div class='union'>
 		    $spouse_div
 		    <div class='grid siblings'>$siblings_div</div>
 		</div>";
@@ -377,9 +415,13 @@ function person_div($person, $gen = 0, $orient = '') {
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
 	$name_div = name_div($person, "bcdefFmMlL");
+	$thumb = img($person, 'thumb', true);
 	return
 		"<div class='person $gender $orient' key='$key' gen='$gen' onclick='load_profile(event)'>
+		    <div class='fill'></div>
+		    <span class='thumb X' p='p'>$thumb</span>
 	        $name_div
+		    <div class='fill'></div>
 	    </div>";
 }
 
@@ -401,9 +443,12 @@ function child_div($child_id, $people, $gen, $index) {
 	}
 	$brail = brail($child_count);
 	$spouses_div = "<div class='grid spouses'>$spouses_div</div>";
+	$thumb = img($child, 'thumb', true);
 	return
 		"<div class='person child $gender' branch='$index' key='$key' gen='$gen' onclick='load_profile(event)'>
 	        $name_div
+		    <span class='thumb X' p='p'>$thumb</span>
+		    <div class='fill'></div>
 	        <button type='button' class='brail hide' onclick='hide_branch(event)'>$brail</button>
 	        $spouses_div
 	    </div>";
@@ -435,9 +480,12 @@ function root_div($root, $people) {
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, "bcdefFmMlL");
+	$thumb = img($root, 'thumb', true);
 	return
 		"<div class='person root $gender' key='$key' gen='0'>
+		    <span class='thumb X' p='p'>$thumb</span>
 			$name_div
+		    <div class='fill'></div>
 			$siblings
 		</div>";
 }
@@ -522,7 +570,7 @@ function fetchFamily($key, $depth) {
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
 	// get ancestors and descendants from WikiTree
-	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy";
+	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy,Photo,PhotoData";
 	$url = "https://api.wikitree.com/api.php?action=getPeople&ancestors=$depth&descendants=$depth&keys=$key&nuclear=1&fields=$fields";
 
 	curl_setopt($curl, CURLOPT_URL, $url);
@@ -637,6 +685,37 @@ function inferSpouses($people) {
 		$people[$mother_id]['Spouses'][$father_id][] = $child_id;
 	}
 	return $people;
+}
+
+/**
+ * respondOK.
+ * https://stackoverflow.com/questions/15273570/ continue-processing-php-after-sending-http-response
+ *
+ */
+function respondOK() {
+	// check if fastcgi_finish_request is callable
+	if (is_callable('fastcgi_finish_request')) {
+		/*
+	         * This works in Nginx but the next approach not
+*/
+		session_write_close();
+		fastcgi_finish_request();
+
+		return;
+	}
+
+	ignore_user_abort(true);
+
+	ob_start();
+	$serverProtocole = filter_input(INPUT_SERVER, 'SERVER_PROTOCOL', FILTER_SANITIZE_STRING);
+	header($serverProtocole . ' 200 OK');
+	header('Content-Encoding: none');
+	header('Content-Length: ' . ob_get_length());
+	header('Connection: close');
+
+	ob_end_flush();
+	ob_flush();
+	flush();
 }
 
 function init() {

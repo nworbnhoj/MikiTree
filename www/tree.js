@@ -1,3 +1,11 @@
+function onload() {
+    if (show_get().indexOf('p') > -1) {
+        load_thumbs();
+        align_thumbs();
+    }
+    pack();
+}
+
 function load_profile(event) {
     event.cancelBubble = true;
     var target = event.currentTarget;
@@ -78,9 +86,36 @@ function show_changed(event) {
         case 'L':
             document.querySelector("input[name='show'][value='l']").checked = false;
             break;
+        case 'p':
+            if (document.querySelector("input[name='show'][value='p']").checked) {
+                load_thumbs();
+            }
+            align_thumbs();
+            break;
     }
     show_sort();
     pack();
+}
+
+function align_thumbs() {
+    var checked = document.querySelector("input[name='show'][value='p']").checked;
+    var sibling_divs = document.querySelectorAll('.siblings');
+    for (var i = 0; i < sibling_divs.length; i++) {
+        if (checked) {
+            sibling_divs[i].classList.add('sib-pic');
+        } else {
+            sibling_divs[i].classList.remove('sib-pic');
+        }
+    }
+}
+
+function load_thumbs() {
+    var delayed = document.querySelectorAll("img[src-delay]");
+    for (var i = 0; i < delayed.length; i++) {
+        var img = delayed[i];
+        var src = img.getAttribute('src-delay');
+        img.setAttribute('src', src);
+    }
 }
 
 function show_sort() {
@@ -140,7 +175,7 @@ function hide_branch(event) {
     event.cancelBubble = true;
     var button = event.target;
     button.classList.add('hide');
-    var parent_div = button.parentElement;    
+    var parent_div = button.parentElement;
     var spouses_div = parent_div.querySelector(".spouses");
     spouses_div.classList.remove('hide');
     var generation_div = parent_div.closest(".generation");
