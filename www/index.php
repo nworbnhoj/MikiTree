@@ -1,6 +1,7 @@
 	<?php
 
 define("WT_ID_REGEX", "^[A-Z][\w-]{1,30}-\d{1,6}$");
+define("DEPTH_DEFAULT", 4);
 define("SHOW_DEFAULT", "Lfm");
 define("SHOW_ALL", array(
 	'b' => "birth year",
@@ -21,7 +22,7 @@ define("BRAIL", array(0 => '⠀', 1 => '⠂', 2 => '⠤', 3 => '⠦', 4 => '⠶'
 $root_key = isset($_GET['key']) ? $_GET['key'] : null;
 $regex = "{" . WT_ID_REGEX . "}";
 $root_key = preg_match($regex, $root_key) ? $root_key : null;
-$depth = isset($_GET['depth']) ? intval($_GET['depth']) : 6;
+$depth = isset($_GET['depth']) ? intval($_GET['depth']) : DEPTH_DEFAULT;
 $depth = max(min($depth, 10), 0);
 $show = isset($_GET['show']) ? $_GET['show'] : SHOW_DEFAULT;
 define("DEPTH", $depth);
@@ -110,9 +111,9 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				<fieldset key='$key' onchange='depth_changed(event)'>
 				    <legend>fractal depth</legend>
 				    <input type='radio' id='4' name='depth' value='4' $c4>
-                    <label for='4'><strong>4</strong> (compact)</label><br>
+                    <label for='4'><strong>4</strong> (default)</label><br>
 				    <input type='radio' id='6' name='depth' value='6' $c6>
-                    <label for='6'><strong>6</strong> (default)</label><br>
+                    <label for='6'><strong>6</strong> (nice)</label><br>
 				    <input type='radio' id='8' name='depth' value='8' $c8>
                     <label for='8'><strong>8</strong> (slow)</label><br>
 				    <input type='radio' id='10' name='depth' value='10' $c10>
