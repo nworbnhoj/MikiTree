@@ -101,10 +101,11 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 				<form class='wiki'>
 				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
-				   <input type='button' value='Go' onclick='load_new(event)'>
+				   <button id='go_button' type='button' onclick='load_new(event)'>Go</button>
 				</form>
 				<button class='help' onclick='help(event)'>HELP</button>
-				<button id='settings_toggle' class='settings' onclick='settings(event)'>⚙</button>
+				<button  id='help_button' type='button' class='' onclick='help(event)'>HELP</button>
+				<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
 			</div>
 			<div id='settings' class='hide'>
 				<form class='settings'>
@@ -121,7 +122,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
                     </fieldset>
 				$show_fieldset
 				<fieldset>
-				    <legend>other</legend>
+				    <legend>experimental</legend>
 				    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button><br>
 				    <button type='button' onclick='full_monty()'>full monty</button>
                 </fieldset>

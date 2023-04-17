@@ -48,7 +48,7 @@ function unspin(element) {
 
 function settings(event) {
     event.cancelBubble = true;
-    event.currentTarget.classList.toggle('checked');
+    event.target.classList.toggle('checked');
     document.getElementById('settings').classList.toggle('hide');
 }
 
@@ -199,7 +199,7 @@ function hide_branch(event) {
 
 function show_all_descendants(event) {
     event.cancelBubble = true;
-    document.getElementById('settings_toggle').dispatchEvent(new MouseEvent('click'));
+    document.getElementById('settings').dispatchEvent(new MouseEvent('click'));
     var buttons = document.querySelectorAll('button.radio');
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].dispatchEvent(new MouseEvent('click'));
@@ -397,7 +397,7 @@ function packDescendants(show) {
 }
 
 function full_monty() {
-    document.getElementById('settings_toggle').dispatchEvent(new MouseEvent('click'));
+    document.getElementById('settings').dispatchEvent(new MouseEvent('click'));
     var all = document.querySelectorAll("span[p]");
     for (let a = 0; a < all.length; a++) {
         all[a].classList.remove('X');
