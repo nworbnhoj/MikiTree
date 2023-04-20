@@ -20,8 +20,7 @@ define("BRAIL", array(0 => '⠀', 1 => '⠂', 2 => '⠤', 3 => '⠦', 4 => '⠶'
 
 // Get parameters and constrain
 $root_key = isset($_GET['key']) ? $_GET['key'] : null;
-$regex = "{" . WT_ID_REGEX . "}";
-$root_key = preg_match($regex, $root_key) ? $root_key : null;
+$root_key = mb_ereg(WT_ID_REGEX, $root_key) ? $root_key : null;
 $depth = isset($_GET['depth']) ? intval($_GET['depth']) : DEPTH_DEFAULT;
 $depth = max(min($depth, 10), 0);
 $show = isset($_GET['show']) ? $_GET['show'] : SHOW_DEFAULT;
