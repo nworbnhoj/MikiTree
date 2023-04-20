@@ -95,41 +95,71 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	return "<body  onload='onload()' onresize='resize(event)'>
 	    <div id='get' class='hide' depth='$depth' show='$show'></div>
 		<div id='ancestors'>$ancestors</div>
-		<div id='profile' class='grid'>
-		<div id='photo'>
-            <div class='wiki'>
-				All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
-				<form class='wiki'>
-				   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
-				   <button id='go_button' type='button' onclick='load_new(event)'>Go</button>
-				</form>
-				<button class='help' onclick='help(event)'>HELP</button>
-				<button  id='help_button' type='button' class='' onclick='help(event)'>HELP</button>
-				<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
-			</div>
-			<div id='settings' class='hide'>
-				<form class='settings'>
-				<fieldset key='$key' onchange='depth_changed(event)'>
-				    <legend>fractal depth</legend>
-				    <input type='radio' id='4' name='depth' value='4' $c4>
-                    <label for='4'><strong>4</strong> (default)</label><br>
-				    <input type='radio' id='6' name='depth' value='6' $c6>
-                    <label for='6'><strong>6</strong> (nice)</label><br>
-				    <input type='radio' id='8' name='depth' value='8' $c8>
-                    <label for='8'><strong>8</strong> (slow)</label><br>
-				    <input type='radio' id='10' name='depth' value='10' $c10>
-                    <label for='10'><strong>10</strong> (nuts)</label><br>
-                    </fieldset>
-				$show_fieldset
-				<fieldset>
-				    <legend>experimental</legend>
-				    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button><br>
-				    <button type='button' onclick='full_monty()'>full monty</button>
+        <div class='wiki'>
+			All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
+			<form class='wiki'>
+			   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
+			   <button id='go_button' type='button' onclick='load_new(event)'>Go</button>
+			</form>
+			<button id='search_toggle' type='button' class='toggle' onclick='search_show(event)'>🔎︎</button>
+			<button id='help_button' type='button' onclick='help(event)'>HELP</button>
+			<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
+		</div>
+		<div id='settings' class='hide'>
+			<fieldset key='$key' onchange='depth_changed(event)'>
+			    <legend>fractal depth</legend>
+			    <input type='radio' id='4' name='depth' value='4' $c4>
+                <label for='4'><strong>4</strong> (default)</label><br>
+			    <input type='radio' id='6' name='depth' value='6' $c6>
+                <label for='6'><strong>6</strong> (nice)</label><br>
+			    <input type='radio' id='8' name='depth' value='8' $c8>
+                <label for='8'><strong>8</strong> (slow)</label><br>
+			    <input type='radio' id='10' name='depth' value='10' $c10>
+                <label for='10'><strong>10</strong> (nuts)</label><br>
                 </fieldset>
-				</form>
+			$show_fieldset
+			<fieldset>
+			    <legend>experimental</legend>
+			    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button><br>
+			    <button type='button' onclick='full_monty()'>full monty</button>
+            </fieldset>
+		</div>
+		<div id='search_div' class='hide'>
+			<div id='search_flex' >
+				<fieldset >
+				    <legend>WikiTree profile</legend>
+				    <input class='search' type='text' placeholder='First Name' id='child_first' >
+				    <input class='search' type='text' placeholder='Last Name' id='child_last' ><br>
+				    <input class='search' type='number' placeholder='birth year' id='child_birth_date' >
+				    <input class='search' type='number' placeholder='death year' id='child_death_date' ><br>
+	                <input class='search' type='text' placeholder='birth location' id='child_birth_location' >
+				    <input class='search' type='text' placeholder='death location' id='child_death_location' >
+				</fieldset>
+				<div >
+					<fieldset >
+						<legend>Father</legend>
+					    <input class='search' type='text' placeholder='First Name' id='father_first' >
+					    <input class='search' type='text' placeholder='Last Name' id='father_last' >
+					</fieldset>
+					<br>
+					<fieldset >
+						<legend>Mother</legend>
+					    <input class='search' type='text' placeholder='First Name' id='mother_first' >
+					    <input class='search' type='text' placeholder='Last Name' id='mother_last' >
+					</fieldset>
+					<br>
+					<button id='search_button' type='button' onclick='search(event)'>Search</button>
+				</div>
 			</div>
-		    $photo
-	    </div>$bdm</div>
+			<fieldset id='results_fieldset'>
+				<legend>Results (<span id='results_count'>0</span>)</legend>
+				<table id='results_table'><td>Provisde at least one of the WikiTree Profile fields.</td></table>
+			</fieldset>
+		</div>
+		<div id='profile' >
+			<div id='photo'>$photo</div>
+		    <div>$bdm</div>
+	    </div>
 		<div id='descendants'>$descendants</div>
 		<div id='bio'>$bio</div>
 	</body>";

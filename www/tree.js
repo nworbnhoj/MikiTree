@@ -46,6 +46,12 @@ function unspin(element) {
     element.firstElementChild.classList.remove('hide');
 }
 
+function search_show(event) {
+    event.cancelBubble = true;
+    event.target.classList.toggle('checked');
+    document.getElementById('search_div').classList.toggle('hide');
+}
+
 function settings(event) {
     event.cancelBubble = true;
     event.target.classList.toggle('checked');
@@ -393,6 +399,83 @@ function packDescendants(show) {
         for (let n = 0; n < nodes.length; n++) {
             nodes[n].classList.remove('X');
         }
+    }
+}
+
+
+
+function search(event) {    
+    event.cancelBubble = true;
+    var results_table = document.getElementById("results_table");
+    var results_count = document.getElementById("results_count");
+    var spin = results_count.classList.add('spin');
+    // autofill child_lat from father_last
+    var child_last = document.getElementById('child_last');
+    if (!child_last.value) {
+        child_last.value = document.getElementById('father_last').value;
+    }
+
+    var params = new URLSearchParams({
+        action: 'searchPerson',
+        FirstName: document.getElementById('child_first').value,
+        LastName: document.getElementById('child_last').value,
+        BirthDate: document.getElementById('child_birth_date').value,
+        DeathDate: document.getElementById('child_death_date').value,
+        BirthLocation: document.getElementById('child_birth_location').value,
+        DeathLocation: document.getElementById('child_death_location').value,
+        fatherFirstName: document.getElementById('father_first').value,
+        fatherLastName: document.getElementById('father_last').value,
+        motherFirstName: document.getElementById('mother_first').value,
+        motherLastName: document.getElementById('mother_last').value,
+        sort: 'birth',
+        dateInclude: 'both',
+        dateSpread: '5s',
+        skipVariants: 1,
+        fields: 'Id,Name,FirstName,MiddleName,LastNameCurrent,LastNameAtBirth,Gender,BirthDate,DeathDate,BirthLocation,DeathLocation,Father,Mother',
+    });
+    var url = "search.php?" + params.toString();
+   
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var results = JSON.parse(this.responseText);
+            present_results(results, results_table, results_count);
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+
+    function present_results(arr, table, count) {
+        table.innerHTML = match_rows(arr[0]['matches']);
+        count.classList.remove('spin');
+        count.innerHTML = arr[0]['total'];
+    }
+
+    function match_rows(matches) {
+        var rows = "<tr><th>WikiTree ID</th><th>Name</th><th>Birth</th><th>Death</th></tr>";
+        for (i = 0; i < matches.length; i++) {
+            var m = matches[i];
+            var key = m['Name'];
+            if ('undefined'.localeCompare(key) == 0){ continue;}
+            var first = 'undefined'.localeCompare(m['FirstName']) == 0 ? '' : m['FirstName'];
+            var middle = 'undefined'.localeCompare(m['MiddleName']) == 0 ? '' : m['MiddleName'];
+            var born = 'undefined'.localeCompare(m['LastNameAtBirth']) == 0 ? '' : m['LastNameAtBirth'];
+            var died = 'undefined'.localeCompare(m['LastNameCurrent']) == 0 ? '' : m['LastNameCurrent'];
+            var birth_date = 'undefined'.localeCompare(m['BirthDate']) == 0 ? '' : m['BirthDate'];
+            var death_date = 'undefined'.localeCompare(m['DeathDate']) == 0 ? '' : m['DeathDate'];
+            var birth_location = 'undefined'.localeCompare(m['BirthLocation']) == 0 ? '' : m['BirthLocation'];
+            var death_location = 'undefined'.localeCompare(m['DeathLocation']) == 0 ? '' : m['DeathLocation'];
+            var last = born != died ? died + ' (' + born + ')' : born;
+            var id_span = "<span class='nowrap'>" + key + "</span>";
+            var row = "<td><a href='index.php?key=" + key + "'>" + id_span + '</a></td>';
+            row += '<td>' + first + ' ' + middle + ' ' + last + '</td>';
+            row += '<td>' + birth_date + '<br>' + birth_location + '</td>';
+            row += '<td>' + death_date + '<br>' + death_location + '</td>';
+            row = '<tr>' + row + '</tr>';
+            rows += row;
+        }
+        return rows;
     }
 }
 

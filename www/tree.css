@@ -55,22 +55,22 @@ table.header { text-align: left; border: #666666 solid 3px; }
 
 /************** <th> *********************/
 th {    /*    padding:0.2em; */
-font-weight: bold; text-align: center; }
+font-weight: bold; text-align: left; }
 
 /************** <td> *********************/
-td {    /*  padding:0.2em; */ }
+td { padding: 0.4em; }
 
 /************** <fieldset> *********************/
-fieldset { display: inline-block; vertical-align: top; color: #000000; border: black solid 0.1em; padding: 1em; margin: 1em; font-size: 1em; }
+fieldset { display: inline-block; vertical-align: top; color: #000000; border: black solid 0.1em; padding: 0.5em; margin: 0.5em; font-size: 1em; }
 
 /************** <legend> *********************/
 legend { color: #000000; font-weight: bold; font-size: 1.2em; }
 
 /************** <a> *********************/
-a:link { color: black; }
+a:link { color: blue; }
 
 /* unvisited link */
-a:visited { color: black; }
+a:visited { color: purple; }
 
 /* visited link */
 a:hover { color: DarkOrange; }
@@ -139,14 +139,19 @@ progress.size { height: 0.2em; width: 100%; }
 
 /************** # *********************/
 #ancestors { font-size: 1.3em; margin: 0.3em; }
-#profile { grid-template-columns: 3fr 2fr }
+#profile { display: grid; grid-template-columns: 3fr 2fr }
 #bdm { font-size: 1em; margin: 3vw 3vw 5vw 5vw; }
 #descendants { font-size: 1.0em; }
 #bio { font-size: 1.0em; margin: auto; width: 90%; text-align: left; }
 #go_button { }
-#search_button { }
+#search_toggle { }
 #help_button { }
 #settings_toggle { }
+#search_button { margin: 0.5em; width: 95%; }
+#search_flex { display: flex; grid-template-columns: 1fr 1fr; }
+#results_fieldset { display: block; }
+#results_table { width: 100%; }
+input.search { max-width: 8em; }
 
 /************** . *********************/
 
