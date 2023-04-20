@@ -226,6 +226,8 @@ function findId($people, $key) {
 }
 
 function img($person, $klass, $delay = false) {
+	$path = false;
+	$name = false;
 	if (isset($person['PhotoData']) && is_array($person['PhotoData'])) {
 		switch ($klass) {
 		case 'photo':
@@ -237,6 +239,7 @@ function img($person, $klass, $delay = false) {
 			$name = isset($person['PhotoData']['file']) ? $person['PhotoData']['file'] : false;
 			break;
 		default:
+			$path = false;
 			$name = false;
 			break;
 		}
@@ -763,7 +766,7 @@ function init() {
 		"3" => array("Id" => "3", "LastNameAtBirth" => "Son", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
 		"2" => array("Id" => "2", "LastNameAtBirth" => "Son", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => ["5" => []]),
 		"1" => array("Id" => "1", "LastNameAtBirth" => "Wife", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => ["root" => [2, 3, 4]]),
-		"root" => array("Id" => "root", "LastNameAtBirth" => "WikiTree Profile", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21, -22], "Photo" => "help.webp"),
+		"root" => array("Id" => "root", "LastNameAtBirth" => "WikiTree Profile", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21, -22], "Photo" => "help.webp", "PhotoData" => ["path" => "help.webp"]),
 		"-1" => array("Id" => "-1", "LastNameAtBirth" => "Father", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
 		"-2" => array("Id" => "-2", "LastNameAtBirth" => "Mother", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
 		"-3" => array("Id" => "-3", "LastNameAtBirth" => "Grand Father", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
@@ -786,7 +789,7 @@ function init() {
 			</ul></p>
 			<p><b>Descendents</b> are in rows of siblings, 1st cousins, 2nd cousins etc.
 			<ul>
-			<li>Click ▯▯▯ to show the next generation (click again to hide).</li>
+			<li>Click <b>Son-in-law-1</b> to show the next generation (click <b>⠦</b> to hide).</li>
 			<li>Each row of Siblings has Parents above, and spouses below.</li>
 			</ul></p></div>");
 }
