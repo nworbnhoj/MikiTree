@@ -152,7 +152,8 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			</div>
 			<fieldset id='results_fieldset'>
 				<legend>Results (<span id='results_count'>0</span>)</legend>
-				<table id='results_table'><td>Provisde at least one of the WikiTree Profile fields.</td></table>
+				<div id='results_msg'>Provide at least one of the WikiTree Profile fields.</div>
+				<table id='results_table'></table>
 			</fieldset>
 		</div>
 		<div id='profile' >

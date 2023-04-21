@@ -149,6 +149,7 @@ progress.size { height: 0.2em; width: 100%; }
 #settings_toggle { }
 #search_button { margin: 0.5em; width: 95%; }
 #search_flex { display: flex; grid-template-columns: 1fr 1fr; }
+#search_msg {margin: 1em;}
 #results_fieldset { display: block; }
 #results_table { width: 100%; }
 input.search { max-width: 8em; }

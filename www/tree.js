@@ -404,52 +404,69 @@ function packDescendants(show) {
 
 
 
-function search(event) {    
+function search(event) {
     event.cancelBubble = true;
+    var results_msg = document.getElementById("results_msg");
     var results_table = document.getElementById("results_table");
     var results_count = document.getElementById("results_count");
-    var spin = results_count.classList.add('spin');
-    // autofill child_lat from father_last
+    var spin = results_msg.classList.add('spin');
+    // autofill child_last from father_last
     var child_last = document.getElementById('child_last');
     if (!child_last.value) {
         child_last.value = document.getElementById('father_last').value;
     }
 
-    var params = new URLSearchParams({
-        action: 'searchPerson',
+    var terms = {
         FirstName: document.getElementById('child_first').value,
         LastName: document.getElementById('child_last').value,
-        BirthDate: document.getElementById('child_birth_date').value,
-        DeathDate: document.getElementById('child_death_date').value,
+        BirthDate: parseInt(document.getElementById('child_birth_date').value),
+        DeathDate: parseInt(document.getElementById('child_death_date').value),
         BirthLocation: document.getElementById('child_birth_location').value,
         DeathLocation: document.getElementById('child_death_location').value,
         fatherFirstName: document.getElementById('father_first').value,
         fatherLastName: document.getElementById('father_last').value,
         motherFirstName: document.getElementById('mother_first').value,
         motherLastName: document.getElementById('mother_last').value,
-        sort: 'birth',
+    }
+
+    var settings = {
+        action: 'searchPerson',
         dateInclude: 'both',
         dateSpread: '5s',
         skipVariants: 1,
         fields: 'Id,Name,FirstName,MiddleName,LastNameCurrent,LastNameAtBirth,Gender,BirthDate,DeathDate,BirthLocation,DeathLocation,Father,Mother',
+    }
+
+    var param = new URLSearchParams({...terms,
+        ...settings
     });
-    var url = "search.php?" + params.toString();
-   
+    var url = "search.php?" + param.toString();
+
     var xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            var results = JSON.parse(this.responseText);
-            present_results(results, results_table, results_count);
+            var response = JSON.parse(this.responseText)[0];
+            results_msg.classList.remove('spin');
+            var status = response['status'];
+            if (status == 0) {
+                results_count.innerHTML = response['total'];
+                results_msg.innerHTML = '';
+                show_matches(terms, response['matches'], results_table);
+            } else {
+                results_msg.innerHTML = status;
+            }
         }
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 
-    function present_results(arr, table, count) {
-        table.innerHTML = match_rows(arr[0]['matches']);
-        count.classList.remove('spin');
-        count.innerHTML = arr[0]['total'];
+    function show_matches(terms, matches, table, ) {
+        gap(terms, matches);
+        matches.sort(function(a, b) {
+            return a['gap'] - b['gap']
+        });
+        table.innerHTML = match_rows(matches);
     }
 
     function match_rows(matches) {
@@ -457,7 +474,9 @@ function search(event) {
         for (i = 0; i < matches.length; i++) {
             var m = matches[i];
             var key = m['Name'];
-            if ('undefined'.localeCompare(key) == 0){ continue;}
+            if ('undefined'.localeCompare(key) == 0) {
+                continue;
+            }
             var first = 'undefined'.localeCompare(m['FirstName']) == 0 ? '' : m['FirstName'];
             var middle = 'undefined'.localeCompare(m['MiddleName']) == 0 ? '' : m['MiddleName'];
             var born = 'undefined'.localeCompare(m['LastNameAtBirth']) == 0 ? '' : m['LastNameAtBirth'];
@@ -476,6 +495,27 @@ function search(event) {
             rows += row;
         }
         return rows;
+    }
+
+
+    function gap(terms, matches) {
+        for (var i = 0; i < matches.length; i++) {
+            gap = 0;
+            if (terms.BirthDate && matches[i]['BirthDate']) {
+                var match = parseInt(matches[i]['BirthDate'].substr(0, 4));
+                if (match > 0) {
+                    gap += Math.abs(terms.BirthDate - match);
+                }
+            }
+            if (terms.DeathDate && matches[i]['DeathDate']) {
+                var match = parseInt(matches[i]['DeathDate'].substr(0, 4));
+                if (match > 0) {
+                    gap += Math.abs(terms.DeathDate - match);
+                }
+            }
+            matches[i]['gap'] = gap;
+            console.log(gap + "  " + terms.DeathDate + "  " + matches[i]['DeathDate']);
+        }
     }
 }
 
