@@ -515,19 +515,19 @@ function search(terms, settings, attempt = 0) {
         var rows = "<tr><th>WikiTree ID</th><th>Name</th><th>Birth</th><th>Death</th></tr>";
         for (i = 0; i < Math.min(matches.length, 16); i++) {
             var m = matches[i];
-            var key = m['Name'];
-            if ('undefined'.localeCompare(key) == 0) {
+            if (!m['Name']) {
                 continue;
             }
-            var first = 'undefined'.localeCompare(m['FirstName']) == 0 ? '' : m['FirstName'];
-            var middle = 'undefined'.localeCompare(m['MiddleName']) == 0 ? '' : m['MiddleName'];
-            var born = 'undefined'.localeCompare(m['LastNameAtBirth']) == 0 ? '' : m['LastNameAtBirth'];
-            var died = 'undefined'.localeCompare(m['LastNameCurrent']) == 0 ? '' : m['LastNameCurrent'];
-            var birth_date = 'undefined'.localeCompare(m['BirthDate']) == 0 ? '' : m['BirthDate'];
-            var death_date = 'undefined'.localeCompare(m['DeathDate']) == 0 ? '' : m['DeathDate'];
-            var birth_location = 'undefined'.localeCompare(m['BirthLocation']) == 0 ? '' : m['BirthLocation'];
-            var death_location = 'undefined'.localeCompare(m['DeathLocation']) == 0 ? '' : m['DeathLocation'];
-            var last = born != died ? died + ' (' + born + ')' : born;
+            var key = m['Name'];
+            var first = m['FirstName'] ? m['FirstName'] : '';
+            var middle = m['MiddleName'] ? m['MiddleName'] : '';
+            var born = m['LastNameAtBirth'] ? m['LastNameAtBirth'] : '';
+            var died = m['LastNameCurrent'] ? m['LastNameCurrent'] : '';
+            var birth_date = m['BirthDate'] ? m['BirthDate'] : '';
+            var death_date = m['DeathDate'] ? m['DeathDate'] : '';
+            var birth_location = m['BirthLocation'] ? m['BirthLocation'] : '';
+            var death_location = m['DeathLocation'] ? m['DeathLocation'] : '';
+            var last = born != died ? '(' + born + ') ' + died : born;
             var id_span = "<span class='nowrap'>" + key + "</span>";
             var row = "<td><a href='index.php?key=" + key + "'>" + id_span + '</a></td>';
             row += '<td>' + first + ' ' + middle + ' ' + last + '</td>';
