@@ -225,13 +225,17 @@ button.brail { background-color: inherit; margin: 0.2em; }
 button.hide { display: none; }
 span.thumb { height: 100px }
 span.nowrap { white-space: nowrap; }
-span.gap {background-color: inherit;}
-span.hit {background-color: honeydew;}
 
 /*** ROOT ***/
 div.root { flex-direction: column; padding-top: 8em; padding-bottom: 1em; cursor: inherit; }
 div.root:hover { border: 0.2em solid transparent; }
 div.links { font-size: 0.8em; margin-top: 2em; margin-bottom: 1em; }
+
+/*** SEARCH ***/
+span.gap { background-color: inherit; }
+span.hit { background-color: honeydew; }
+tr.hide { display: none; }
+a.hide { display:none; }
 
 /*** SPINNER ***/
 @keyframes spinner {

@@ -472,8 +472,21 @@ function search_click(event) {
     search(terms, structuredClone(search_settings[0]));
 }
 
+function more_results(event) {
+    event.cancelBubble = true;
+    event.preventDefault();
+    var results = document.getElementById('results_table');
+    var rows = results.querySelectorAll('tr.hide');
+    if (rows.length < 16){
+        event.target.classList.add('hide');
+    }
+    for (var i = 0; i < Math.min(rows.length, 16); i++) {
+        rows[i].classList.remove('hide');
+    }
+
+}
+
 function search(terms, settings, attempt = 0) {
-    console.log(settings.dateSpread);
     var param = new URLSearchParams(Object.assign(terms, settings));
     var url = "search.php?" + param.toString();
 
@@ -513,7 +526,8 @@ function search(terms, settings, attempt = 0) {
 
     function match_rows(matches) {
         var rows = "<tr><th>WikiTree ID</th><th>Name</th><th>Birth</th><th>Death</th></tr>";
-        for (i = 0; i < Math.min(matches.length, 16); i++) {
+        var more = '';
+        for (i = 0; i < matches.length; i++) {
             var m = matches[i];
             if (!m['Name']) {
                 continue;
@@ -527,16 +541,22 @@ function search(terms, settings, attempt = 0) {
             var death_date = m['DeathDate'] ? m['DeathDate'] : '';
             var birth_location = m['BirthLocation'] ? m['BirthLocation'] : '';
             var death_location = m['DeathLocation'] ? m['DeathLocation'] : '';
-            var last = (born === died) ? born :  '(' + born + ') ' + died ;
+            var last = (born === died) ? born : '(' + born + ') ' + died;
             var id_span = "<span class='nowrap'>" + key + "</span>";
             var row = "<td><a href='index.php?key=" + key + "'>" + id_span + '</a></td>';
             row += '<td>' + first + ' ' + middle + ' ' + last + '</td>';
             row += '<td>' + birth_date + '<br>' + birth_location + '</td>';
             row += '<td>' + death_date + '<br>' + death_location + '</td>';
             //row += '<td>' + m['gap'] + '</td>';
-            row = '<tr>' + row + '</tr>';
+            if (i < 16) {
+                row = '<tr>' + row + '</tr>';
+            } else {
+                row = "<tr class='hide'>" + row + '</tr>';
+                more = "<tr><td></td><td><a href='' onclick='more_results(event)'>more...</a></td></tr>";
+            }
             rows += row;
         }
+        rows += more;
         return rows;
     }
 
@@ -574,7 +594,7 @@ function search(terms, settings, attempt = 0) {
                     matches[i]['FirstName'] = "<span class='hit'>" + first + "</span>";
                 } else {
                     matches[i]['FirstName'] = "<span class='hit'>" + first + "</span>";
-                    matches[i]['MiddleName'] = "<span class='hit'>" + middle + "</span>";                    
+                    matches[i]['MiddleName'] = "<span class='hit'>" + middle + "</span>";
                 }
                 gap_total += Math.min(first_gap, middle_gap);
             }
@@ -592,7 +612,7 @@ function search(terms, settings, attempt = 0) {
                     matches[i]['LastNameAtBirth'] = "<span class='hit'>" + born + "</span>";
                 } else {
                     matches[i]['LastNameAtBirth'] = "<span class='hit'>" + born + "</span>";
-                    matches[i]['LastNameCurrent'] = "<span class='hit'>" + died + "</span>";                    
+                    matches[i]['LastNameCurrent'] = "<span class='hit'>" + died + "</span>";
                 }
                 gap_total += Math.min(born_gap, died_gap);
             }
