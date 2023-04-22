@@ -147,7 +147,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 					    <input class='search' type='text' placeholder='Last Name' id='mother_last' >
 					</fieldset>
 					<br>
-					<button id='search_button' type='button' onclick='search(event)' disabled>Search</button>
+					<button id='search_button' type='button' onclick='search_click(event)' disabled>Search</button>
 				</div>
 			</div>
 			<fieldset id='results_fieldset'>

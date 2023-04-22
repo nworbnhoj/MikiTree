@@ -420,13 +420,36 @@ function packDescendants(show) {
 }
 
 
+const search_settings = [{
+    action: 'searchPerson',
+    dateInclude: 'both',
+    dateSpread: 0,
+    skipVariants: 1,
+    lastNameMatch: 'strict',
+    limit: 100,
+    fields: 'Id,Name,FirstName,MiddleName,LastNameCurrent,LastNameAtBirth,Gender,BirthDate,DeathDate,BirthLocation,DeathLocation,Father,Mother',
+}, {
+    dateSpread: 1,
+}, {
+    dateSpread: 2,
+    lastNameMatch: 'all',
+}, {
+    dateSpread: 5,
+    skipVariants: 0,
+}, {
+    dateSpread: 10,
+    dateInclude: 'neither',
+}, ];
 
-function search(event) {
+
+function search_click(event) {
     event.cancelBubble = true;
     var results_msg = document.getElementById("results_msg");
     var results_table = document.getElementById("results_table");
     var results_count = document.getElementById("results_count");
     var spin = results_msg.classList.add('spin');
+    results_table.innerHTML = '';
+    results_count.innerHTML = '0';
     // autofill child_last from father_last
     var child_last = document.getElementById('child_last');
     if (!child_last.value) {
@@ -446,17 +469,12 @@ function search(event) {
         motherLastName: document.getElementById('mother_last').value,
     }
 
-    var settings = {
-        action: 'searchPerson',
-        dateInclude: 'both',
-        dateSpread: '2',
-        limit: 100,
-        fields: 'Id,Name,FirstName,MiddleName,LastNameCurrent,LastNameAtBirth,Gender,BirthDate,DeathDate,BirthLocation,DeathLocation,Father,Mother',
-    }
+    search(terms, structuredClone(search_settings[0]));
+}
 
-    var param = new URLSearchParams({...terms,
-        ...settings
-    });
+function search(terms, settings, attempt = 0) {
+    console.log(settings.dateSpread);
+    var param = new URLSearchParams(Object.assign(terms, settings));
     var url = "search.php?" + param.toString();
 
     var xmlhttp = new XMLHttpRequest();
@@ -464,13 +482,19 @@ function search(event) {
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var response = JSON.parse(this.responseText)[0];
-            results_msg.classList.remove('spin');
             var status = response['status'];
             var total = response['total'];
             if (status == 0) {
                 results_count.innerHTML = total;
                 results_msg.innerHTML = '';
                 show_matches(terms, response['matches'], results_table);
+                attempt++;
+                if (total < 100 && attempt < search_settings.length) {
+                    Object.assign(settings, search_settings[attempt]);
+                    search(terms, settings, attempt);
+                } else {
+                    results_msg.classList.remove('spin');
+                }
             } else {
                 results_msg.innerHTML = status;
             }
@@ -521,21 +545,17 @@ function search(event) {
             gap = 0;
             if (terms.BirthDate && matches[i]['BirthDate']) {
                 var match = parseInt(matches[i]['BirthDate'].substr(0, 4));
-                if (match > 0) {
-                    gap += Math.abs(terms.BirthDate - match);
-                }
+                gap += match == 0 ? 2 : Math.abs(terms.BirthDate - match);
             }
             if (terms.DeathDate && matches[i]['DeathDate']) {
                 var match = parseInt(matches[i]['DeathDate'].substr(0, 4));
-                if (match > 0) {
-                    gap += Math.abs(terms.DeathDate - match);
-                }
+                gap += match == 0 ? 2 : Math.abs(terms.DeathDate - match);
             }
             if (terms.FirstName && matches[i]['FirstName']) {
                 gap += levenshtein(terms.FirstName, matches[i]['FirstName']);
             }
             if (terms.LastName && matches[i]['LastNameAtBirth']) {
-                gap += levenshtein(terms.LastName, matches[i]['LastNameAtBirthName']);
+                gap += levenshtein(terms.LastName, matches[i]['LastNameAtBirth']);
             }
             matches[i]['gap'] = gap;
         }
@@ -631,7 +651,6 @@ function search(event) {
             }
             h = d;
         }
-
         return h;
     }
 }
