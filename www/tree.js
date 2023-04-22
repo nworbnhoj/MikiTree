@@ -527,12 +527,13 @@ function search(terms, settings, attempt = 0) {
             var death_date = m['DeathDate'] ? m['DeathDate'] : '';
             var birth_location = m['BirthLocation'] ? m['BirthLocation'] : '';
             var death_location = m['DeathLocation'] ? m['DeathLocation'] : '';
-            var last = born != died ? '(' + born + ') ' + died : born;
+            var last = (born === died) ? born :  '(' + born + ') ' + died ;
             var id_span = "<span class='nowrap'>" + key + "</span>";
             var row = "<td><a href='index.php?key=" + key + "'>" + id_span + '</a></td>';
             row += '<td>' + first + ' ' + middle + ' ' + last + '</td>';
             row += '<td>' + birth_date + '<br>' + birth_location + '</td>';
             row += '<td>' + death_date + '<br>' + death_location + '</td>';
+            //row += '<td>' + m['gap'] + '</td>';
             row = '<tr>' + row + '</tr>';
             rows += row;
         }
@@ -542,22 +543,60 @@ function search(terms, settings, attempt = 0) {
 
     function gap(terms, matches) {
         for (var i = 0; i < matches.length; i++) {
-            gap = 0;
-            if (terms.BirthDate && matches[i]['BirthDate']) {
-                var match = parseInt(matches[i]['BirthDate'].substr(0, 4));
-                gap += match == 0 ? 2 : Math.abs(terms.BirthDate - match);
+            gap_total = 0;
+            if (terms.BirthDate) {
+                var date = matches[i]['BirthDate'] ? matches[i]['BirthDate'] : '0000';
+                var year = date.substr(0, 4);
+                var gap = Math.abs(terms.BirthDate - +year);
+                var gh = gap ? 'gap' : 'hit';
+                matches[i]['BirthDate'] = "<span class='" + gh + "'>" + year + "</span>" + date.substr(4);
+                gap_total += +year == 0 ? 4 : gap;
             }
-            if (terms.DeathDate && matches[i]['DeathDate']) {
-                var match = parseInt(matches[i]['DeathDate'].substr(0, 4));
-                gap += match == 0 ? 2 : Math.abs(terms.DeathDate - match);
+            if (terms.DeathDate) {
+                var date = matches[i]['DeathDate'] ? matches[i]['DeathDate'] : '0000';
+                var year = date.substr(0, 4);
+                var gap = Math.abs(terms.DeathDate - +year);
+                var gh = gap ? 'gap' : 'hit';
+                matches[i]['DeathDate'] = "<span class='" + gh + "'>" + year + "</span>" + date.substr(4);
+                gap_total += +year == 0 ? 4 : gap;
             }
-            if (terms.FirstName && matches[i]['FirstName']) {
-                gap += levenshtein(terms.FirstName, matches[i]['FirstName']);
+            if (terms.FirstName) {
+                first = matches[i]['FirstName'] ? matches[i]['FirstName'] : '';
+                middle = matches[i]['MiddleName'] ? matches[i]['MiddleName'] : '';
+                first_gap = levenshtein(terms.FirstName, first);
+                middle_gap = levenshtein(terms.FirstName, middle);
+                if (first_gap && middle_gap) {
+                    matches[i]['FirstName'] = "<span class='gap'>" + first + "</span>";
+                    matches[i]['MiddleName'] = "<span class='gap'>" + middle + "</span>";
+                } else if (first_gap) {
+                    matches[i]['MiddleName'] = "<span class='hit'>" + middle + "</span>";
+                } else if (middle_gap) {
+                    matches[i]['FirstName'] = "<span class='hit'>" + first + "</span>";
+                } else {
+                    matches[i]['FirstName'] = "<span class='hit'>" + first + "</span>";
+                    matches[i]['MiddleName'] = "<span class='hit'>" + middle + "</span>";                    
+                }
+                gap_total += Math.min(first_gap, middle_gap);
             }
-            if (terms.LastName && matches[i]['LastNameAtBirth']) {
-                gap += levenshtein(terms.LastName, matches[i]['LastNameAtBirth']);
+            if (terms.LastName) {
+                born = matches[i]['LastNameAtBirth'] ? matches[i]['LastNameAtBirth'] : '';
+                died = matches[i]['LastNameCurrent'] ? matches[i]['LastNameCurrent'] : '';
+                born_gap = levenshtein(terms.LastName, born);
+                died_gap = levenshtein(terms.LastName, died);
+                if (born_gap && died_gap) {
+                    matches[i]['LastNameAtBirth'] = "<span class='gap'>" + born + "</span>";
+                    matches[i]['LastNameCurrent'] = "<span class='gap'>" + died + "</span>";
+                } else if (born_gap) {
+                    matches[i]['LastNameCurrent'] = "<span class='hit'>" + died + "</span>";
+                } else if (died_gap) {
+                    matches[i]['LastNameAtBirth'] = "<span class='hit'>" + born + "</span>";
+                } else {
+                    matches[i]['LastNameAtBirth'] = "<span class='hit'>" + born + "</span>";
+                    matches[i]['LastNameCurrent'] = "<span class='hit'>" + died + "</span>";                    
+                }
+                gap_total += Math.min(born_gap, died_gap);
             }
-            matches[i]['gap'] = gap;
+            matches[i]['gap'] = gap_total;
         }
     }
 

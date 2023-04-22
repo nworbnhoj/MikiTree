@@ -225,6 +225,8 @@ button.brail { background-color: inherit; margin: 0.2em; }
 button.hide { display: none; }
 span.thumb { height: 100px }
 span.nowrap { white-space: nowrap; }
+span.gap {background-color: inherit;}
+span.hit {background-color: honeydew;}
 
 /*** ROOT ***/
 div.root { flex-direction: column; padding-top: 8em; padding-bottom: 1em; cursor: inherit; }
