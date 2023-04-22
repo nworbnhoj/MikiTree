@@ -124,11 +124,11 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
             </fieldset>
 		</div>
 		<div id='search_div' class='hide'>
-			<div id='search_flex' >
+			<div id='search_flex' onchange='search_change(event)'>
 				<fieldset >
-				    <legend>WikiTree profile</legend>
-				    <input class='search' type='text' placeholder='First Name' id='child_first' >
-				    <input class='search' type='text' placeholder='Last Name' id='child_last' ><br>
+				    <legend>Deceased Ancestor</legend>
+				    <input class='search hilite' type='text' placeholder='First Name' id='child_first' >
+				    <input class='search hilite' type='text' placeholder='Last Name' id='child_last' ><br>
 				    <input class='search' type='number' placeholder='birth year' id='child_birth_date' >
 				    <input class='search' type='number' placeholder='death year' id='child_death_date' ><br>
 	                <input class='search' type='text' placeholder='birth location' id='child_birth_location' >
@@ -147,12 +147,12 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 					    <input class='search' type='text' placeholder='Last Name' id='mother_last' >
 					</fieldset>
 					<br>
-					<button id='search_button' type='button' onclick='search(event)'>Search</button>
+					<button id='search_button' type='button' onclick='search(event)' disabled>Search</button>
 				</div>
 			</div>
 			<fieldset id='results_fieldset'>
 				<legend>Results (<span id='results_count'>0</span>)</legend>
-				<div id='results_msg'>Provide at least one of the WikiTree Profile fields.</div>
+				<div id='results_msg'>WikiTree privacy limits searches to deceased ancestors.</div>
 				<table id='results_table'></table>
 			</fieldset>
 		</div>
@@ -780,7 +780,7 @@ function init() {
 		"-22" => array("Id" => "-22", "LastNameAtBirth" => "sister", "Father" => "", "Mother" => "", "Gender" => "Female"),
 	]);
 
-	define("HELP_BIO", "<div id='bdm'><p>Enter a valid <b>WikiTree ID</b> to begin exploring.</p>
+	define("HELP_BIO", "<div id='bdm'><p>Enter a valid <b>WikiTree-ID</b> to begin exploring <br> or search 🔎︎ for a WikiTree-ID of interest.</p>
 		    <P>Click on any profile to bring it to the centre.</p>
 			<p><b>Ancestors</b> are displayed in a fractal tree:
 			<ul>

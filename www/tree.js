@@ -52,6 +52,23 @@ function search_show(event) {
     document.getElementById('search_div').classList.toggle('hide');
 }
 
+function search_change(event) {
+    var child_first = document.getElementById('child_first');
+    var child_last = document.getElementById('child_last');
+    var search_button = document.getElementById('search_button');
+    if (child_first.value.length + child_last.value.length == 0) {
+        child_first.classList.add('hilite');
+        child_last.classList.add('hilite');
+        search_button.disabled = true;
+        search_button.classList.remove('hilite');
+    } else {
+        child_first.classList.remove('hilite');
+        child_last.classList.remove('hilite');
+        search_button.disabled = false;
+        search_button.classList.add('hilite');
+    }
+}
+
 function settings(event) {
     event.cancelBubble = true;
     event.target.classList.toggle('checked');
@@ -449,8 +466,9 @@ function search(event) {
             var response = JSON.parse(this.responseText)[0];
             results_msg.classList.remove('spin');
             var status = response['status'];
+            var total = response['total'];
             if (status == 0) {
-                results_count.innerHTML = response['total'];
+                results_count.innerHTML = total;
                 results_msg.innerHTML = '';
                 show_matches(terms, response['matches'], results_table);
             } else {
@@ -529,7 +547,7 @@ function search(event) {
             return 0;
         }
         var n = s ? s.length : 0;
-            m = t ? t.length : 0;
+        var m = t ? t.length : 0;
         if (n === 0 || m === 0) {
             return n + m;
         }
