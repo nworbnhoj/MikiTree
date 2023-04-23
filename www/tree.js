@@ -621,6 +621,8 @@ function search(terms, settings, attempt = 0) {
     }
 
     // https://stackoverflow.com/questions/18516942/fastest-general-purpose-levenshtein-javascript-implementation
+    // licence: CC BY-SA 3.0. https://creativecommons.org/licenses/by-sa/3.0/
+    // minor modifications
     function levenshtein(s, t) {
         if (s === t) {
             return 0;

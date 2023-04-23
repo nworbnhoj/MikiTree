@@ -725,7 +725,7 @@ function inferSpouses($people) {
 /**
  * respondOK.
  * https://stackoverflow.com/questions/15273570/ continue-processing-php-after-sending-http-response
- *
+ * licence: CC BY-SA 3.0. https://creativecommons.org/licenses/by-sa/3.0/
  */
 function respondOK() {
 	// check if fastcgi_finish_request is callable
