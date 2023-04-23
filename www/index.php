@@ -15,6 +15,7 @@ define("SHOW_ALL", array(
 	'm' => "middle name",
 	'M' => "middle initial",
 	'p' => "photo",
+	'r' => "relationship",
 ));
 define("BRAIL", array(0 => '⠀', 1 => '⠂', 2 => '⠤', 3 => '⠦', 4 => '⠶', 5 => '⠷', 6 => '⠿', 7 => '⡿', 8 => '⣿'));
 
@@ -24,8 +25,6 @@ $root_key = mb_ereg(WT_ID_REGEX, $root_key) ? $root_key : null;
 $depth = isset($_GET['depth']) ? intval($_GET['depth']) : DEPTH_DEFAULT;
 $depth = max(min($depth, 10), 0);
 $show = isset($_GET['show']) ? $_GET['show'] : SHOW_DEFAULT;
-define("DEPTH", $depth);
-define("SHOW", $show);
 
 // list of photos to be fetched after html returned to client
 $fetch = array();
@@ -46,6 +45,7 @@ if (isset($root_key)) {
 if (!isset($root)) {
 	init();
 	$depth = 4;
+	$show = $show . 'r';
 	$people = HELP_FAMILY;
 	$root_id = "root";
 	$root = $people[$root_id];
@@ -53,6 +53,10 @@ if (!isset($root)) {
 	$bdm = HELP_BIO;
 	$bio = "";
 }
+
+define("DEPTH", $depth);
+define("SHOW", $show);
+
 $ancestors = fractal($root_id, $people, 0, $depth);
 $descendants = branch($root, $people);
 $head = head($root_key);
@@ -375,7 +379,7 @@ function fractal($id, $people, $gen = 0, $depth = 4) {
 	return $div;
 }
 
-function branch($head, $people, $gen = 0, $branch_index = 0) {
+function branch($head, $people, $gen = 1, $branch_index = 0) {
 	if ($gen > 10) {return "";}
 	$head_id = $head['Id'];
 	$head_div = person_div($head);
@@ -409,7 +413,7 @@ function branch($head, $people, $gen = 0, $branch_index = 0) {
 		}
 	}
 
-	$hide = $gen > 0 ? "hide" : "";
+	$hide = $gen > 1 ? "hide" : "";
 	$branch =
 		"<div class='generation $hide' gen='$gen' branch='$branch_index'>
 	        <div class='generation_h unions'> $union_divs </div>
@@ -425,7 +429,7 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 	$name_family = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
 	$name_first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
 	$gender = isset($spouse['Gender']) ? strtolower($spouse['Gender']) : "";
-	$spouse_div = person_div($spouse, 1);
+	$spouse_div = spouse_div($spouse, $gen - 1);
 
 	$siblings_div = "";
 	$children = isset($spouse["Spouses"][$head_id]) ? $spouse["Spouses"][$head_id] : array();
@@ -445,11 +449,44 @@ function key_fix($person) {
 	return isset($person['Name']) ? str_replace(" ", "_", $person['Name']) : '';
 }
 
+function relationship($generation, $gender, $inlaw = '-inlaw') {
+	$rel = '';
+	$abs_gen = abs($generation);
+	switch ($abs_gen) {
+	case 0:return $gender === 'male' ? 'husband' : 'wife';
+	case 1:$rel = '';
+		break;
+	case 2:$rel = 'grand-';
+		break;
+	case 3:$rel = 'great-grand-';
+		break;
+	default:$rel = str_repeat('g', $abs_gen - 2) . "-G";
+	}
+
+	if ($generation > 3) {
+		$rel .= $gender === 'male' ? 'M' : 'F';
+	} elseif ($generation > 0) {
+		$rel .= $gender === 'male' ? 'father' : 'mother';
+	} elseif ($generation == 0) {
+		$rel .= $gender === 'male' ? 'husband' : 'wife';
+	} elseif ($generation < 0) {
+		switch ($gender) {
+		case 'male':$rel .= 'son';
+			break;
+		case 'female':$rel .= 'daughter';
+			break;
+		default:$rel .= 'child';
+		}
+	}
+	$rel .= $inlaw;
+	return $rel;
+}
+
 function person_div($person, $gen = 0, $orient = '') {
 	$key = key_fix($person);
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
-	$name_div = name_div($person, "bcdefFmMlL");
+	$name_div = name_div($person, "bcdefFmMlLr", relationship($gen, $gender, ''));
 	$thumb = img($person, 'thumb', true);
 	return
 		"<div class='person $gender $orient' key='$key' gen='$gen' onclick='load_profile(event)'>
@@ -465,7 +502,7 @@ function child_div($child_id, $people, $gen, $index) {
 	$key = key_fix($child);
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
-	$name_div = name_div($child, "bdfFmMlL");
+	$name_div = name_div($child, "bdfFmMlLr", relationship(-1 * $gen, $gender, ''));
 
 	$spouses_div = "";
 	$spouses = isset($child['Spouses']) ? $child['Spouses'] : array();
@@ -473,7 +510,7 @@ function child_div($child_id, $people, $gen, $index) {
 	foreach ($spouses as $spouse_id => $grand_children) {
 		$spouse = $people[$spouse_id];
 		$gc_count = sizeof($grand_children);
-		$spouses_div = $spouses_div . spouse_div($spouse, $gen, $gc_count);
+		$spouses_div = $spouses_div . spouse_icon($spouse, $gen, $gc_count);
 		$child_count += $gc_count;
 	}
 	$brail = brail($child_count);
@@ -498,10 +535,25 @@ function brail($n) {
 	return $brail;
 }
 
-function spouse_div($person, $gen, $child_count) {
+function spouse_div($person, $gen = 0) {
 	$key = key_fix($person);
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
-	$name_div = name_div($person, "lL");
+
+	$name_div = name_div($person, "bcdefFmMlLr", relationship(-$gen, $gender));
+	$thumb = img($person, 'thumb', true);
+	return
+		"<div class='person $gender horizontal' key='$key' gen='$gen' onclick='load_profile(event)'>
+		    <div class='fill'></div>
+		    <span class='thumb X' p='p'>$thumb</span>
+	        $name_div
+		    <div class='fill'></div>
+	    </div>";
+}
+
+function spouse_icon($person, $gen, $child_count) {
+	$key = key_fix($person);
+	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
+	$name_div = name_div($person, "lLr", relationship(-$gen, $gender));
 	$brail = brail($child_count);
 	return
 		"<div class='person spouse $gender' key='$key' gen='$gen' onclick='show_branch(event)'>
@@ -514,7 +566,7 @@ function root_div($root, $people) {
 	$key = key_fix($root);
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
-	$name_div = name_div($root, "bcdefFmMlL");
+	$name_div = name_div($root, "bcdefFmMlLr", "WikiTree profile");
 	$thumb = img($root, 'thumb', true);
 	return
 		"<div class='person root $gender' key='$key' gen='0'>
@@ -525,7 +577,7 @@ function root_div($root, $people) {
 		</div>";
 }
 
-function name_div($person, $flags) {
+function name_div($person, $flags, $relationship = '') {
 	$fb = strpos($flags, 'b') !== false; // birth date
 	$fc = strpos($flags, 'c') !== false; // birth location
 	$fd = strpos($flags, 'd') !== false; // death date
@@ -536,6 +588,7 @@ function name_div($person, $flags) {
 	$fL = strpos($flags, 'L') !== false; // last name bold
 	$fm = strpos($flags, 'm') !== false; // middle name
 	$fM = strpos($flags, 'M') !== false; // middle initial
+	$fr = strpos($flags, 'r') !== false; // relationship
 	$fy = strpos($flags, 'y') !== false; // year
 
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : false;
@@ -547,7 +600,7 @@ function name_div($person, $flags) {
 	$middle = isset($person['MiddleName']) ? $person['MiddleName'] : $middle_initial;
 	$middle_initial = $middle_initial ? $middle_initial : mb_substr($middle, 0, 1) . '.';
 	$middle_initial = $middle_initial == "." ? false : $middle_initial;
-	$last = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
+	$last = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : " "; // space is important for help
 	$last = $privacy < 30 ? "🔒" : $last;
 
 	$birth_year = isset($person['BirthDateDecade']) ? $person['BirthDateDecade'] : false;
@@ -568,10 +621,11 @@ function name_div($person, $flags) {
 	$L = $fL && $last ? "<span class='X' p='L'><b>$last</b></span>" : "";
 	$m = $fm && $middle ? "<span class='X' p='m'>$middle</span>" : "";
 	$M = $fM && $middle_initial ? "<span class='upper X' p='M'>$middle_initial</span>" : "";
+	$r = $fr && $relationship ? "<br><span class='X' p='r'><i>$relationship</i></span>" : "";
 
 	if (!($b || $c || $d || $e || $f || $F || $l || $L || $m || $M)) {return "<br>";}
 
-	return "<div class='name'>$f$F $m$M $l$L <small>$b $d $c $e</small></div>";
+	return "<div class='name'>$f$F $m$M $l$L<small>$b $d $c $e</small>$r</div>";
 }
 
 function links($ids, $people) {
@@ -755,26 +809,26 @@ function respondOK() {
 
 function init() {
 	define("HELP_FAMILY", [
-		"10" => array("Id" => "10", "LastNameAtBirth" => "Grand-Son", "Father" => "6", "Mother" => "4", "Gender" => "Male", "Siblings" => [8, 9]),
-		"9" => array("Id" => "9", "LastNameAtBirth" => "Grand-Daughter", "Father" => "6", "Mother" => "4", "Gender" => "Female", "Siblings" => [8, 10]),
-		"8" => array("Id" => "8", "LastNameAtBirth" => "Grand-Daughter", "Father" => "7", "Mother" => "4", "Gender" => "Female", "Siblings" => [9, 10]),
-		"7" => array("Id" => "7", "LastNameAtBirth" => "Son-in-law-2", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [8]], "Children" => [8]),
-		"6" => array("Id" => "6", "LastNameAtBirth" => "Son-in-law-1", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [9, 10]], "Children" => [9, 10]),
-		"5" => array("Id" => "5", "LastNameAtBirth" => "Daughter-in-law", "Father" => "", "Mother" => "", "Gender" => "Female", "Spouses" => ["2" => []]),
-		"4" => array("Id" => "4", "LastNameAtBirth" => "Daughter", "Father" => "root", "Mother" => "1", "Gender" => "Female", "Siblings" => [2, 3], "Spouses" => ["6" => [9, 10], "7" => [8]], "Children" => [8, 9, 10]),
+		"10" => array("Id" => "10", "Father" => "6", "Mother" => "4", "Gender" => "Male", "Siblings" => [8, 9]),
+		"9" => array("Id" => "9", "Father" => "6", "Mother" => "4", "Gender" => "Female", "Siblings" => [8, 10]),
+		"8" => array("Id" => "8", "Father" => "7", "Mother" => "4", "Gender" => "Female", "Siblings" => [9, 10]),
+		"7" => array("Id" => "7", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [8]], "Children" => [8]),
+		"6" => array("Id" => "6", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [9, 10]], "Children" => [9, 10]),
+		"5" => array("Id" => "5", "Father" => "", "Mother" => "", "Gender" => "Female", "Spouses" => ["2" => []]),
+		"4" => array("Id" => "4", "Father" => "root", "Mother" => "1", "Gender" => "Female", "Siblings" => [2, 3], "Spouses" => ["6" => [9, 10], "7" => [8]], "Children" => [8, 9, 10]),
 
-		"3" => array("Id" => "3", "LastNameAtBirth" => "Son", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
-		"2" => array("Id" => "2", "LastNameAtBirth" => "Son", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => ["5" => []]),
-		"1" => array("Id" => "1", "LastNameAtBirth" => "Wife", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => ["root" => [2, 3, 4]]),
-		"root" => array("Id" => "root", "LastNameAtBirth" => "WikiTree Profile", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21, -22], "Photo" => "help.webp", "PhotoData" => ["path" => "help.webp"]),
-		"-1" => array("Id" => "-1", "LastNameAtBirth" => "Father", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
-		"-2" => array("Id" => "-2", "LastNameAtBirth" => "Mother", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
-		"-3" => array("Id" => "-3", "LastNameAtBirth" => "Grand Father", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
-		"-4" => array("Id" => "-4", "LastNameAtBirth" => "Grand Mother", "Father" => "-5", "Mother" => "-6", "Gender" => "Female"),
-		"-5" => array("Id" => "-5", "LastNameAtBirth" => "Great Grand Father", "Father" => "-7", "Mother" => "-8", "Gender" => "Male"),
-		"-6" => array("Id" => "-6", "LastNameAtBirth" => "Great Grand Mother", "Father" => "-7", "Mother" => "-8", "Gender" => "Female"),
-		"-7" => array("Id" => "-7", "LastNameAtBirth" => "GGGF", "Father" => "-9", "Mother" => "-10", "Gender" => "Male"),
-		"-8" => array("Id" => "-8", "LastNameAtBirth" => "GGGM", "Father" => "-9", "Mother" => "-10", "Gender" => "Female"),
+		"3" => array("Id" => "3", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
+		"2" => array("Id" => "2", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => ["5" => []]),
+		"1" => array("Id" => "1", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => ["root" => [2, 3, 4]]),
+		"root" => array("Id" => "root", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21, -22], "Photo" => "help.webp", "PhotoData" => ["path" => "help.webp"]),
+		"-1" => array("Id" => "-1", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
+		"-2" => array("Id" => "-2", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
+		"-3" => array("Id" => "-3", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
+		"-4" => array("Id" => "-4", "Father" => "-5", "Mother" => "-6", "Gender" => "Female"),
+		"-5" => array("Id" => "-5", "Father" => "-7", "Mother" => "-8", "Gender" => "Male"),
+		"-6" => array("Id" => "-6", "Father" => "-7", "Mother" => "-8", "Gender" => "Female"),
+		"-7" => array("Id" => "-7", "Father" => "-9", "Mother" => "-10", "Gender" => "Male"),
+		"-8" => array("Id" => "-8", "Father" => "-9", "Mother" => "-10", "Gender" => "Female"),
 		"-20" => array("Id" => "-20", "LastNameAtBirth" => "siblings", "Father" => "", "Mother" => "", "Gender" => ""),
 		"-21" => array("Id" => "-21", "LastNameAtBirth" => "brother", "Father" => "", "Mother" => "", "Gender" => "Male"),
 		"-22" => array("Id" => "-22", "LastNameAtBirth" => "sister", "Father" => "", "Mother" => "", "Gender" => "Female"),
@@ -789,7 +843,7 @@ function init() {
 			</ul></p>
 			<p><b>Descendents</b> are in rows of siblings, 1st cousins, 2nd cousins etc.
 			<ul>
-			<li>Click <b>Son-in-law-1</b> to show the next generation (click <b>⠦</b> to hide).</li>
+			<li>Click <b>son-inlaw</b> to show the next generation (click <b>⠦</b> to hide).</li>
 			<li>Each row of Siblings has Parents above, and spouses below.</li>
 			</ul></p></div>");
 }

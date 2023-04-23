@@ -27,10 +27,11 @@ function load(key, target) {
         return;
     }
     target.classList.add('spin');
+    var show = show_get().replace('r', ''); // special case: prevent 'r'  propogating from help
     var params = {
         'key': key,
         'depth': depth_get(),
-        'show': show_get(),
+        'show': show,
     };
     var esc = encodeURIComponent;
     var query = Object.keys(params)
@@ -477,7 +478,7 @@ function more_results(event) {
     event.preventDefault();
     var results = document.getElementById('results_table');
     var rows = results.querySelectorAll('tr.hide');
-    if (rows.length < 16){
+    if (rows.length < 16) {
         event.target.classList.add('hide');
     }
     for (var i = 0; i < Math.min(rows.length, 16); i++) {
@@ -527,6 +528,8 @@ function search(terms, settings, attempt = 0) {
     function match_rows(matches) {
         var rows = "<tr><th>WikiTree ID</th><th>Name</th><th>Birth</th><th>Death</th></tr>";
         var more = '';
+        var show = show_get().replace('r', ''); // special case: prevent 'r'  propogating from help
+        var depth = depth_get();
         for (i = 0; i < matches.length; i++) {
             var m = matches[i];
             if (!m['Name']) {
@@ -543,7 +546,8 @@ function search(terms, settings, attempt = 0) {
             var death_location = m['DeathLocation'] ? m['DeathLocation'] : '';
             var last = (born === died) ? born : '(' + born + ') ' + died;
             var id_span = "<span class='nowrap'>" + key + "</span>";
-            var row = "<td><a href='index.php?key=" + key + "'>" + id_span + '</a></td>';
+            var param = "key=" + key + "&show=" + show + "&depth=" + depth;
+            var row = "<td><a href='index.php?" + param + "'>" + id_span + '</a></td>';
             row += '<td>' + first + ' ' + middle + ' ' + last + '</td>';
             row += '<td>' + birth_date + '<br>' + birth_location + '</td>';
             row += '<td>' + death_date + '<br>' + death_location + '</td>';
