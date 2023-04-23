@@ -820,7 +820,7 @@ function init() {
 		"3" => array("Id" => "3", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
 		"2" => array("Id" => "2", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => ["5" => []]),
 		"1" => array("Id" => "1", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => ["root" => [2, 3, 4]]),
-		"root" => array("Id" => "root", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21, -22], "Photo" => "help.webp", "PhotoData" => ["path" => "help.webp"]),
+		"root" => array("Id" => "root", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21], "Photo" => "help.webp", "PhotoData" => ["path" => "help.webp"]),
 		"-1" => array("Id" => "-1", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
 		"-2" => array("Id" => "-2", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
 		"-3" => array("Id" => "-3", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
@@ -829,9 +829,8 @@ function init() {
 		"-6" => array("Id" => "-6", "Father" => "-7", "Mother" => "-8", "Gender" => "Female"),
 		"-7" => array("Id" => "-7", "Father" => "-9", "Mother" => "-10", "Gender" => "Male"),
 		"-8" => array("Id" => "-8", "Father" => "-9", "Mother" => "-10", "Gender" => "Female"),
-		"-20" => array("Id" => "-20", "LastNameAtBirth" => "siblings", "Father" => "", "Mother" => "", "Gender" => ""),
-		"-21" => array("Id" => "-21", "LastNameAtBirth" => "brother", "Father" => "", "Mother" => "", "Gender" => "Male"),
-		"-22" => array("Id" => "-22", "LastNameAtBirth" => "sister", "Father" => "", "Mother" => "", "Gender" => "Female"),
+		"-20" => array("Id" => "-20", "RealName" => "brother", "Father" => "-1", "Mother" => "-2", "Gender" => "Male"),
+		"-21" => array("Id" => "-21", "RealName" => "sister", "Father" => "-1", "Mother" => "-2", "Gender" => "Female"),
 	]);
 
 	define("HELP_BIO", "<div id='bdm'><p>Enter a valid <b>WikiTree-ID</b> to begin exploring <br> or search 🔎︎ for a WikiTree-ID of interest.</p>
