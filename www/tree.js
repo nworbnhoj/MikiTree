@@ -191,6 +191,7 @@ function show_branch(event) {
             branch.classList.remove('hide');
         }
     }
+    packDescendants(show_get());
     resize_chutes(event);
 }
 
@@ -217,6 +218,7 @@ function hide_branch(event) {
             branch.classList.add('hide');
         }
     }
+    packDescendants(show_get());
     resize_chutes(event);
 }
 
@@ -350,7 +352,7 @@ function packAncestors(show, depth_max) {
     do { // work out from the center
         var gen_g = "[gen='" + g + "']";
         var gen_g_data = gen_g + " " + data;
-        var packed = packNodes(ancestors.querySelectorAll(gen_g_data));
+        var packed = pack_square(ancestors.querySelectorAll(gen_g_data));
         g4_packed = g == 4 ? packed : g4_packed;
         var gen_len = ancestors.querySelectorAll(gen_g).length;
         g++;
@@ -363,7 +365,7 @@ function packAncestors(show, depth_max) {
 }
 
 
-function packNodes(nodes) {
+function pack_square(nodes) {
     if (nodes.length == 0) {
         return 1;
     }
@@ -413,10 +415,34 @@ function packDescendants(show) {
     }
     for (let s = 0; s < show.length; s++) {
         var data = "[p='" + show[s] + "']";
-        var nodes = descendants.querySelectorAll(data);
-        for (let n = 0; n < nodes.length; n++) {
-            nodes[n].classList.remove('X');
-        }
+        var g = 1;
+        do { // pack each generation separately
+            var gen_g = "[gen='" + g + "']";
+            var gen_g_data = gen_g + " " + data;
+            var nodes = descendants.querySelectorAll(gen_g_data);
+            pack_width(nodes);
+            g++;
+        } while (nodes.length > 0);
+    }
+}
+
+function pack_width(nodes) {
+    // show the data for all of the people
+    for (let n = 0; n < nodes.length; n++) {
+        nodes[n].classList.remove('X');
+    }
+    shown = Array.prototype.slice.call(nodes, 0);
+    shown.sort((a, b) => {
+        b.innerText.length - a.innerText.length
+    });
+
+    // check for screen width exceeded, and progressively hide to fix
+    var body = document.body;
+    while (body.scrollWidth > body.clientWidth && shown.length > 0) {
+        var hide = shown.splice(Math.trunc(0.9 * shown.length));
+        hide.forEach((v, i, a) => {
+            v.classList.add('X')
+        });
     }
 }
 
