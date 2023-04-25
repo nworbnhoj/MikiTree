@@ -138,6 +138,7 @@ progress.over::-moz-progress-bar { background-color: DarkOrange; }
 progress.size { height: 0.2em; width: 100%; }
 
 /************** # *********************/
+#banner { text-align: center; font-size: 1.3em; line-height: 1.6; }
 #ancestors { font-size: 1.3em; margin: 0.3em; }
 #profile { display: grid; grid-template-columns: 3fr 2fr }
 #bdm { font-size: 1em; margin: 3vw 3vw 5vw 5vw; }
@@ -146,10 +147,12 @@ progress.size { height: 0.2em; width: 100%; }
 #go_button { }
 #search_toggle { }
 #help_button { }
+#help { }
+#help_txt { max-width: 36em; }
 #settings_toggle { }
 #search_button { margin: 0.5em; width: 95%; }
-#search_flex { display: flex; grid-template-columns: 1fr 1fr; }
-#search_msg {margin: 1em;}
+#search_flex { display: flex; grid-template-columns: 1fr 1fr; justify-content: center; }
+#search_msg { margin: 1em; }
 #results_fieldset { display: block; }
 #results_table { width: 100%; }
 input.search { max-width: 8em; }
@@ -175,6 +178,10 @@ p.wiki { font-size: 1em; }
 /*** PHOTO ***/
 img.photo { display: block; margin: 3vw auto 3vw auto; width: auto; height: auto; max-width: 100%; }
 img.thumb { display: block; margin: 0.1em; clip-path: polygon(0px 0px, 75px 0px, 75px 100px, 0px 100px); }
+
+/*** HELP ***/
+div.row { display: flex; flex-flow: row nowrap; justify-content: center; align-items: center; }
+img.help { display: block; margin: 1vw auto 1vw auto; width: auto; height: auto; max-width: 15em; }
 
 /*** PROFILE ***/
 ul.marriage { padding-left: 0; list-style: none; }
@@ -235,7 +242,7 @@ div.links { font-size: 0.8em; margin-top: 2em; margin-bottom: 1em; }
 span.gap { background-color: inherit; }
 span.hit { background-color: honeydew; }
 tr.hide { display: none; }
-a.hide { display:none; }
+a.hide { display: none; }
 
 /*** SPINNER ***/
 @keyframes spinner {

@@ -25,6 +25,8 @@ $root_key = mb_ereg(WT_ID_REGEX, $root_key) ? $root_key : null;
 $depth = isset($_GET['depth']) ? intval($_GET['depth']) : DEPTH_DEFAULT;
 $depth = max(min($depth, 10), 0);
 $show = isset($_GET['show']) ? $_GET['show'] : SHOW_DEFAULT;
+define("DEPTH", $depth);
+define("SHOW", $show);
 
 // list of photos to be fetched after html returned to client
 $fetch = array();
@@ -32,34 +34,25 @@ $fetch = array();
 if (isset($root_key)) {
 	$people = fetchFamily($root_key, $depth);
 	$root_id = findId($people, $root_key);
-	if ($root_id) {
-		$root = $people[$root_id];
-		$photo = img($root, 'photo');
-		$bdm = bdm_div($root, $people);
-		$bio = tidyHtml($root['bioHTML']);
-	}
-} else {
-	$root_key = "MikiTree";
 }
 
-if (!isset($root)) {
-	init();
-	$depth = 4;
-	$show = $show . 'r';
-	$people = HELP_FAMILY;
-	$root_id = "root";
+if ($root_id) {
 	$root = $people[$root_id];
-	$photo = img($root, "photo");
-	$bdm = HELP_BIO;
+	$head = head($root_key);
+	$ancestors = fractal($root_id, $people, 0, $depth);
+	$photo = img($root, 'photo');
+	$bdm = bdm_div($root, $people);
+	$descendants = branch($root, $people);
+	$bio = tidyHtml($root['bioHTML']);
+} else {
+	$head = head("MikiTree");
+	$ancestors = "";
+	$photo = "";
+	$bdm = "";
+	$descendants = "";
 	$bio = "";
 }
 
-define("DEPTH", $depth);
-define("SHOW", $show);
-
-$ancestors = fractal($root_id, $people, 0, $depth);
-$descendants = branch($root, $people);
-$head = head($root_key);
 $body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio);
 
 echo "<!DOCTYPE html>
@@ -87,6 +80,7 @@ function head($key) {
 }
 
 function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
+	$welcome = $key ? 'hide' : '';
 	$regex = WT_ID_REGEX;
 	$show_fieldset = show_fieldset();
 	$show = SHOW;
@@ -98,6 +92,8 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	return "<body  onload='onload()' onresize='resize(event)'>
 	    <div id='get' class='hide' depth='$depth' show='$show'></div>
 		<div id='ancestors'>$ancestors</div>
+	    <div id='banner' class='help $welcome'>Explore your WikiTree.<br>
+	    Enter a <b>WikiTree-ID</b> or <b>Search</b> for an ancestor.</div>
         <div class='wiki'>
 			All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 			<form class='wiki'>
@@ -105,8 +101,17 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			   <button id='go_button' type='button' onclick='load_new(event)'>Go</button>
 			</form>
 			<button id='search_toggle' type='button' class='toggle' onclick='search_show(event)'>🔎︎</button>
-			<button id='help_button' type='button' onclick='help(event)'>HELP</button>
+			<button id='help_button' type='button' class='toggle' onclick='help(event)'>HELP</button>
 			<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
+		</div>
+		<div id='help' class='row help hide'>
+		    <div id='help_txt'>
+		    <p><b>Ancestors</b> are displayed <b>above</b> in a fractal tree. Fathers are shown to the left or above, and Mothers are shown to the right or below.</p>
+		    <P>Click on any profile to bring it to the centre.</p>
+			<p><b>Descendents</b> are displayed <b>below</b> in rows - one per generation. Each row of siblings will have their parent above, and spouses below. Click an <b>inlaw</b> to show the next generation (click the <b>brail</b> to hide).</p>
+			<p><b>Search</b> for the WikiTree-ID of a deceased ancestor <b>below</b>. You must at least provide a first or last name. Any of the other fields will help narrow it down - even if inaccurate.</p>
+            </div>
+			<div id='photo'><img class='help' src='photo/help.webp'></div>
 		</div>
 		<div id='settings' class='hide'>
 			<fieldset key='$key' onchange='depth_changed(event)'>
@@ -127,7 +132,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			    <button type='button' onclick='full_monty()'>full monty</button>
             </fieldset>
 		</div>
-		<div id='search_div' class='hide'>
+		<div id='search_div' class='$welcome'>
 			<div id='search_flex' onchange='search_change(event)'>
 				<fieldset >
 				    <legend>Deceased Ancestor</legend>
@@ -160,7 +165,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 				<table id='results_table'></table>
 			</fieldset>
 		</div>
-		<div id='profile' >
+		<div id='profile'  class='profile'>
 			<div id='photo'>$photo</div>
 		    <div>$bdm</div>
 	    </div>
@@ -187,7 +192,7 @@ function show_fieldset() {
 			</div>";
 		}
 	}
-	return "<fieldset onchange='show_changed(event)'>
+	return "<fieldset id='show_fieldset' onchange='show_changed(event)'>
 	    <legend>show priority</legend>
 	    $checkboxes
 	</fieldset>";
@@ -227,6 +232,7 @@ function findId($people, $key) {
 			return $id;
 		}
 	}
+	return null;
 }
 
 function img($person, $klass, $delay = false) {
@@ -805,46 +811,6 @@ function respondOK() {
 	ob_end_flush();
 	ob_flush();
 	flush();
-}
-
-function init() {
-	define("HELP_FAMILY", [
-		"10" => array("Id" => "10", "Father" => "6", "Mother" => "4", "Gender" => "Male", "Siblings" => [8, 9]),
-		"9" => array("Id" => "9", "Father" => "6", "Mother" => "4", "Gender" => "Female", "Siblings" => [8, 10]),
-		"8" => array("Id" => "8", "Father" => "7", "Mother" => "4", "Gender" => "Female", "Siblings" => [9, 10]),
-		"7" => array("Id" => "7", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [8]], "Children" => [8]),
-		"6" => array("Id" => "6", "Father" => "", "Mother" => "", "Gender" => "Male", "Spouses" => ["4" => [9, 10]], "Children" => [9, 10]),
-		"5" => array("Id" => "5", "Father" => "", "Mother" => "", "Gender" => "Female", "Spouses" => ["2" => []]),
-		"4" => array("Id" => "4", "Father" => "root", "Mother" => "1", "Gender" => "Female", "Siblings" => [2, 3], "Spouses" => ["6" => [9, 10], "7" => [8]], "Children" => [8, 9, 10]),
-
-		"3" => array("Id" => "3", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [2, 4]),
-		"2" => array("Id" => "2", "Father" => "root", "Mother" => "1", "Gender" => "Male", "Siblings" => [3, 4], "Spouses" => ["5" => []]),
-		"1" => array("Id" => "1", "Father" => "", "Mother" => "", "Gender" => "Female", "Children" => [2, 3, 4], "Spouses" => ["root" => [2, 3, 4]]),
-		"root" => array("Id" => "root", "Father" => "-1", "Mother" => "-2", "Gender" => "Male", "Children" => [2, 3, 4], "Spouses" => ["1" => [2, 3, 4]], "Siblings" => [-20, -21], "Photo" => "help.webp", "PhotoData" => ["path" => "help.webp"]),
-		"-1" => array("Id" => "-1", "Father" => "-3", "Mother" => "-4", "Gender" => "Male"),
-		"-2" => array("Id" => "-2", "Father" => "-3", "Mother" => "-4", "Gender" => "Female"),
-		"-3" => array("Id" => "-3", "Father" => "-5", "Mother" => "-6", "Gender" => "Male"),
-		"-4" => array("Id" => "-4", "Father" => "-5", "Mother" => "-6", "Gender" => "Female"),
-		"-5" => array("Id" => "-5", "Father" => "-7", "Mother" => "-8", "Gender" => "Male"),
-		"-6" => array("Id" => "-6", "Father" => "-7", "Mother" => "-8", "Gender" => "Female"),
-		"-7" => array("Id" => "-7", "Father" => "-9", "Mother" => "-10", "Gender" => "Male"),
-		"-8" => array("Id" => "-8", "Father" => "-9", "Mother" => "-10", "Gender" => "Female"),
-		"-20" => array("Id" => "-20", "RealName" => "brother", "Father" => "-1", "Mother" => "-2", "Gender" => "Male"),
-		"-21" => array("Id" => "-21", "RealName" => "sister", "Father" => "-1", "Mother" => "-2", "Gender" => "Female"),
-	]);
-
-	define("HELP_BIO", "<div id='bdm'><p>Enter a valid <b>WikiTree-ID</b> to begin exploring <br> or search 🔎︎ for a WikiTree-ID of interest.</p>
-		    <P>Click on any profile to bring it to the centre.</p>
-			<p><b>Ancestors</b> are displayed in a fractal tree:
-			<ul>
-			<li>fathers are shown to the left or above</li>
-			<li>mothers are shown to the right or below</li>
-			</ul></p>
-			<p><b>Descendents</b> are in rows of siblings, 1st cousins, 2nd cousins etc.
-			<ul>
-			<li>Click <b>son-inlaw</b> to show the next generation (click <b>⠦</b> to hide).</li>
-			<li>Each row of Siblings has Parents above, and spouses below.</li>
-			</ul></p></div>");
 }
 
 ?>

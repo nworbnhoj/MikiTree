@@ -166,6 +166,19 @@ function show_get() {
     return show;
 }
 
+function show_set(show, replace = false) {
+    if (replace) {
+        var checked = document.querySelectorAll("input[name='show']:checked");
+        checked.forEach(function(node) {
+            node.checked = false;
+        });
+    }
+    for (let s of show) {
+        document.getElementById(s).checked = true;
+    }
+    document.getElementById('show_fieldset').dispatchEvent(new Event('change'));
+}
+
 
 function show_branch(event) {
     event.cancelBubble = true;
@@ -234,11 +247,23 @@ function show_all_descendants(event) {
 
 
 function help(event) {
-    var div = event.currentTarget;
-    if (div.classList.contains('checked')) {
-        window.location.href = 'index.php#bio';
+    event.cancelBubble = true;
+    var help_button = event.target;
+    help_button.classList.toggle('checked');
+    var help = document.querySelectorAll('.help');
+    if (help_button.classList.contains('checked')) {
+        document.getElementById('profile').classList.add('hide');
+        help.forEach(function(node) {
+            node.classList.remove('hide')
+        });
+        help_button.setAttribute('hold', show_get());
+        show_set('lr', true);
     } else {
-        window.location.href = 'index.php';
+        document.getElementById('profile').classList.remove('hide');
+        help.forEach(function(node) {
+            node.classList.add('hide')
+        });
+        show_set(help_button.getAttribute('hold'), true);
     }
 }
 
