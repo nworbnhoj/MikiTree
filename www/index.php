@@ -549,7 +549,7 @@ function spouse_div($person, $gen = 0) {
 	$name_div = name_div($person, "bcdefFmMlLr", relationship(-$gen, $gender));
 	$thumb = img($person, 'thumb', true);
 	return
-		"<div class='person $gender horizontal' key='$key' gen='$gen' onclick='load_profile(event)'>
+		"<div class='person $gender' key='$key' gen='$gen' onclick='load_profile(event)'>
 		    <div class='fill'></div>
 		    <span class='thumb X' p='p'>$thumb</span>
 	        $name_div
