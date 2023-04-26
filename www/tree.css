@@ -140,7 +140,7 @@ progress.size { height: 0.2em; width: 100%; }
 /************** # *********************/
 #banner { text-align: center; font-size: 1.3em; line-height: 1.6; }
 #ancestors { font-size: 1.3em; margin: 0.3em; }
-#profile { display: grid; grid-template-columns: 3fr 2fr }
+#profile {  }
 #bdm { font-size: 1em; margin: 3vw 3vw 5vw 5vw; }
 #descendants { font-size: 1.0em; }
 #bio { font-size: 1.0em; margin: auto; width: 90%; text-align: left; }
@@ -184,6 +184,7 @@ div.row { display: flex; flex-flow: row nowrap; justify-content: center; align-i
 img.help { display: block; margin: 1vw auto 1vw auto; width: auto; height: auto; max-width: 15em; }
 
 /*** PROFILE ***/
+div.profile { display: grid; grid-template-columns: 3fr 2fr }
 ul.marriage { padding-left: 0; list-style: none; }
 li.marriage { margin: 2em 0; padding-left: 0; }
 
