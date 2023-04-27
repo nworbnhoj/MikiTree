@@ -82,6 +82,7 @@ function head($key) {
 
 function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	$welcome = $key ? 'hide' : '';
+	$checked = $key ? '' : 'checked';
 	$regex = WT_ID_REGEX;
 	$show_fieldset = show_fieldset();
 	$show = SHOW;
@@ -101,7 +102,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
 			   <button id='go_button' type='button' onclick='load_new(event)'>Go</button>
 			</form>
-			<button id='search_toggle' type='button' class='toggle' onclick='search_show(event)'>🔎︎</button>
+			<button id='search_toggle' type='button' class='toggle $checked' onclick='search_show(event)'>🔎︎</button>
 			<button id='help_button' type='button' class='toggle' onclick='help(event)'>HELP</button>
 			<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
 		</div>
@@ -134,7 +135,7 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
             </fieldset>
 		</div>
 		<div id='search_div' class='$welcome'>
-			<div id='search_flex' onchange='search_change(event)'>
+			<div id='search_terms' onchange='search_change(event)'>
 				<fieldset >
 				    <legend>Deceased Ancestor</legend>
 				    <input class='search hilite' type='text' placeholder='First Name' id='child_first' >
@@ -160,11 +161,13 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 					<button id='search_button' type='button' onclick='search_click(event)' disabled>Search</button>
 				</div>
 			</div>
-			<fieldset id='results_fieldset'>
-				<legend>Results (<span id='results_count'>0</span>)</legend>
-				<div id='results_msg'>WikiTree privacy limits searches to deceased ancestors.</div>
-				<table id='results_table'></table>
-			</fieldset>
+			<div id='results_div' class='hide'>
+				<fieldset id='results_fieldset'>
+					<legend>Results (<span id='results_count'>0</span>)</legend>
+					<div id='results_msg'>WikiTree privacy limits searches to deceased ancestors.</div>
+					<table id='results_table'></table>
+				</fieldset>
+			</div>
 		</div>
 		<div id='profile'  class='profile'>
 			<div id='photo'>$photo</div>

@@ -499,6 +499,7 @@ function search_click(event) {
     var results_msg = document.getElementById("results_msg");
     var results_table = document.getElementById("results_table");
     var results_count = document.getElementById("results_count");
+    document.getElementById('results_div').classList.remove('hide');
     var spin = results_msg.classList.add('spin');
     results_table.innerHTML = '';
     results_count.innerHTML = '0';
