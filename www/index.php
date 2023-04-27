@@ -133,6 +133,10 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			    <button type='button' onclick='show_all_descendants(event)'>show all descendants</button><br>
 			    <button type='button' onclick='full_monty()'>full monty</button>
             </fieldset>
+            <fieldset>
+			    <legend>about</legend>
+			    <a href='https://github.com/nworbnhoj/MikiTree'>code</a> by <a href='index.php?key=Brown-107675&depth=4&show=LfM'>nhoj</a>
+            </fieldset>
 		</div>
 		<div id='search_div' class='$welcome'>
 			<div id='search_terms' onchange='search_change(event)'>
