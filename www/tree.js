@@ -284,7 +284,7 @@ function help(event) {
             node.classList.remove('hide')
         });
         help_button.setAttribute('hold', show_get());
-        show_set('lr', true);
+        show_set('rl', true);
     } else {
         document.getElementById('profile').classList.remove('hide');
         help.forEach(function(node) {
