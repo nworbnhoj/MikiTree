@@ -30,6 +30,7 @@ function onload() {
         load_thumbs();
         align_thumbs();
     }
+    spin(false);
     pack();
 }
 
@@ -53,7 +54,7 @@ function load(key, target) {
         alert("Sorry the WikiTree-ID is missing for this Profile for some reason.");
         return;
     }
-    target.classList.add('spin');
+    spin(true);
     var show = show_get().replace('r', ''); // special case: prevent 'r'  propogating from help
     var params = {
         'key': key,
@@ -65,13 +66,17 @@ function load(key, target) {
         .map(k => esc(k) + '=' + esc(params[k]))
         .join('&');
     window.location.href = "index.php?" + query;
-    setTimeout(unspin, 5000, target);
 }
 
 
-function unspin(element) {
-    element.classList.remove('spin');
-    element.firstElementChild.classList.remove('hide');
+function spin(spin = true) {
+    var control = document.getElementById('control');
+    if (spin){        
+        control.classList.add('spin');
+    } else {
+        control.classList.remove('spin');
+        window.stop();
+    }
 }
 
 function search_show(event) {
@@ -527,7 +532,7 @@ function search_click(event) {
     var results_table = document.getElementById("results_table");
     var results_count = document.getElementById("results_count");
     document.getElementById('results_div').classList.remove('hide');
-    var spin = results_msg.classList.add('spin');
+    spin();
     results_table.innerHTML = '';
     results_count.innerHTML = '0';
     // autofill child_last from father_last
@@ -586,7 +591,7 @@ function search(terms, settings, attempt = 0) {
                     Object.assign(settings, search_settings[attempt]);
                     search(terms, settings, attempt);
                 } else {
-                    results_msg.classList.remove('spin');
+                    spin(false);
                 }
             } else {
                 results_msg.innerHTML = status;

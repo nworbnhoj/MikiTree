@@ -91,12 +91,12 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 	$c6 = $depth == 6 ? 'checked' : '';
 	$c8 = $depth == 8 ? 'checked' : '';
 	$c10 = $depth == 10 ? 'checked' : '';
-	return "<body  onload='onload()' onresize='resize(event)'>
+	return "<body  onload='onload()' onresize='resize(event)' onclick='spin(false)'>
 	    <div id='get' class='hide' depth='$depth' show='$show'></div>
 		<div id='ancestors'>$ancestors</div>
 	    <div id='banner' class='help $welcome'>Explore your WikiTree.<br>
 	    Enter a <b>WikiTree-ID</b> or <b>Search</b> for an ancestor.</div>
-        <div class='wiki'>
+        <div id='control' class='wiki'>
 			All data drawn from the superb <a class='wiki' href='https://www.wikitree.com/wiki/$key' target='_blank'>WikiTree</a>
 			<form class='wiki'>
 			   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
