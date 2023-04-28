@@ -102,9 +102,11 @@ function body($key, $ancestors, $descendants, $photo, $bdm, $bio) {
 			   <input class='wiki' type='text' placeholder='WikiTree ID' name='key' pattern='$regex' title='A WikiTree ID is case sensitive and something like Brown-126635'>
 			   <button id='go_button' type='button' onclick='load_new(event)'>Go</button>
 			</form>
-			<button id='search_toggle' type='button' class='toggle $checked' onclick='search_show(event)'>🔎︎</button>
-			<button id='help_button' type='button' class='toggle' onclick='help(event)'>HELP</button>
-			<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
+			<span class='nowrap'>
+				<button id='search_toggle' type='button' class='toggle $checked' onclick='search_show(event)'>🔎︎</button>
+				<button id='help_button' type='button' class='toggle' onclick='help(event)'>HELP</button>
+				<button id='settings_toggle' type='button' class='toggle' onclick='settings(event)'>⚙</button>
+			</span>
 		</div>
 		<div id='help' class='row help hide'>
 		    <div id='help_txt'>
