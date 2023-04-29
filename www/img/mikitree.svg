@@ -1,27 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg version="1.2" width="350" height="350"  xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg version="1.1" width="350" height="350"  xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs>
 	    <linearGradient id="fv" x1="0%" y1="0%" x2="0%" y2="100%">
-	      <stop offset="0%" style="stop-color:#FFAAAA;stop-opacity:1" />
-	      <stop offset="100%" style="stop-color:#FFEEEE;stop-opacity:1" />
+	      <stop offset="0%" style="stop-color:#FFAAAA;stop-opacity:1"/>
+	      <stop offset="100%" style="stop-color:#FFEEEE;stop-opacity:1"/>
 	    </linearGradient>
 	    <linearGradient id="fh" x1="0%" y1="0%" x2="100%" y2="0%">
-	      <stop offset="0%" style="stop-color:#FFAAAA;stop-opacity:1" />
-	      <stop offset="100%" style="stop-color:#FFEEEE;stop-opacity:1" />
+	      <stop offset="0%" style="stop-color:#FFAAAA;stop-opacity:1"/>
+	      <stop offset="100%" style="stop-color:#FFEEEE;stop-opacity:1"/>
 	    </linearGradient>
 	    <linearGradient id="mv" x1="0%" y1="100%" x2="0%" y2="0%">
-	      <stop offset="0%" style="stop-color:#AAAAFF;stop-opacity:1" />
-	      <stop offset="100%" style="stop-color:#EEEEFF;stop-opacity:1" />
+	      <stop offset="0%" style="stop-color:#AAAAFF;stop-opacity:1"/>
+	      <stop offset="100%" style="stop-color:#EEEEFF;stop-opacity:1"/>
 	    </linearGradient>
 	    <linearGradient id="mh" x1="100%" y1="0%" x2="0%" y2="0%">
-	      <stop offset="0%" style="stop-color:#AAAAFF;stop-opacity:1" />
-	      <stop offset="100%" style="stop-color:#EEEEFF;stop-opacity:1" />
+	      <stop offset="0%" style="stop-color:#AAAAFF;stop-opacity:1"/>
+	      <stop offset="100%" style="stop-color:#EEEEFF;stop-opacity:1"/>
 	    </linearGradient>
 		<g id='male-v'><rect width="50" height="50" fill="url(#mv)"/></g>
 		<g id='male-h'><rect width="50" height="50" fill="url(#mh)"/></g>
 		<g id='female-v'><rect width="50" height="50" fill="url(#fv)"/></g>
-		<g id='female-h'><rect width="50" height="50" fill="url(#fh)" /></g>
+		<g id='female-h'><rect width="50" height="50" fill="url(#fh)"/></g>
 		<g id='grand-father'>
 	        <use xlink:href="#male-v" transform="translate(0,0)"/>
 		    <use xlink:href="#male-h" transform="translate(0,50)"/>
@@ -41,11 +39,11 @@
 		    <use xlink:href="#female-v" transform="translate(100,100)"/>
 		</g>
 	</defs>
-	<rect x="150" y="0" width="50" height="350" style="fill:#AAAAFF"/>
-    <use xlink:href="#male-h" transform="translate(0,150) scale(3,1)"/>
+	<rect width="50" height="350" style="fill:#AAAAFF" x="150" y="0"/>
+    <use xlink:href="#male-h" transform=" translate(0,150) scale(3,1)"/>
     <use xlink:href="#female-h" transform="translate(200,150) scale(3,1)"/>
-    <use xlink:href="#grand-father" transform="translate(0,0)"/>
-    <use xlink:href="#grand-father" transform="translate(200,0)"/>
-    <use xlink:href="#grand-mother" transform="translate(0,200)"/>
-    <use xlink:href="#grand-mother" transform="translate(200,200)"/>
+    <use xlink:href="#grand-father" x="0" y="0"/>
+    <use xlink:href="#grand-father" x="200" y="0"/>
+    <use xlink:href="#grand-mother" x="0" y="200"/>
+    <use xlink:href="#grand-mother" x="200" y="200"/>
 </svg>

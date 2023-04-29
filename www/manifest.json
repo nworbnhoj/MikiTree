@@ -5,14 +5,8 @@
     "description": "Explore WikiTree",
     "icons": [
       {
-	    "src": "img/mikitree.svg",
-	    "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
-	    "type": "image/svg",
-	    "purpose": "any"
-	  },
-      {
         "src": "img/mikitree.png",
-        "sizes": "512x512",
+        "sizes": "1400x1400",
         "type": "image/png",
         "purpose": "maskable"
       },
@@ -53,8 +47,10 @@
         "purpose": "any"
       }
     ],
-    "start_url": "/index.php",
+    "start_url": "/",
     "display": "standalone",
+    "background_color": "LightGray",
+    "theme_color": "#AAAAFF",
     "categories": "genealogy",
-    "scope": "/"   
+    "scope": "/"
 }

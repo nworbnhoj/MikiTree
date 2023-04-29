@@ -70,13 +70,14 @@ array_map('fetchPhoto', $fetch);
 function head($key) {
 	return "<head>
 	    <meta charset='UTF-8'>
-	    <meta name='viewport'
-	    content='width=device-width, initial-scale=1.0'>
+	    <meta name='viewport' content='width=device-width, initial-scale=1'>
+	    <meta name='theme-color' content='#AAAAFF'/>
 	    <title>$key</title>
-	    <link rel='manifest' href='manifest.json'>
+	    <link rel='manifest' type='text/json' href='./manifest.json'>
 	    <link rel='stylesheet' type='text/css' href='tree.css'>
 	    <script src='levenshtein.js'></script>
 	    <script src='tree.js'></script>
+	    <link rel='apple-touch-icon' href='/img/mikitree.png'>
 	</head>";
 }
 

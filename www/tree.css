@@ -88,7 +88,7 @@ select.sel { -webkit-appearance: default; -moz-appearance: default; appearance: 
 option { font-family: 'Pontano Sans', sans-serif; background-color: #EEEEEE; }
 
 /************** <input> *********************/
-input { font-family: 'Pontano Sans', sans-serif; font-size: inherit;/*    vertical-align:middle; */ margin: 0.5em; border: Gray solid 1px; border-radius: 4px; background-color: LightGrey; }
+input { font-family: 'Pontano Sans', sans-serif; font-size: inherit;/*    vertical-align:middle; */ margin: 0.4em; border: Gray solid 1px; border-radius: 4px; background-color: LightGrey; }
 
 /* https://stackoverflow.com/questions/7381446/center-html-input-text-field-placeholder */
 ::-webkit-input-placeholder { text-align: center; }
@@ -150,14 +150,14 @@ progress.size { height: 0.2em; width: 100%; }
 #help { }
 #help_txt { max-width: 36em; }
 #settings_toggle { }
-#search_button { margin: 0.5em; width: 95%; }
+#search_button { margin: 0.5em; width: 90%; }
 #search_div {margin-top: 4em;}
 #search_terms { display: flex; grid-template-columns: 1fr 1fr; justify-content: center; }
 #search_msg { margin: 1em; }
 #results_div { margin: auto; width: 99%;max-width: 60em; }
 #results_fieldset { display: block;margin: auto; width: 100%; }
 #results_table { width: 100%; }
-input.search { max-width: 8em; }
+input.search { max-width: 7em; }
 .hilite { border-color: DarkOrange;}
 
 /************** . *********************/
