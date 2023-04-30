@@ -73,7 +73,7 @@ function head($key) {
 	return "<head>
 	    <meta charset='UTF-8'>
 	    <meta name='viewport' content='width=device-width, initial-scale=1'>
-	    <meta name='theme-color' content='#AAAAFF'/>
+	    <meta name='theme-color' content='#808080'/>
 	    <title>$key</title>
 	    <link rel='manifest' type='text/json' href='./manifest.json'>
 	    <link rel='stylesheet' type='text/css' href='tree.css'>

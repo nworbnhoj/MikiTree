@@ -50,7 +50,7 @@
     "start_url": "/",
     "display": "standalone",
     "background_color": "LightGray",
-    "theme_color": "#AAAAFF",
+    "theme_color": "#808080",
     "categories": "genealogy",
     "scope": "/"
 }
