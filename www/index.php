@@ -31,26 +31,28 @@ define("SHOW", $show);
 // list of photos to be fetched after html returned to client
 $fetch = array();
 
-if (isset($root_key)) {
-	$people = fetchFamily($root_key, $depth);
-	$root_id = findId($people, $root_key);
-}
+$root_id = false;
+$head = head("MikiTree");
+$ancestors = "";
+$photo = "";
+$bdm = "";
+$descendants = "";
+$bio = "";
 
-if ($root_id) {
-	$root = $people[$root_id];
-	$head = head($root_key);
-	$ancestors = fractal($root_id, $people, 0, $depth);
-	$photo = img($root, 'photo');
-	$bdm = bdm_div($root, $people);
-	$descendants = branch($root, $people);
-	$bio = tidyHtml($root['bioHTML']);
-} else {
-	$head = head("MikiTree");
-	$ancestors = "";
-	$photo = "";
-	$bdm = "";
-	$descendants = "";
-	$bio = "";
+if (isset($root_key)) {
+	$family = fetchFamily($root_key, $depth);
+	if ($family['root_id']) {
+		$root_id = $family['root_id'];
+		$people = $family['people'];
+		$root = $people[$root_id];
+		$root_key = key_fix($root);
+		$head = head($root_key);
+		$ancestors = fractal($root_id, $people, 0, $depth);
+		$photo = img($root, 'photo');
+		$bdm = bdm_div($root, $people);
+		$descendants = branch($root, $people);
+		$bio = isset($root['bioHTML']) ? tidyHtml($root['bioHTML']) : '';
+	}
 }
 
 $body = body($root_key, $ancestors, $descendants, $photo, $bdm, $bio);
@@ -324,20 +326,23 @@ function bdm_div($person, $people) {
 	$death = $is_living ? "" : "<h2>death</h2>$death_date<br>$death_location";
 
 	$list = "";
-	foreach ($person['Spouses'] as $spouse_id => $union) {
-		if (isset($union['Marriage'])) {
-			$spouse = $people[$spouse_id];
-			$first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
-			$last = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
-			$union = $union['Marriage'];
-			$date = isset($union['date']) ? $union['date'] : "";
-			$date = str_replace("-00", "", $date);
-			$date = str_replace("0000", "", $date);
-			$location = isset($union['location']) ? $union['location'] : "";
-			$list .= "<li class='marriage'>$date $first $last<br>$location</li>";
+	$marriage = '';
+	if (isset($person['Spouses']) && is_array($person['Spouses'])){
+		foreach ($person['Spouses'] as $spouse_id => $union) {
+			if (isset($union['Marriage'])) {
+				$spouse = $people[$spouse_id];
+				$first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
+				$last = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
+				$union = $union['Marriage'];
+				$date = isset($union['date']) ? $union['date'] : "";
+				$date = str_replace("-00", "", $date);
+				$date = str_replace("0000", "", $date);
+				$location = isset($union['location']) ? $union['location'] : "";
+				$list .= "<li class='marriage'>$date $first $last<br>$location</li>";
+			}
 		}
+		$marriage = "<h2>marriage</h2><ul class='marriage'>$list</ul>";
 	}
-	$marriage = "<h2>marriage</h2><ul class='marriage'>$list</ul>";
 
 	return "
     <div id='bdm'>
@@ -671,9 +676,25 @@ function rekey($person, $newKey) {
 }
 
 function fetchFamily($key, $depth) {
-	$people = array();
+	$family = array("root_id" => false, "people" => array());
 	$curl = curl_init();
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+	// get root bio and photo from WikiTree
+	$fields = "Id,Name,LongName,Bio,Photo,PhotoData,Prefix,Suffix";
+	$url = "https://api.wikitree.com/api.php?action=getProfile&bioFormat=both&resolveRedirect=1&key=$key&fields=$fields";
+	curl_setopt($curl, CURLOPT_URL, $url);
+	$response = curl_exec($curl);
+	if ($e = curl_error($curl)) {
+		echo $e;
+		curl_close($curl);
+		return $family;
+	}
+	$json_data = json_decode($response, true);
+	$root = $json_data[0]['profile'];
+	$root_id = $root["Id"];
+	$key = key_fix($root); // note possible key change: key => redirected_key
+	$family['root_id'] = $root_id;
 
 	// get ancestors and descendants from WikiTree
 	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy,Photo,PhotoData";
@@ -684,24 +705,10 @@ function fetchFamily($key, $depth) {
 	if ($e = curl_error($curl)) {
 		echo $e;
 		curl_close($curl);
-		return $people;
+		return $family;
 	}
 	$json_data = json_decode($response, true);
 	$people = $json_data[0]['people'];
-
-	// get root bio and photo from WikiTree
-	$fields = "Id,Name,LongName,Bio,Photo,PhotoData,Prefix,Suffix";
-	$url = "https://api.wikitree.com/api.php?action=getProfile&bioFormat=both&key=$key&fields=$fields";
-	curl_setopt($curl, CURLOPT_URL, $url);
-	$response = curl_exec($curl);
-	if ($e = curl_error($curl)) {
-		echo $e;
-		curl_close($curl);
-		return $people;
-	}
-	$json_data = json_decode($response, true);
-	$root = $json_data[0]['profile'];
-	$root_id = $root["Id"];
 
 	$people = inferYears($people);
 	usort($people, "byBirth");
@@ -721,7 +728,8 @@ function fetchFamily($key, $depth) {
 	if ($e = curl_error($curl)) {
 		echo $e;
 		curl_close($curl);
-		return $people;
+	    $family['people'] = $people;
+		return $family;
 	}
 	$json_data = json_decode($response, true);
 	$spouses = isset($json_data[0]['items'][0]['person']['Spouses']) ? $json_data[0]['items'][0]['person']['Spouses'] : array();
@@ -740,7 +748,9 @@ function fetchFamily($key, $depth) {
 	$people = inferSiblings($people);
 	$people = inferSpouses($people);
 
-	return $people;
+	$family['people'] = $people;
+
+	return $family;
 }
 
 function byBirth($a, $b) {
