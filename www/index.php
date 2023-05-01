@@ -74,6 +74,7 @@ function head($key) {
 	    <meta charset='UTF-8'>
 	    <meta name='viewport' content='width=device-width, initial-scale=1'>
 	    <meta name='theme-color' content='#808080'/>
+	    <meta name='description' content='Explore WikiTree - the colaboration of a million genealogists on a single family tree.'>
 	    <title>$key</title>
 	    <link rel='manifest' type='text/json' href='./manifest.json'>
 	    <link rel='stylesheet' type='text/css' href='tree.css'>
