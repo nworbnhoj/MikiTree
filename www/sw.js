@@ -94,6 +94,31 @@ workbox.routing.registerRoute(
 
 
 workbox.routing.registerRoute(
+  new RegExp('manifest.json$'),
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: 'static-resources',
+  })
+);
+
+
+workbox.routing.registerRoute(
+  new RegExp('.*workbox-sw.js$'),
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: 'static-resources',
+  })
+);
+
+
+
+workbox.routing.registerRoute(
+  new RegExp('^https://storage.googleapis.com/workbox-cdn/.*'),
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: 'static-resources',
+  })
+);
+
+
+workbox.routing.registerRoute(
   /\.(?:js|css)$/,
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: 'static-resources',
@@ -102,7 +127,7 @@ workbox.routing.registerRoute(
 
 
 workbox.routing.registerRoute(
-  /(?:index\.php)$/,
+  /index\.php.*$/,
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: 'pages',
   })
