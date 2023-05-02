@@ -26,7 +26,7 @@ function getServiceWorker(){
 ///////////////// Event functions ///////////////////
 
 function onload() {
-    if (show_get().indexOf('p') > -1) {
+    if (show_get('p')) {
         load_thumbs();
         align_thumbs();
     }
@@ -143,11 +143,12 @@ function show_changed(event) {
             case 'L':
                 show_set('l', false);
                 break;
-            if (document.querySelector("input[name='show'][value='p']").checked) {
-                load_thumbs();
-            }
-            align_thumbs();
-            break;
+            case 'p':
+                if (show_get('p')){
+                    load_thumbs();
+                }
+                align_thumbs();
+                break;
         }
     }
     show_sort();
@@ -155,7 +156,7 @@ function show_changed(event) {
 }
 
 function align_thumbs() {
-    var checked = document.querySelector("input[name='show'][value='p']").checked;
+    var checked = show_get('p');
     var sibling_divs = document.querySelectorAll('.siblings');
     for (var i = 0; i < sibling_divs.length; i++) {
         if (checked) {
@@ -190,7 +191,11 @@ function depth_get() {
     return parseInt(document.querySelector("input[name='depth']:checked").value);
 }
 
-function show_get() {
+function show_get(c = '') {
+    if (c) {
+        var checked = document.querySelector("input[name='show'][value='" + c[0] + "']").checked;
+        return checked ? c[0] : false;
+    }
     var show = '';
     var checked = document.querySelectorAll("input[name='show']:checked");
     for (var c = 0; c < checked.length; c++) {
