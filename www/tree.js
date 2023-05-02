@@ -122,32 +122,33 @@ function depth_changed(event) {
 }
 
 function show_changed(event) {
-    event.cancelBubble = true;
-    switch (event.target.value) {
-        case 'f':
-            document.querySelector("input[name='show'][value='F']").checked = false;
-            break;
-        case 'F':
-            document.querySelector("input[name='show'][value='f']").checked = false;
-            break;
-        case 'm':
-            document.querySelector("input[name='show'][value='M']").checked = false;
-            break;
-        case 'M':
-            document.querySelector("input[name='show'][value='m']").checked = false;
-            break;
-        case 'l':
-            document.querySelector("input[name='show'][value='L']").checked = false;
-            break;
-        case 'L':
-            document.querySelector("input[name='show'][value='l']").checked = false;
-            break;
-        case 'p':
+    if (event) {
+        event.cancelBubble = true;
+        switch (event.target.value) {
+            case 'f':
+                show_set('F', false);
+                break;
+            case 'F':
+                show_set('f', false);
+                break;
+            case 'm':
+                show_set('M', false);
+                break;
+            case 'M':
+                show_set('m', false);
+                break;
+            case 'l':
+                show_set('L', false);
+                break;
+            case 'L':
+                show_set('l', false);
+                break;
             if (document.querySelector("input[name='show'][value='p']").checked) {
                 load_thumbs();
             }
             align_thumbs();
             break;
+        }
     }
     show_sort();
     pack();
@@ -198,17 +199,17 @@ function show_get() {
     return show;
 }
 
-function show_set(show, replace = false) {
-    if (replace) {
-        var checked = document.querySelectorAll("input[name='show']:checked");
-        checked.forEach(function(node) {
-            node.checked = false;
-        });
-    }
+function show_set(show, check = true) {
     for (let s of show) {
-        document.getElementById(s).checked = true;
+        document.getElementById(s).checked = check;
     }
-    document.getElementById('show_fieldset').dispatchEvent(new Event('change'));
+}
+
+function show_clear() {
+    var checked = document.querySelectorAll("input[name='show']:checked");
+    checked.forEach(function(node) {
+        node.checked = false;
+    });
 }
 
 
@@ -289,13 +290,17 @@ function help(event) {
             node.classList.remove('hide')
         });
         help_button.setAttribute('hold', show_get());
-        show_set('rl', true);
+        show_clear();
+        show_set('rl');
+        show_changed();
     } else {
         document.getElementById('profile').classList.remove('hide');
         help.forEach(function(node) {
             node.classList.add('hide')
         });
-        show_set(help_button.getAttribute('hold'), true);
+        show_clear();
+        show_set(help_button.getAttribute('hold'));
+        show_changed();
     }
 }
 
