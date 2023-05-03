@@ -312,23 +312,30 @@ function bdm_div($person, $people) {
 	$name_middle = isset($person['MiddleName']) ? $person['MiddleName'] : $name_middle_initial;
 	$name_family = isset($person['LastNameAtBirth']) ? $person['LastNameAtBirth'] : "?";
 	$name_suffix = isset($person['Suffix']) ? $person['Suffix'] : "";
-	$name = "<h1>$name_prefix $name_first $name_middle $name_family $name_suffix</h1>";
+	$name = htmlentities("$name_prefix $name_first $name_middle $name_family $name_suffix");
+	$name = "<h1>$name</h1>";
 
 	$is_living = isset($person['IsLiving']) ? boolval($person['IsLiving']) : true;
 	$birth_date = isset($person['BirthDate']) ? $person['BirthDate'] : "";
 	$birth_date = str_replace("-00", "", $birth_date);
 	$birth_date = str_replace("0000", "", $birth_date);
 	$birth_location = isset($person['BirthLocation']) ? $person['BirthLocation'] : "";
+	$birth_date = htmlentities($birth_date);
+	$birth_location = htmlentities($birth_location);
 	$birth = "<h2>birth</h2>$birth_date<br>$birth_location";
+
 	$death_date = isset($person['DeathDate']) ? $person['DeathDate'] : "";
 	$death_date = str_replace("-00", "", $death_date);
 	$death_date = str_replace("0000", "", $death_date);
 	$death_location = isset($person['DeathLocation']) ? $person['DeathLocation'] : "";
+
+	$death_date = htmlentities($death_date);
+	$death_location = htmlentities($death_location);
 	$death = $is_living ? "" : "<h2>death</h2>$death_date<br>$death_location";
 
 	$list = "";
 	$marriage = '';
-	if (isset($person['Spouses']) && is_array($person['Spouses'])){
+	if (isset($person['Spouses']) && is_array($person['Spouses'])) {
 		foreach ($person['Spouses'] as $spouse_id => $union) {
 			if (isset($union['Marriage'])) {
 				$spouse = $people[$spouse_id];
@@ -338,8 +345,9 @@ function bdm_div($person, $people) {
 				$date = isset($union['date']) ? $union['date'] : "";
 				$date = str_replace("-00", "", $date);
 				$date = str_replace("0000", "", $date);
-				$location = isset($union['location']) ? $union['location'] : "";
-				$list .= "<li class='marriage'>$date $first $last<br>$location</li>";
+				$location = isset($union['location']) ? htmlentities($union['location']) : "";
+				$date_first_last = htmlentities("$date $first $last");
+				$list .= "<li class='marriage'>$date_first_last<br>$location</li>";
 			}
 		}
 		$marriage = "<h2>marriage</h2><ul class='marriage'>$list</ul>";
@@ -634,6 +642,17 @@ function name_div($person, $flags, $relationship = '') {
 	$birth_location = is_array($birth_location) ? end($birth_location) : false;
 	$death_location = is_array($death_location) ? end($death_location) : false;
 
+	$birth_year = htmlentities($birth_year);
+	$birth_location = htmlentities($birth_location);
+	$death_year = htmlentities($death_year);
+	$death_location = htmlentities($death_location);
+	$first = htmlentities($first);
+	$first_initial = htmlentities($first_initial);
+	$last = htmlentities($last);
+	$middle = htmlentities($middle);
+	$middle_initial = htmlentities($middle_initial);
+	$relationship = htmlentities($relationship);
+
 	$b = $fb && $birth_year ? "<span class='X' p='b'>b.$birth_year</span>" : "";
 	$c = $fc && $birth_location ? "<span class='X' p='c'>b.$birth_location</span>" : "";
 	$d = $fd && $death_year ? "<span class='X' p='d'>d.$death_year</span>" : "";
@@ -729,7 +748,7 @@ function fetchFamily($key, $depth) {
 	if ($e = curl_error($curl)) {
 		echo $e;
 		curl_close($curl);
-	    $family['people'] = $people;
+		$family['people'] = $people;
 		return $family;
 	}
 	$json_data = json_decode($response, true);
