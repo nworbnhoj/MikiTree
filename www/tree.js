@@ -360,17 +360,19 @@ function pack() {
     if (document.readyState != 'complete') {
         return;
     }
+    var show = show_get();
+    var depth = depth_get();
     var ancestors = document.getElementById("ancestors");
     unpack(ancestors);
-    var depth = depth_get();
-    var g4_packed = packAncestors(show_get(), depth);
+    var g4_packed = packAncestors(show, depth);
     var depth = hideSurplus();
     if (depth <= 4 && g4_packed < 1) {
         // reduce font-size if gen4 not fully packed
-        document.getElementById("ancestors").style.fontSize = "1.0em";
+        ancestors.style.fontSize = "1.0em";
     }
-    unpack(document.getElementById("descendants"));
-    packDescendants(show_get());
+    var descendants = document.getElementById("descendants");
+    unpack(descendants);
+    packDescendants(show);
 }
 
 
@@ -436,7 +438,7 @@ function packAncestors(show, depth_max) {
 
 
 function pack_square(nodes) {
-    if (nodes.length == 0) {
+    if (nodes.length < 1) {
         return 1;
     }
 
@@ -448,11 +450,10 @@ function pack_square(nodes) {
     }
 
     // show the data for all of the people
-    var shown = [];
-    for (let n = 0; n < nodes.length; n++) {
-        nodes[n].classList.remove('X');
-        shown.push(nodes[n]);
-    }
+    shown = Array.prototype.slice.call(nodes, 0);
+    shown.forEach((v, i, a) => {
+        v.classList.remove('X')
+    });
 
     //check if div #ancestors has exceeded the bounds of screen
     if (overflow(ancestors)) {
@@ -498,10 +499,11 @@ function packDescendants(show) {
 
 function pack_width(nodes) {
     // show the data for all of the people
-    for (let n = 0; n < nodes.length; n++) {
-        nodes[n].classList.remove('X');
-    }
     shown = Array.prototype.slice.call(nodes, 0);
+    shown.forEach((v, i, a) => {
+        v.classList.remove('X')
+    });
+
     shown.sort((a, b) => {
         b.innerText.length - a.innerText.length
     });
