@@ -143,7 +143,7 @@ progress.size { height: 0.2em; width: 100%; }
 #profile {  }
 #bdm { font-size: 1em; margin: 3vw 3vw 5vw 5vw; }
 #descendants { font-size: 1.0em; }
-#bio { font-size: 1.0em; margin: auto; width: 90%; text-align: left; }
+#bio { font-size: 1.0em; margin: auto; width: 90%; text-align: left; overflow:hidden;}
 #go_button { }
 #search_toggle { }
 #help_button { }
