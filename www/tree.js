@@ -357,6 +357,9 @@ function resize_chutes(event) {
 
 
 function pack() {
+    if (document.readyState != 'complete') {
+        return;
+    }
     var ancestors = document.getElementById("ancestors");
     unpack(ancestors);
     var depth = depth_get();
