@@ -272,33 +272,7 @@ function img($person, $klass, $delay = false) {
 		return "";
 	}
 
-	$save_as = "$klass/$name";
-	if (!file_exists($save_as)) {
-		$param = array($path, $save_as);
-		if ($delay) {
-			$GLOBALS['fetch'][] = $param;
-		} else {
-			fetchPhoto($param);
-		}
-	}
-	$src = $delay ? 'src-delay' : 'src';
-	return "<img class='$klass' $src='$save_as'>";
-}
-
-function fetchPhoto($foto) {
-	$path = $foto[0];
-	$save_as = $foto[1];
-	$image_url = "https://www.wikitree.com$path";
-	$ch = curl_init($image_url);
-	curl_setopt($ch, CURLOPT_HEADER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US)");
-	$raw_data = curl_exec($ch);
-	curl_close($ch);
-	$fp = fopen($save_as, 'wb') or die(print_r(error_get_last(), true));
-	fwrite($fp, $raw_data);
-	fclose($fp);
+	return "<img class='$klass' src='photo.php?path=$path'>";
 }
 
 function bdm_div($person, $people) {

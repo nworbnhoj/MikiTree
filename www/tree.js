@@ -2,7 +2,7 @@
 
 
 // Registering Service Worker
-if('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js');
         console.log("serviceWorker registered.");
@@ -10,24 +10,23 @@ if('serviceWorker' in navigator) {
 };
 
 
-function getServiceWorker(){
-    if(!'serviceWorker' in navigator){
+function getServiceWorker() {
+    if (!'serviceWorker' in navigator) {
         console.log("failed to get navigator.serviceWorker");
         return;
     }
-    var worker = navigator.serviceWorker.controller;  
-    if(!worker){
+    var worker = navigator.serviceWorker.controller;
+    if (!worker) {
         console.log("failed to get navigator.serviceWorker.controller");
         return;
     }
     return worker;
-}  
+}
 
 ///////////////// Event functions ///////////////////
 
 function onload() {
     if (show_get('p')) {
-        load_thumbs();
         align_thumbs();
     }
     spin(false);
@@ -71,7 +70,7 @@ function load(key, target) {
 
 function spin(spin = true) {
     var control = document.getElementById('control');
-    if (spin){        
+    if (spin) {
         control.classList.add('spin');
     } else {
         control.classList.remove('spin');
@@ -144,9 +143,6 @@ function show_changed(event) {
                 show_set('l', false);
                 break;
             case 'p':
-                if (show_get('p')){
-                    load_thumbs();
-                }
                 align_thumbs();
                 break;
         }
@@ -164,15 +160,6 @@ function align_thumbs() {
         } else {
             sibling_divs[i].classList.remove('sib-pic');
         }
-    }
-}
-
-function load_thumbs() {
-    var delayed = document.querySelectorAll("img[src-delay]");
-    for (var i = 0; i < delayed.length; i++) {
-        var img = delayed[i];
-        var src = img.getAttribute('src-delay');
-        img.setAttribute('src', src);
     }
 }
 
