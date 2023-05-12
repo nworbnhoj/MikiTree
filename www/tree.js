@@ -521,6 +521,7 @@ function pack_width(nodes) {
 
 const search_settings = [{
     action: 'searchPerson',
+    appid: 'MikiTree',
     dateInclude: 'both',
     dateSpread: 0,
     skipVariants: 1,

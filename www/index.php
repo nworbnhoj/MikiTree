@@ -702,7 +702,7 @@ function fetchFamily($key, $depth) {
 
 	// get root bio and photo from WikiTree
 	$fields = "Id,Name,LongName,Bio,Photo,PhotoData,Prefix,Suffix";
-	$url = "https://api.wikitree.com/api.php?action=getProfile&bioFormat=both&resolveRedirect=1&key=$key&fields=$fields";
+	$url = "https://api.wikitree.com/api.php?action=getProfile&appid=MikiTree&bioFormat=both&resolveRedirect=1&key=$key&fields=$fields";
 	curl_setopt($curl, CURLOPT_URL, $url);
 	$response = curl_exec($curl);
 	if ($e = curl_error($curl)) {
@@ -718,7 +718,7 @@ function fetchFamily($key, $depth) {
 
 	// get ancestors and descendants from WikiTree
 	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy,Photo,PhotoData";
-	$url = "https://api.wikitree.com/api.php?action=getPeople&ancestors=$depth&descendants=$depth&keys=$key&nuclear=1&fields=$fields";
+	$url = "https://api.wikitree.com/api.php?action=getPeople&appid=MikiTree&ancestors=$depth&descendants=$depth&keys=$key&nuclear=1&fields=$fields";
 
 	curl_setopt($curl, CURLOPT_URL, $url);
 	$response = curl_exec($curl);
@@ -742,7 +742,7 @@ function fetchFamily($key, $depth) {
 
 	// get root Spouses from WikiTree
 	$fields = "Id,Name,Spouses";
-	$url = "https://api.wikitree.com/api.php?action=getRelatives&getSpouses=1&keys=$key&fields=$fields";
+	$url = "https://api.wikitree.com/api.php?action=getRelatives&appid=MikiTree&getSpouses=1&keys=$key&fields=$fields";
 	curl_setopt($curl, CURLOPT_URL, $url);
 	$response = curl_exec($curl);
 	if ($e = curl_error($curl)) {
