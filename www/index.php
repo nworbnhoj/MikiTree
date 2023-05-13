@@ -671,7 +671,7 @@ function fetchFamily($key, $depth) {
 
 	// get root bio and photo from WikiTree
 	$fields = "Id,Name,LongName,Bio,Photo,PhotoData,Prefix,Suffix";
-	$url = "https://api.wikitree.com/api.php?action=getProfile&appid=MikiTree&bioFormat=both&resolveRedirect=1&key=$key&fields=$fields";
+	$url = "https://api.wikitree.com/api.php?action=getProfile&appid=MikiTree&bioFormat=both&key=$key&fields=$fields";
 	curl_setopt($curl, CURLOPT_URL, $url);
 	$response = curl_exec($curl);
 	if ($e = curl_error($curl)) {
