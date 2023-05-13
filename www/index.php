@@ -45,7 +45,7 @@ if (isset($root_key)) {
 		$root_id = $family['root_id'];
 		$people = $family['people'];
 		$root = $people[$root_id];
-		$root_key = key_fix($root);
+		$root_key = $root['Name'];
 		$head = head($root_key);
 		$ancestors = fractal($root_id, $people, 0, $depth);
 		$photo = img($root, 'photo');
@@ -241,7 +241,7 @@ function removeNodes($dom, $name) {
 
 function findId($people, $key) {
 	foreach ($people as $id => $person) {
-		$k = key_fix($person);
+		$k = $person['Name'];
 		if ($k == $key) {
 			return $id;
 		}
@@ -449,11 +449,6 @@ function union_div($head_id, $spouse_id, $people, $gen, $branch) {
 		</div>";
 }
 
-// wikitree bug??
-function key_fix($person) {
-	return isset($person['Name']) ? str_replace(" ", "_", $person['Name']) : '';
-}
-
 function relationship($generation, $gender, $inlaw = '-inlaw') {
 	$rel = '';
 	$abs_gen = abs($generation);
@@ -488,7 +483,7 @@ function relationship($generation, $gender, $inlaw = '-inlaw') {
 }
 
 function person_div($person, $gen = 0, $orient = '') {
-	$key = key_fix($person);
+	$key = $person['Name'];
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
 	$name_div = name_div($person, "bcdefFmMlLr", relationship($gen, $gender, ''));
@@ -504,7 +499,7 @@ function person_div($person, $gen = 0, $orient = '') {
 
 function child_div($child_id, $people, $gen, $index) {
 	$child = $people[$child_id];
-	$key = key_fix($child);
+	$key = $child['Name'];
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
 
 	$name_div = name_div($child, "bdfFmMlLr", relationship(-1 * $gen, $gender, ''));
@@ -541,7 +536,7 @@ function brail($n) {
 }
 
 function spouse_div($person, $gen = 0) {
-	$key = key_fix($person);
+	$key = $person['Name'];
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 
 	$name_div = name_div($person, "bcdefFmMlLr", relationship(-$gen, $gender));
@@ -556,7 +551,7 @@ function spouse_div($person, $gen = 0) {
 }
 
 function spouse_icon($person, $gen, $child_count) {
-	$key = key_fix($person);
+	$key = $person['Name'];
 	$gender = isset($person['Gender']) ? strtolower($person['Gender']) : "";
 	$name_div = name_div($person, "lLr", relationship(-$gen, $gender));
 	$brail = brail($child_count);
@@ -568,7 +563,7 @@ function spouse_icon($person, $gen, $child_count) {
 }
 
 function root_div($root, $people) {
-	$key = key_fix($root);
+	$key = $root['Name'];
 	$gender = isset($root['Gender']) ? strtolower($root['Gender']) : "";
 	$siblings = isset($root['Siblings']) ? links($root['Siblings'], $people) : "";
 	$name_div = name_div($root, "bcdefFmMlLr", "WikiTree profile");
@@ -651,7 +646,7 @@ function links($ids, $people) {
 		if (isset($person['RealName'])) {
 			$name = $person['RealName'];
 			if (isset($person['Name'])) {
-				$key = key_fix($person);
+				$key = $person['Name'];
 				$links = $links . " <a href='index.php?key=$key'>$name</a>";
 			} else {
 				$links = $links . " $name";
@@ -687,7 +682,7 @@ function fetchFamily($key, $depth) {
 	$json_data = json_decode($response, true);
 	$root = $json_data[0]['profile'];
 	$root_id = $root["Id"];
-	$key = key_fix($root); // note possible key change: key => redirected_key
+	$key = $root['Name']; // note possible key change: key => redirected_key
 	$family['root_id'] = $root_id;
 
 	// get ancestors and descendants from WikiTree
