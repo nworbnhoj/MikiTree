@@ -213,8 +213,8 @@ div.female { background-color: #FFEEEE; }
 div.male { background-color: #EEEEFF; }
 div.female.vertical { border-top: 0.2em solid #FFDDDD; background-image: linear-gradient(to bottom, #FFDDDD, #FFEEEE, #FFEEEE, #FFEEEE, #FFEEEE); flex-direction: column; }
 div.female.horizontal { border-left: 0.2em solid #FFDDDD; background-image: linear-gradient(to right, #FFDDDD, #FFEEEE, #FFEEEE, #FFEEEE, #FFEEEE); flex-direction: row; }
-div.male.vertical { border-bottom: 0.2em solid #DDDDFF; background-image: linear-gradient(to top, #DDDDFF, #EEEEFF, #EEEEFF, #EEEEFF, #EEEEFF); flex-direction: column; }
-div.male.horizontal { border-right: 0.2em solid #DDDDFF; background-image: linear-gradient(to left, #DDDDFF, #EEEEFF, #EEEEFF, #EEEEFF, #EEEEFF); flex-direction: row; }
+div.male.vertical { border-bottom: 0.2em solid #DDDDFF; background-image: linear-gradient(to top, #DDDDFF, #EEEEFF, #EEEEFF, #EEEEFF, #EEEEFF); flex-direction: column-rverse; }
+div.male.horizontal { border-right: 0.2em solid #DDDDFF; background-image: linear-gradient(to left, #DDDDFF, #EEEEFF, #EEEEFF, #EEEEFF, #EEEEFF); flex-direction: row-reverse; }
 div.gap { background-color: Gainsboro; border: 0.1em solid LightGray; }
 div.gap:hover { border: inherit; }
 div.f_gap { background-color: #E5DEDE; }
