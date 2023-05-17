@@ -311,18 +311,19 @@ function bdm_div($person, $people) {
 	$marriage = '';
 	if (isset($person['Spouses']) && is_array($person['Spouses'])) {
 		foreach ($person['Spouses'] as $spouse_id => $union) {
-			if (isset($union['Marriage'])) {
-				$spouse = $people[$spouse_id];
-				$first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
-				$last = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
-				$union = $union['Marriage'];
-				$date = isset($union['date']) ? $union['date'] : "";
-				$date = str_replace("-00", "", $date);
-				$date = str_replace("0000", "", $date);
-				$location = isset($union['location']) ? htmlentities($union['location']) : "";
-				$date_first_last = htmlentities("$date $first $last");
-				$list .= "<li class='marriage'>$date_first_last<br>$location</li>";
+			if ($union['DoNotDisplay']) {
+				continue;
 			}
+			$spouse = $people[$spouse_id];
+			$first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
+			$last = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
+			$spouse = htmlentities("$first $last");
+			$date = isset($union['MarriageDate']) ? $union['MarriageDate'] : "";
+			$date = str_replace("-00", "", $date);
+			$date = str_replace("0000", "", $date);
+			$date = htmlentities($date);
+			$location = isset($union['MarriageLocation']) ? htmlentities($union['MarriageLocation']) : "";
+			$list .= "<li class='marriage'>$spouse<br>$date<br>$location</li>";
 		}
 		$marriage = "<h2>marriage</h2><ul class='marriage'>$list</ul>";
 	}
@@ -388,21 +389,25 @@ function branch($head, $people, $gen = 1, $branch_index = 0) {
 	if ($gen > 10) {return "";}
 	$head_id = $head['Id'];
 	$head_div = person_div($head);
-
 	$union_divs = "";
 	$svgs = "";
 	$next_gen = $gen + 1;
 	$next_gen_divs = "";
 	$next_branch = 0;
 	$spouses = isset($head["Spouses"]) ? $head["Spouses"] : array();
-	foreach ($spouses as $spouse_id => $child_ids) {
-		if ($spouse_id == $head_id) {
-			continue;
+	foreach ($spouses as $spouse_id => $union) {
+		$children = isset($union['Children']) ? $union['Children'] : array();
+
+		if ($union['DoNotDisplay']) {
+			if (sizeof($children) == 0) {
+				continue;
+			}
+			$spouse_id = 'unknown';
 		}
 
 		$union_divs = $union_divs . union_div($head_id, $spouse_id, $people, $gen, $next_branch);
 
-		foreach ($child_ids as $index => $child_id) {
+		foreach ($children as $index => $child_id) {
 			if (!is_int($index)) {continue;}
 			$child = $people[$child_id];
 			$branch = branch($child, $people, $next_gen, $next_branch);
@@ -430,14 +435,15 @@ function branch($head, $people, $gen = 1, $branch_index = 0) {
 }
 
 function union_div($head_id, $spouse_id, $people, $gen, $branch) {
-	$spouse = $spouse_id != "unknown" ? $people[$spouse_id] : array("LastNameAtBirth" => "unknown", "Spouses" => array());
+	$spouse = isset($people[$spouse_id]) ? $people[$spouse_id] : array();
+
 	$name_family = isset($spouse['LastNameAtBirth']) ? $spouse['LastNameAtBirth'] : "";
 	$name_first = isset($spouse['RealName']) ? $spouse['RealName'] : "";
 	$gender = isset($spouse['Gender']) ? strtolower($spouse['Gender']) : "";
 	$spouse_div = spouse_div($spouse, $gen - 1);
 
 	$siblings_div = "";
-	$children = isset($spouse["Spouses"][$head_id]) ? $spouse["Spouses"][$head_id] : array();
+	$children = isset($spouse["Spouses"][$head_id]['Children']) ? $spouse["Spouses"][$head_id]['Children'] : array();
 	foreach ($children as $index => $child_id) {
 		$siblings_div = $siblings_div . child_div($child_id, $people, $gen, $branch);
 		$branch++;
@@ -507,9 +513,9 @@ function child_div($child_id, $people, $gen, $index) {
 	$spouses_div = "";
 	$spouses = isset($child['Spouses']) ? $child['Spouses'] : array();
 	$child_count = 0;
-	foreach ($spouses as $spouse_id => $grand_children) {
+	foreach ($spouses as $spouse_id => $union) {
 		$spouse = $people[$spouse_id];
-		$gc_count = sizeof($grand_children);
+		$gc_count = is_array($union['Children']) ? sizeof($union['Children']) : 0;
 		$spouses_div = $spouses_div . spouse_icon($spouse, $gen, $gc_count);
 		$child_count += $gc_count;
 	}
@@ -659,6 +665,9 @@ function links($ids, $people) {
 function rekey($person, $newKey) {
 	$rekeyed = array();
 	foreach ($person as $key => $val) {
+		if (isset($val['Spouses']) && is_array($val['Spouses'])) {
+			$val['Spouses'] = rekey($val['Spouses'], 'Id');
+		}
 		$rekeyed[$val[$newKey]] = $val;
 	}
 	return $rekeyed;
@@ -686,7 +695,7 @@ function fetchFamily($key, $depth) {
 	$family['root_id'] = $root_id;
 
 	// get ancestors and descendants from WikiTree
-	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy,Photo,PhotoData";
+	$fields = "Id,Name,LastNameAtBirth,RealName,MiddleName,MiddleInitial,Father,Mother,BirthDate,DeathDate,BirthDateDecade,BirthLocation,DeathLocation,Gender,IsLiving,HasChildren,NoChildren,Privacy,Photo,PhotoData,Spouses";
 	$url = "https://api.wikitree.com/api.php?action=getPeople&appid=MikiTree&ancestors=$depth&descendants=$depth&keys=$key&nuclear=1&fields=$fields";
 
 	curl_setopt($curl, CURLOPT_URL, $url);
@@ -708,28 +717,6 @@ function fetchFamily($key, $depth) {
 	$people[$root_id]['Photo'] = isset($root['Photo']) ? $root['Photo'] : "";
 	$people[$root_id]['PhotoData'] = isset($root['PhotoData']) ? $root['PhotoData'] : "";
 	$people[$root_id]['bioHTML'] = isset($root['bioHTML']) ? $root['bioHTML'] : "";
-
-	// get root Spouses from WikiTree
-	$fields = "Id,Name,Spouses";
-	$url = "https://api.wikitree.com/api.php?action=getRelatives&appid=MikiTree&getSpouses=1&keys=$key&fields=$fields";
-	curl_setopt($curl, CURLOPT_URL, $url);
-	$response = curl_exec($curl);
-	if ($e = curl_error($curl)) {
-		echo $e;
-		curl_close($curl);
-		$family['people'] = $people;
-		return $family;
-	}
-	$json_data = json_decode($response, true);
-	$spouses = isset($json_data[0]['items'][0]['person']['Spouses']) ? $json_data[0]['items'][0]['person']['Spouses'] : array();
-	$people[$root_id]['Spouses'] = array();
-	foreach ($spouses as $spouse_id => $spouse) {
-		$marriage = array();
-		$marriage['date'] = $spouse['marriage_date'];
-		$marriage['location'] = $spouse['marriage_location'];
-		//$marriage['end_date'] = $spouse['end_date'];
-		$people[$root_id]['Spouses'][$spouse_id]['Marriage'] = $marriage;
-	}
 
 	curl_close($curl);
 
@@ -784,10 +771,21 @@ function inferSiblings($people) {
 
 function inferSpouses($people) {
 	foreach ($people as $child_id => $child) {
-		$father_id = isset($child['Father']) ? $child['Father'] : "unknown";
-		$mother_id = isset($child['Mother']) ? $child['Mother'] : "unknown";
-		$people[$father_id]['Spouses'][$mother_id][] = $child_id;
-		$people[$mother_id]['Spouses'][$father_id][] = $child_id;
+		// unknown parent has id=0 in WikiTree GetPeople API response
+		$father_id = $child['Father'] ? $child['Father'] : "unknown";
+		$mother_id = $child['Mother'] ? $child['Mother'] : "unknown";
+
+		if ($mother_id == 'unknown') {
+			$mother_id = "unknown-$father_id";
+			$people[$mother_id]['Gender'] = 'Female';
+		}
+		if ($father_id == 'unknown') {
+			$father_id = "unknown-$mother_id";
+			$people[$father_id]['Gender'] = 'Male';
+		}
+
+		$people[$father_id]['Spouses'][$mother_id]['Children'][] = $child_id;
+		$people[$mother_id]['Spouses'][$father_id]['Children'][] = $child_id;
 	}
 	return $people;
 }
