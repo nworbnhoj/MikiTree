@@ -507,6 +507,7 @@ function child_div($child_id, $people, $gen, $index) {
 	$child = $people[$child_id];
 	$key = $child['Name'];
 	$gender = isset($child['Gender']) ? strtolower($child['Gender']) : "";
+	$bender = $gender == 'male' ? 'female' : ($gender == 'female' ? 'male' : '');
 
 	$name_div = name_div($child, "bdfFmMlLr", relationship(-1 * $gen, $gender, ''));
 
@@ -527,12 +528,15 @@ function child_div($child_id, $people, $gen, $index) {
 	        $name_div
 		    <span class='thumb X' p='p'>$thumb</span>
 		    <div class='fill'></div>
-	        <button type='button' class='brail hide' onclick='hide_branch(event)'>$brail</button>
+	        <button type='button' class='brail hide $bender' onclick='hide_branch(event)'>$brail</button>
 	        $spouses_div
 	    </div>";
 }
 
 function brail($n) {
+	if ($n <= 0) {
+		return BRAIL[0];
+	}
 	$brail = '';
 	while ($n > 0) {
 		$brail .= $n > 8 ? BRAIL[8] : BRAIL[$n];

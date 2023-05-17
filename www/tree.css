@@ -231,7 +231,9 @@ div.fill { display: inline-block; flex-grow: 1; }
 span.upper { text-transform: uppercase; }
 span.nowrap { white-space: nowrap; }
 button.radio { font-size: 1em; padding: 0 0.2em 0.2em 0.2em; margin-top: 0.5em; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; text-align: center; display: block; position: absolute; bottom: 0px; min-width: 3em; max-width: 100%; overflow: hidden; }
-button.brail { background-color: inherit; margin: 0.2em; }
+button.brail { margin: 0.2em; }
+button.female {background-color: #FFEEEE;}
+button.male { background-color: #EEEEFF; }
 button.hide { display: none; }
 span.thumb { height: 100px }
 span.nowrap { white-space: nowrap; }
